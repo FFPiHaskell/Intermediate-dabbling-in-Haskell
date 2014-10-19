@@ -1,0 +1,388 @@
+\documentclass[10pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+%\usepackage{default}
+\usepackage{xcolor}
+\usepackage{listings}
+%\usepackage{minted}
+\usepackage{parcolumns}
+
+\mode<presentation>
+{
+  \usetheme{Montpellier}
+}
+
+\title[Dabbling in Haskell]{Intermediate dabbling in\\Haskell}
+\author{Jonas~Betzendahl\\Stefan~Dresselhaus}
+\date{\today}
+\newcommand{\haskell}{\lstset{
+    language=Haskell,
+    basicstyle=\tiny\sffamily,
+    breaklines=true,
+    frame=tblr,
+    backgroundcolor=\color{yellow!10},
+    numbers=left,
+    numbersep=4pt,
+    numberstyle=\tiny,
+    showstringspaces=false,
+    keywordstyle=\color{blue}\bfseries
+}}
+\newcommand{\java}{\lstset{
+    language=Java,
+    basicstyle=\tiny\sffamily,
+    breaklines=true,
+    frame=tblr,
+    backgroundcolor=\color{orange!10},
+    numbers=left,
+    numbersep=4pt,
+    numberstyle=\tiny,
+    showstringspaces=false,
+    keywordstyle=\color{blue}\bfseries
+}}
+\DeclareUnicodeCharacter{2423}{\space}
+
+\begin{document}
+\haskell
+\begin{frame}
+\titlepage
+\end{frame}
+\begin{frame}[allowframebreaks]{Outline}
+\frametitle{Übersicht}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Maybe}
+\begin{frame}[fragile]
+\frametitle{Was ist Maybe?}
+Problem: Häufig hat man in der Programmierung optionale Werte oder Fehlschläge.\\
+Wie soll man diese sinnvoll mitteilen?
+\pause
+\begin{itemize}
+ \item Rückgabetupel mit (Ist Fehler?, Rückgabe)
+ \item "Absprachen" wie "-1 ist Fehler", "0 ist Fehler"
+\end{itemize}
+\pause
+In Haskell gibt es hierzu den Datentyp "Maybe"
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Was ist Maybe?}
+Maybe ist definiert als
+\begin{lstlisting}
+Maybe a = Just a | Nothing
+\end{lstlisting}
+wobei \texttt{a} der erwartete Rückgabetyp ist.\\
+\pause
+Beispiele:
+\begin{itemize}
+ \item Index eines zu suchenden Elementes in einer Liste.
+ \item Findes eines Wertes in einer assoziativen Liste:\\\texttt{lookup :: Eq a => a -> [(a,b)] -> Maybe b}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Beispiele}
+\begin{lstlisting}
+lookup 1 [(1,"foo"), (2,"bar")] -- Just "foo"
+lookup 2 [(1,"foo"), (2,"bar")] -- Just "bar"
+lookup 5 [(1,"foo"), (2,"bar")] -- Nothing
+\end{lstlisting}
+\end{frame}
+
+
+\section{Funktor}
+\begin{frame}[fragile]
+\frametitle{Was ist ein Funktor?}
+\pause
+Ein Funktor ist die Abstraktion von Funktionsapplikation über einer Datenstruktur.\\
+\pause
+Anders gesagt: Wir betten einen Datentypen in eine Umgebung ein und stellen Regeln auf, wie Funktionen auf dem Datentyp auf die Umgebung angewendet werden.\\
+Man erkennt Funktoren daran, dass diese ohne Angabe eines Datentyps nicht sinnvoll sind.\\
+\pause
+Beispiel: Liste\\
+Liste von Ints, Liste von Strings, Liste von Tupeln\\
+\pause
+Weitere Beispiele:\\
+\begin{itemize}
+ \item Tree (Int)
+ \item Maybe (Int)
+ \item Vector (Int)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Definiton: Funktor}
+\pause
+Ein Funktor ist alles, was folgende Funktion implementieren kann:
+\begin{lstlisting}
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+\end{lstlisting}
+und dabei den Funktor-Gesetzen gehorcht:
+\begin{lstlisting}
+fmap id = id
+fmap (f . g) = fmap f . fmap g
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Beispiele: Funktor}
+Listen sind Funktoren:
+\begin{lstlisting}
+fmap (+1) [1,2,3] = [2,3,4]
+fmap id   [1,2,3] = [1,2,3]
+ fmap ((+1) . (+1))     [1,2,3] = [3,4,5]
+(fmap (+1) . fmap (+1)) [1,2,3] = fmap (+1) [2,3,4] = [3,4,5]
+\end{lstlisting}
+\pause
+Maybe ist ein Funktor:
+\begin{lstlisting}
+fmap (+1) (Just 3) = Just 4
+fmap (+1) Nothing = Nothing
+\end{lstlisting}
+\end{frame}
+
+
+\section{Was ist funktionale Programmierung?}
+
+\begin{frame}[fragile]
+ \frametitle{Funktionale Programmierung, Definition}
+ Funktionale Programmierung ist ein Programmierparadigma, bei dem Programme ausschließlich aus Funktionen bestehen. 
+ Dadurch werden die aus der imperativen Programmierung bekannten Nebenwirkungen vermieden. [...] 
+ Eine funktionale Programmiersprache ist eine Programmiersprache, die Sprachelemente zur Kombination und Transformation 
+ von Funktionen anbietet. Eine rein funktionale Programmiersprache ist eine Programmiersprache, die die Verwendung von 
+ Elementen ausschließt, die im Widerspruch zum funktionalen Programmierparadigma stehen.\\
+ \begin{flushright}
+  \tiny \it aus Wikipedia: "Funktionale Programmierung"
+ \end{flushright}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Was ist eine (math.) Funktion?}
+ Eine mathematische Funktion ist ein Funktion, die für jede definierte Eingabe eine fest definierte Ausgabe zurückliefert.\\\vspace*{0.5cm}
+ \pause
+ Beispiele:
+ \pause
+ \begin{itemize}
+  \item $x \rightarrow x^2$
+  \pause
+  \item $\textrm{fst } (a,b) \rightarrow a$
+  \pause
+  \item $\textrm{head } (x:xs) \rightarrow x$
+ \end{itemize}
+ \pause
+ Beispiele für Nicht-Funktionen:
+ \pause
+ \begin{itemize}
+  \item Zufall. \texttt{random()} liefert immer andere Werte.
+  \pause
+  \item Input. Die Usereingabe ist nicht immer identisch.
+  \pause
+  \item Output. Wenn jede geschriebene Datei denselben Inhalt hätte wäre das Schreiben sinnlos.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Was ist eine Lambda-Funktion?}
+ Eine Lambda-Funktion ist eine anonyme Funktion, die meist in-place definiert wird.\\
+ \pause
+ Eine Lambda-Funktion wird in Haskell mit \texttt{\textbackslash} eingeleitet.\\\vspace*{0.5cm}
+ \pause
+ Beispiele:
+ \pause
+ \begin{lstlisting}
+  \x -> x*x
+  \a b -> a + b
+ \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Was sind Funktionen höherer Ordnung?}
+ Funktionen höherer Ordnung sind Funktionen, die Funktionen als Parameter nehmen.\\\vspace*{0.5cm}
+ \pause
+ Am einfachsten kann man sich das an z.B. Listen verdeutlichen.\\
+ \pause
+ Wenn wir einen Funktion auf die Liste anwenden wollen, dann wollen wir sie auf jedes Element anwenden.\\
+ \pause
+ \begin{lstlisting}
+  map :: (a -> b) -> [a] -> [b]
+  map f []     = []
+  map f (x:xs) = f x : map f xs
+ \end{lstlisting}
+ \pause
+ \texttt{map} ist eine Funktion höherer Ordnung, weil sie als ersten Parameter eine Funktion nimmt, die dann auf die Liste angewendet wird.
+\end{frame}
+
+\section{Was sind besondere Merkmale von Haskell?}
+
+\begin{frame}[fragile]
+ \frametitle{Haskell ist zum großteil "pure"}
+ Eine Funktion ist "pure", wenn sie sich wie eine mathematische Funktion verhält. Viele Funktionen in Haskell sind "pure" und man kann "unpure" Funktionen an der Signatur erkennen.\\\vspace*{0.5cm}
+ \pause
+ \begin{itemize}
+  \item Es gibt keine Seiteneffekte mit puren Funktionen
+  \pause
+  \item keine NullPointerException, keine Deadlocks, keine Crashes
+  \pause
+  \item Ein pures Programm braucht nicht zu laufen, da es keine Ausgabe liefern kann.
+  \pause
+ \end{itemize}
+ Nächste Woche lernen wir, wie wir trotzdem programmieren können.
+\end{frame}
+
+
+\begin{frame}[fragile]
+ \frametitle{Starke und statische Typisierung}
+ Haskell ist stark und statisch typisiert.\\\vspace*{0.5cm}
+ \pause
+ \begin{itemize}
+  \item Alles hat somit einen Typen (Int, String, Liste von Int, Maybe String, ...)
+  \pause
+  \item Typen sind fest. Es gibt kein Autocasting: $"08" \neq 8$
+ \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Typen können selbst definiert werden}
+ In Haskell haben selbst-definierte Datentypen dieselbe Stellung wie Builtin-Datentypen.\\\vspace*{0.5cm}
+ \pause
+ Beispiel:
+ \pause
+ \begin{lstlisting}
+  data MyList a = ListItem a (MyList a) | Nil
+      deriving (Show, Eq)
+  l = ListItem 5 (ListItem 4 (ListItem 3 Nil))
+  -- analog zu [5,4,3]
+ 
+  mymap :: (a -> b) -> MyList a -> MyList b
+  mymap f Nil = Nil
+  mymap f (ListItem x xs) = ListItem (f x) (mymap f xs)
+
+  -- mymap (\x -> x*x) l
+  -- ListItem 25 (ListItem 16 (ListItem 9 Nil))
+  -- analog zu [25,16,9]
+
+ \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Weitere Typdefinitionen}
+ Für komplexere Datentypen gibt es auch noch die record-syntax.\\\vspace*{0.5cm}
+ \pause
+ Beispiel:
+ \pause
+ \begin{lstlisting}
+  data Person = 
+  { name  :: String
+  , ort   :: String
+  , alter :: Int
+  , cool  :: Bool
+  }
+ \end{lstlisting}
+ \pause
+ Mit automatisch definierten Accessor-Funktionen:
+ \begin{lstlisting}
+  let p = Person {name="John", ort="Bielefeld", alter=42, cool=False}
+  name p                  -- John
+  let q = p {cool = True} -- NEUE Person mit den geaenderten Daten
+ \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Alle Funktionen sind curried}
+ \textbf{JEDE} Funktion in Haskell nimmt genau 1 Argument.\\\vspace*{0.5cm}
+ \pause
+ \begin{itemize}
+  \item mehrere Funktionsargumente werden simuliert, indem eine Funktion mit n Argumenten eine Funktion mit n-1 Argumenten zurückliefert.
+  \pause
+  \item Funktionen können teil-appliziert werden
+ \end{itemize}
+ \pause
+ Beispiele:
+ \pause
+ \begin{lstlisting}
+  let inc = (+) 1
+  inc 5           --       6
+  inc 41          --      42
+  map inc [1,2,3] -- [2,3,4]
+  let add = \x -> (\y -> x + y)
+ \end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Types you do not type}
+ Typannotationen sind in Haskell komplett freiwillig (abgesehen ambiguity)\\\vspace*{0.5cm}
+ \pause
+ Was für ein Typ hat
+ \begin{lstlisting}
+  let greet = (++) "Hello"
+ \end{lstlisting}
+ \pause
+ Typ: \texttt{String -> String}
+ \pause
+ \begin{lstlisting}
+  map id
+ \end{lstlisting}
+ \pause
+ Typ: \texttt{[a] -> [a]}
+ \pause
+ \begin{lstlisting}
+  abs
+ \end{lstlisting}
+ \pause
+ Typ: \texttt{Num a => a -> a}\\
+ \pause
+ Gebt die Annotation immer an. Hilft enorm.
+\end{frame}
+
+\section{Tools \& Ressourcen}
+\begin{frame}[fragile]
+ \frametitle{Die wichtigsten Tools und Ressourcen}
+ \pause
+ \begin{itemize}
+  \item cabal \\
+	Paketverwaltungstool von Haskell.
+  \pause
+  \item Hackage \\
+	Paketdatenbank und Online-Doku.
+  \pause
+  \item Haddock \\
+	Dokumentation ähnlich wie JavaDoc - nur besser.
+  \pause
+  \item ghci \\
+	Interpreter des GHC. Hierin macht ihr die ersten Übungen.
+  \pause
+  \item Hoogle/Hayoo \\
+	Suchmaschiene für Pakete/Funktionen. Sucht auch nach Signaturen.
+ \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Einrichtungshilfe}
+ Ihr braucht:\\
+ \begin{itemize}
+  \item einen GHC (7.6, 7.8)
+  \item cabal (1.18+)
+  \item einen Texteditor, mit dem ihr umgehen könnt (z.B. vim)
+ \end{itemize}
+ Wir sind im ersten Tutorium gerne bei der Einrichtung behilflich. Vorraussetzung ist ein laufendes Linux.
+\end{frame}
+
+\begin{frame}[fragile]
+ \frametitle{Übungen}
+ \begin{itemize}
+  \item Implementation eines eigenen Datentyps "Tree", der einen Baum darstellt
+  \pause
+  \item eine "map"-Funktion für den Baum
+  \pause
+  \item "toList" und "fromList"-Funktionen für den Baum
+  \pause
+  \item "fold" für den Baum
+  \pause
+  \item genaueres auf dem Übungszettel
+ \end{itemize}
+\end{frame}
+
+% TODO: Querbeet durch die Prelude hier?
+
+\end{document}
