@@ -1,0 +1,109 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[german]{babel}
+\usepackage{graphicx} % Bilder
+\usepackage{wrapfig} % Umflussbilder
+\usepackage{multicol} % Multiple columns
+\usepackage{minted} % Haskell source code
+\usepackage{framed} % Frames around source code
+\usepackage[framemethod=tikz]{mdframed} % Frames
+
+\mdfdefinestyle{fancy}{
+  roundcorner=5pt,
+  linewidth=4pt,
+  linecolor=red!80,
+  backgroundcolor=red!20
+}
+\newmdenv[style=fancy]{important}
+
+% Stuff for Beamer
+\beamertemplatenavigationsymbolsempty
+\usetheme{Madrid}
+
+\begin{document}
+
+%  \usebackgroundtemplate{\includegraphics[width=\paperwidth,height=\paperheight]{1.jpg}} 
+  
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}
+  \begin{center}
+    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
+    \large Jonas Betzendahl \& Stefan Dresselhaus
+    \end{center}
+  \end{frame}
+
+%----------------------------------------------------------------------------------------  
+\begin{frame}[allowframebreaks]{Outline}
+\frametitle{Übersicht}
+\tableofcontents
+\end{frame}
+
+\section{Typen}
+\subsection{Beispiele}
+\begin{frame}
+ Primitive Datentypen sind eine Annotation, wie die Bits im Speicher interpretiert werden sollen.\\
+ \pause
+ Einige primitive Datentypen sollten euch aus anderen Programmiersprachen schon bekannt sein:
+ \begin{itemize}
+  \item Zahlen (z.B. Int, Integer, Float, Double, ...)
+  \item Zeichenketten (z.B. String, UTF-8-Strings, ...)
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+ Es gibt auch Datentypen höherer Ordnung. Diese zeichnen sich dadurch aus, dass sie alleine nicht vollständig sind.\\
+ \pause
+ Auch hier sollten schon einige bekannt sein:\\
+ (a,k,v steht hier jeweis für einen (primitiven) Datentypen)
+ \begin{itemize}
+  \item Liste von a
+  \item Hashmap von k und v
+  \item Vektor von a
+  \item Tree von a
+  \item Zusammengesetzte Typen (z.B. Structs in C/C++)
+ \end{itemize}
+ \pause
+ Im folgenden gehen wir auf 2 wesentliche zusammengesetzte Typen in Haskell ein: Maybe und Either.
+\end{frame}
+
+
+\subsection{Maybe}
+\begin{frame}[fragile]
+ Einen neuen Datentypen definieren wir in Haskell mit dem Keyword \texttt{data}:
+ \begin{minted}{haskell}
+ data Maybe a = Nothing
+              | Just a
+ \end{minted}
+ \pause
+ Was hat das für einen Sinn?\\
+ \pause
+ Maybe gibt das Ergebnis einer Berechnung an, die fehlschlagen kann.\\
+ In klassischen Sprachen wird hier meist ein \glqq abgesprochener\grqq \ Fehlerzustand zurückgegeben (0, -1, null, ...). In Haskell wird dies über den Rückgabetyp deutlich gemacht.
+\end{frame}
+
+\begin{frame}[fragile]
+ Beispiel: Finden eines Elementes in einer Liste
+ \pause
+ \begin{minted}{haskell}
+ ghci > import Data.List
+ ghci > findIndex (== 5) [1..10]
+ Just 4               -- [1..10] !! 4 => 5
+ 
+ ghci > findIndex (== 1000) [1..10]
+ Nothing
+ \end{minted}
+ \pause
+ Da wir \texttt{1000} in der Liste der Zahlen von 1-10 nicht finden können, haben wir keinen gültigen Index, daher bekommen wir ein Nothing.
+\end{frame}
+
+\subsection{Either}
+
+\begin{frame}
+ foo
+\end{frame}
+
+\end{document}
