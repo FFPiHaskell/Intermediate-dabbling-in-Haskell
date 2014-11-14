@@ -53,6 +53,7 @@
  \begin{itemize}
   \item Zahlen (z.B. Int, Integer, Float, Double, ...)
   \item Zeichenketten (z.B. String, UTF-8-Strings, ...)
+  \item Bool
  \end{itemize}
 \end{frame}
 
@@ -118,18 +119,57 @@
 
 \subsection{Either}
 
-\begin{frame}
- foo
+\begin{frame}[fragile]
+ \begin{minted}{haskell}
+ data Either a b = Left a
+                 | Right b
+ \end{minted}
+ \pause
+ Was hat das für einen Sinn?\\
+ \pause
+ Either benutzt man, wenn man ein erwartetes Ergebnis \texttt{Right b} vom Typen \texttt{b} hat \textbf{oder} einen Fehlerzustand \texttt{Left a} vom Typen \texttt{a}.\\
+ \bigskip
+ Einfach zu merken: \glqq Right\grqq \ ist der \glqq richtige\grqq \ Fall.
+\end{frame}
+
+\begin{frame}[fragile]
+ Beispiele für eine Benutzung von Either:
+ \begin{minted}{haskell}
+ parse5 :: String -> Either String Int
+ parse5 "5" = Right 5
+ parse5 _   = Left "Could not parse 5"
+ 
+ parse5 "5"   -- Right 5
+ parse5 "abc" -- Left "Could not parse 5"
+ \end{minted}
 \end{frame}
 
 \section{Typklassen}
 \begin{frame}
- foo
+Viele Typen haben ähnliche oder gleiche Eigenschaften. Diese Eigenschaften fasst man zu Typklassen zusammen.\\
+\pause
+\begin{itemize}
+ \item Zahlen kann man alle verrechnen, auch wenn z.B. Int und Double verschiedene Typen haben
+ \item Listen, Vektoren, Arrays haben alle Elemente, über die man z.B. iterieren kann
+ \item Maybe, Either, Listen, etc. haben (vielleicht) Elemente, die man verändern kann
+\end{itemize}
+\pause
+\begin{important}
+\textbf{Warnung:} Typklassen haben nichts mit den Klassen der Objektorientierung zu tun, sondern eher mit Templates und abstrakten Klassen
+\end{important}
 \end{frame}
 
 \subsection{Beispiele}
-\begin{frame}
- foo
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+class  Eq a  where
+     (==) :: a -> a -> Bool
+--or (/=) :: a -> a -> Bool
+
+class Eq a => Ord a  where
+     (<=) :: a -> a -> Bool
+-- definiert automatisch: compare, >=, <, >, max, min
+\end{minted}
 \end{frame}
 
 \subsection{Functor}
