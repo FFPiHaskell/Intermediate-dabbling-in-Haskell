@@ -20,7 +20,9 @@
 
 % Stuff for Beamer
 \beamertemplatenavigationsymbolsempty
-\usetheme{Madrid}
+\usetheme{Warsaw}
+
+\title{Intermediate Dabbling in Haskell}
 
 \begin{document}
 
@@ -39,7 +41,7 @@
 %----------------------------------------------------------------------------------------  
 \begin{frame}[allowframebreaks]{Outline}
 \frametitle{Übersicht}
-\tableofcontents
+\tableofcontents[hideallsubsections]
 \end{frame}
 
 \section{Typen}
@@ -86,6 +88,20 @@
 \end{frame}
 
 \begin{frame}[fragile]
+ Nachteile
+ \begin{itemize}
+  \item Ein neuer Datentyp, den man kennen muss
+ \end{itemize}
+ \pause
+ Vorteile
+ \begin{itemize}
+  \item keine Absprachen, die man vergessen kann
+  \item einheitliche Behandlung aller Fälle
+  \item mehrere möglicherweise fehlschlagende Operationen gruppieren und nur solange evaluieren, bis die erste fehlschlägt oder alle erfolgreich sind
+ \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
  Beispiel: Finden eines Elementes in einer Liste
  \pause
  \begin{minted}{haskell}
@@ -105,5 +121,107 @@
 \begin{frame}
  foo
 \end{frame}
+
+\section{Typklassen}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Beispiele}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Functor}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Applicative}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Monad}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{do-notation}
+\begin{frame}
+ foo
+\end{frame}
+
+\section{Typklassen auf Maybe}
+\subsection{Functor}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Applicative}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Monad}
+\begin{frame}
+ foo
+\end{frame}
+
+\section{Typklassen auf Either}
+\subsection{Functor}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Applicative}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Monad}
+\begin{frame}
+ foo
+\end{frame}
+
+\section{Typklassen auf Listen}
+\subsection{Functor}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Applicative}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{Monad}
+\begin{frame}
+ foo
+\end{frame}
+
+\subsection{List-Comprehension}
+\begin{frame}
+ foo
+\end{frame}
+
+\section{Praktische Arbeit}
+
+\subsection{Case-Split}
+\begin{frame}
+ Wie kriege ich sachen aus einem f a? -> Alle Fälle behandeln mit case.
+\end{frame}
+\subsection{Maybe}
+\begin{frame}
+ Wie kriege ich sachen aus einem Maybe a? case x of Just a -> foo; Nothing -> bar
+\end{frame}
+\subsection{Either}
+\begin{frame}
+ Wie kriege ich sachen aus einem Either a? case x of Left a -> foo; Right b -> bar
+\end{frame}
+
+
+
+
 
 \end{document}
