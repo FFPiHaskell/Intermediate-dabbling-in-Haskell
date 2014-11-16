@@ -2,7 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[german]{babel}
+\usepackage[ngerman]{babel}
 \usepackage{graphicx} % Bilder
 \usepackage{wrapfig} % Umflussbilder
 \usepackage{multicol} % Multiple columns
@@ -146,6 +146,8 @@
  \end{minted}
 \end{frame}
 
+% ------------------------------------------------------------------------------------------------------------
+
 \section{Typklassen}
 \begin{frame}
 Viele Typen haben ähnliche oder gleiche Eigenschaften. Diese Eigenschaften fasst man zu Typklassen zusammen.\\
@@ -176,6 +178,8 @@ class Eq a => Ord a  where
 Im folgenden stellen wir 3 Zentrale Typklassen vor: Functor, Applicative, Monad
 \end{frame}
 
+% ------------------------------------------------------------------------------------------------------------
+
 \subsection{Functor}
 \begin{frame}[fragile]
  Ein Funktor F lässt sich auf jedem Datentypen definieren, der sowas wie einen \glqq Inhalt\grqq \ hat.\\
@@ -192,20 +196,88 @@ Spoiler: Liste ist ein Funktor. Maybe auch. Wieso?
 \end{frame}
 
 \begin{frame}[fragile]
-Beispiel:
+Hilfreiche Analogie:\\
+Für den Anfang kann man sich den \textbf{Kontext} als eine Kiste vorstellen, in der etwas liegt.\\
+\bigskip
+\pause
+\texttt{fmap} wertet also nur Funktionen, die auf dem \emph{Inhalt} der Kiste funktionieren würden, zu Funktionen auf, die auf \emph{Kisten mit Dingen} funktionieren.\\\bigskip
+\pause
+Man kann \texttt{fmap} daher auch etwas anders Klammern:
 \begin{minted}{haskell}
-ghci > fmap (+1) (Just 3)
-       Just 4
-ghci > fmap (+1) Nothing
-       Nothing
-ghci > fmap (+1) [1..10]
-       [2,3,4,5,6,7,8,9,10,11]
-ghci > fmap (+1) (Right 2)
-       Right 3
-ghci > fmap (+1) (Left 2)
-       Left 2
+    fmap :: (a -> b) -> (f a -> f b)
+\end{minted}
+\texttt{fmap} nimmt somit eine Funktion und gibt eine neue Funktion zurück, die auf dem Kontext \texttt{f} funktioniert.
+\end{frame}
+
+\begin{frame}[fragile]
+Beispiel:
+\mint{haskell}|ghci > fmap (+1) (Just 3)|
+\pause
+\mint{haskell}|       Just 4|
+\mint{haskell}|ghci > fmap (+1) Nothing|
+\pause
+\mint{haskell}|       Nothing|
+\mint{haskell}|ghci > fmap (+1) [1..10]|
+\pause
+\mint{haskell}|       [2,3,4,5,6,7,8,9,10,11]|
+\mint{haskell}|ghci > fmap (+1) (Right 2)|
+\pause
+\mint{haskell}|       Right 3|
+\mint{haskell}|ghci > fmap (+1) (Left 2)|
+\pause
+\mint{haskell}|       Left 2|
+\end{frame}
+
+\begin{frame}[fragile]
+Funktoren sind mathematische Objekte mit Eigenschaften. Damit der Compiler auch die richtigen Optimierungen machen kann, muss jeder Funktor folgende Regeln erfüllen:\\
+\pause
+\begin{minted}{haskell}
+-- Strukturerhaltung
+fmap id = id
+\end{minted}
+Die Datenstruktur darf sich nicht ändern.\\
+\pause
+\bigskip
+\begin{minted}{haskell}
+-- Composability
+fmap (f . g) = fmap f . fmap g
+\end{minted}
+Mehrere \texttt{fmap}s hintereinander dürfen zusammengefasst werden, ohne, dass sich das Ergebnis ändert.
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{important}\begin{center}\textbf{Negativbeispiel}\end{center}\end{important}
+\begin{minted}{haskell}
+fmap' f []     = []
+fmap' f (a:as) = (f a):a:(fmap' f as)
+\end{minted}
+\pause
+\begin{minted}{haskell}
+fmap' id [1,2,3] = [1,1,2,2,3,3] /= [1,2,3]
 \end{minted}
 \end{frame}
+
+\begin{frame}[fragile]
+\begin{important}\begin{center}\textbf{Negativbeispiel}\end{center}\end{important}
+\begin{minted}{haskell}
+fmap' f Nothing  = Nothing
+fmap' f (Just a) = Just (f (f a))
+\end{minted}
+\pause
+\begin{minted}{haskell}
+(fmap' (+1) . fmap' (*2)) (Just 1)
+= fmap' (+1) (Just ((*2) ((*2) 1))
+= fmap' (+1) (Just 4)
+= Just 6
+
+(fmap' ((+1).(*2)) (Just 1) 
+= Just (((+1).(*2).(+1).(*2)) 1)
+= Just 7
+\end{minted}
+
+\end{frame}
+
+% ------------------------------------------------------------------------------------------------------------
 
 \subsection{Applicative}
 \begin{frame}[fragile]
