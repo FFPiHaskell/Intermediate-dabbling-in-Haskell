@@ -210,6 +210,31 @@ Man kann \texttt{fmap} daher auch etwas anders Klammern:
 \end{frame}
 
 \begin{frame}[fragile]
+Functor-Instanz von Maybe:
+\begin{minted}{haskell}
+instance Functor Maybe where
+    fmap f (Just a) = Just (f a)
+    fmap _ Nothing  = Nothing
+\end{minted}
+\pause
+Functor-Instanz von Either:
+\begin{minted}{haskell}
+instance Functor Either where
+    fmap f (Right a) = Right (f a)
+    fmap _ (Left b)  = Left b
+\end{minted}
+\pause
+Functor-Instanz von Listen:
+\begin{minted}{haskell}
+instance Functor [] where
+    fmap f (x:xs) = f x : (fmap f xs)
+    fmap _ []     = []
+\end{minted}
+\texttt{fmap} auf Listen ist einfach das bekannte \texttt{map}
+\end{frame}
+
+
+\begin{frame}[fragile]
 Beispiel:
 \mint{haskell}|ghci > fmap (+1) (Just 3)|
 \pause
@@ -294,11 +319,37 @@ class Functor f => Applicative f where
 \end{frame}
 
 \begin{frame}[fragile]
+Applicative-Instanz von Maybe:
+\begin{minted}{haskell}
+instance Applicative Maybe where
+    pure                   = Just
+    Nothing  <*> _         = Nothing
+    (Just f) <*> something = fmap f something
+\end{minted}
+\pause
+Applicative-Instanz von Either:
+\begin{minted}{haskell}
+instance Applicative Either where
+    pure                    = Right
+    (Right f) <*> something = fmap f something
+    (Left e)  <*> _         = Left e
+\end{minted}
+\pause
+Applicative-Instanz von Listen:
+\begin{minted}{haskell}
+instance Applicative [] where
+    pure a       = [a]
+    (f:fs) <*> x = fmap f x ++ (fs <*> x)
+    []     <*> _ = []
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
 \mint{haskell}|ghci > import Control.Applicative|
 \mint{haskell}|ghci > Just (+1) <*> Just 3|
 \pause
 \mint{haskell}|       Just 4|
-\mint{haskell}|ghci > Nothging <*> Just 3|
+\mint{haskell}|ghci > Nothing <*> Just 3|
 \pause
 \mint{haskell}|       Nothing|
 \mint{haskell}|ghci > pure (+1) <*> Right 2|
@@ -319,7 +370,57 @@ class Functor f => Applicative f where
 
 \subsection{Monad}
 \begin{frame}
- foo
+Wozu Monaden?
+\pause
+\begin{itemize}
+ \item Man kann auch ohne funktional programmieren
+ \pause
+ \item Monaden verhalten sich wie ein Semikolon in anderen Sprachen
+ \pause
+ \item Monaden "arbeiten" im Hintergrund
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+Beispiel
+\begin{minted}{haskell}
+f            :: Maybe Header
+getInbox     :: Maybe Folder
+getFirstMail :: Folder -> Maybe Mail
+getHeader    :: Mail -> Maybe Header
+\end{minted}
+\pause
+Ohne Monaden:
+\begin{minted}{haskell}
+f = case getInbox of
+      (Just folder) -> 
+          case getFirstMail folder of
+            (Just mail) -> 
+                case getHeader mail of
+                  (Just head) -> return head
+                  Nothing     -> Nothing
+            Nothing     -> Nothing
+      Nothing       -> Nothing
+\end{minted}
+\end{frame}
+\begin{frame}[fragile]
+Beispiel
+\begin{minted}{haskell}
+f            :: Maybe Header
+getInbox     :: Maybe Folder
+getFirstMail :: Folder -> Maybe Mail
+getHeader    :: Mail -> Maybe Header
+\end{minted}
+Mit Monaden:
+\begin{minted}{haskell}
+f = do
+      folder <- getInbox
+      mail   <- getFirstMail folder
+      header <- getHeader mail
+      return header
+\end{minted}
+
 \end{frame}
 
 \subsection{do-notation}
