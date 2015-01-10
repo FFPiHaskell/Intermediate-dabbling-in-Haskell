@@ -377,7 +377,7 @@ Wozu Monaden?
  \pause
  \item Monaden verhalten sich wie ein Semikolon in anderen Sprachen
  \pause
- \item Monaden "arbeiten" im Hintergrund
+ \item Monaden \glqq arbeiten\grqq \ im Hintergrund
 \end{itemize}
 
 \end{frame}
@@ -423,57 +423,144 @@ f = do
 
 \end{frame}
 
+\begin{frame}[fragile]
+Wie funktioniert diese Magie?\\
+\pause
+Monaden benutzen die Funktion \glqq bind \grqq \ (\texttt{>>=}) um Berechnungen zu verketten und arbeit für uns im Hintergrund zu übernehmen.\\
+\pause
+\begin{minted}{haskell}
+class Applicative m => Monad m where
+  return :: a -> m a
+  (>>=)  :: m a -> (a -> m b) -> m b
+\end{minted}
+\pause
+\texttt{return} funktioniert analog zu \texttt{pure} und bringt ein Element in den Standardkontext.\\
+\texttt{>>=} enthält die ganze Magie. Prinzipiell \glqq packt\grqq \ es ein \texttt{m a} aus und wendet die mitgegegbene Funktion an.
+\end{frame}
+
+\begin{frame}[fragile]
+Monad-Instanz von Maybe:
+\begin{minted}{haskell}
+instance Monad Maybe where
+    return                = pure   -- = Just
+    (Just a) >>= f        = f a
+    Nothing >>= _         = Nothing
+\end{minted}
+\pause
+Monad-Instanz von Either:
+\begin{minted}{haskell}
+instance Monad Either where
+    return                = pure   -- = Right
+    (Right e) >>= f       = f e
+    (Left e)  >>= _       = Left e
+\end{minted}
+\pause
+Monad-Instanz von Listen:
+\begin{minted}{haskell}
+instance Monad [] where
+    return       = pure
+    (x:xs) >>= f = f x ++ (xs >>= f)
+    []     >>= _ = []
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Zurück zu unserem Beispiel. Wie helfen nun Monaden?
+\pause
+\begin{minted}{haskell}
+f = case getInbox of
+      (Just folder) -> 
+          case getFirstMail folder of
+            (Just mail) -> 
+                case getHeader mail of
+                  (Just head) -> return head
+                  Nothing     -> Nothing
+            Nothing     -> Nothing
+      Nothing       -> Nothing
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Schreiben wir mittels \texttt{>>=} um zu:
+\pause
+\begin{minted}{haskell}
+f = getInbox >>= (\folder ->
+        getFirstMail folder >>= (\mail ->
+            getHeader mail >>= (\header ->
+                return header
+            )
+        )
+    )
+\end{minted}
+\pause
+\texttt{>>=} fäng hier den Nothing-Fall ab und wir geben eine Funktion mit, die nur noch den Just-Fall behandeln muss.
+\end{frame}
+
 \subsection{do-notation}
-\begin{frame}
- foo
+\begin{frame}[fragile]
+Da dieses ganze \texttt{x >>= (\textbackslash v -> ... >>= (\textbackslash w -> ...))} hässlich ist, gibt es die do-notation.\\
+Wir können das Beispiel von oben also umschreiben als:
+\pause
+\begin{minted}{haskell}
+f = do
+      folder <- getInbox
+      mail   <- getFirstMail folder
+      header <- getHeader mail
+      return header
+\end{minted}
+\pause
+\texttt{<-} extrahiert hier den Wert \glqq aus der Monade\grqq :\\
+\mint{haskell}|getInbox :: Maybe Folder|
+\mint{haskell}|folder   :: Folder      |
+\pause
+\begin{important}Dieses automatische Zusammenfassen funktioniert nur, wenn \textbf{alle} Funktionen als letzten Wert etwas in derselben Monade zurückgeben.\end{important}
 \end{frame}
 
-\section{Typklassen auf Maybe}
-\subsection{Functor}
-\begin{frame}
- foo
+\begin{frame}[fragile]
+In manchen Fällen können wir sogar auf die do-notation verzichten. Wenn jeder zurückgegebene Wert direkt von der nächsten Funktion gebraucht wird, dann sparen wir uns die lambda-Ausdrücke und verketten direkt:
+\pause
+\begin{minted}{haskell}
+f = getInbox >>= getFirstMail >>= getHeader
+\end{minted}
+\pause
+Eine weitere Funktion, die einem in diesem Kontext begegnet ist \texttt{>>}, welche das Ergebnis verwirft und die nächste Funktion ohne Parameter aufruft:
+\begin{minted}{haskell}
+main = putStrLn "Geben sie etwas ein."
+                    >>  getLine 
+                    >>= putStrLn
+\end{minted}
+\pause
+Dieses Programm gibt einen String aus (mit dem Ergebnis \texttt{IO ()}) und wir schmeissen das Ergebnis weg und rufen einfach die nächsten Funktionen auf.
 \end{frame}
 
-\subsection{Applicative}
-\begin{frame}
- foo
+\subsection{Monad-Rules}
+\begin{frame}[fragile]
+Monaden haben ähnlich zu Functor und Applicative auch mathematische Regeln, die man erfüllen Muss.\\
+\begin{itemize}
+ \item Linksidentität\\
+       \mint{haskell}|return x >>= f == f x|
+ \item Rechtsidentität\\
+       \mint{haskell}|m >>= return == m|
+ \item Assoziativität\\
+       \mint{haskell}|(m >>= f) >>= g == m >>= (\x -> f x >>= g)|
+\end{itemize}
+\pause
+Die Assoziativität ist etwas schwer zu erkennen. Deutlicher wird es, wenn wir eine umgeformte Funktion definieren:
+\begin{minted}{haskell}
+(<=<) :: (Monad m) => (b -> m c) -> (a -> m b) -> (a -> m c)
+f <=< g = (\x -> g x >>= f)
+\end{minted}
 \end{frame}
 
-\subsection{Monad}
-\begin{frame}
- foo
-\end{frame}
-
-\section{Typklassen auf Either}
-\subsection{Functor}
-\begin{frame}
- foo
-\end{frame}
-
-\subsection{Applicative}
-\begin{frame}
- foo
-\end{frame}
-
-\subsection{Monad}
-\begin{frame}
- foo
-\end{frame}
-
-\section{Typklassen auf Listen}
-\subsection{Functor}
-\begin{frame}
- foo
-\end{frame}
-
-\subsection{Applicative}
-\begin{frame}
- foo
-\end{frame}
-
-\subsection{Monad}
-\begin{frame}
- foo
+\begin{frame}[fragile]
+Somit gibt sich für die Regeln:
+\begin{minted}{haskell}
+return <=< f    == f
+f <=< return    == f
+(f <=< g) <=< h == f <=< (g <=< h)
+\end{minted}
+\pause
+Diese Regeln sind relativ \glqq natürlich\grqq , da sie im prinzip nur Funktionskomposition \texttt{(.)} auf Monaden wohldefinieren.
 \end{frame}
 
 \subsection{List-Comprehension}
