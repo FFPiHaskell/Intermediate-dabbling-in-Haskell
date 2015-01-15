@@ -9,6 +9,7 @@
 \usepackage{minted} % Haskell source code
 \usepackage{framed} % Frames around source code
 \usepackage[framemethod=tikz]{mdframed} % Frames
+\usepackage{verbatim} % \begin{comment}...\end{comment}
 
 \mdfdefinestyle{fancy}{
   roundcorner=5pt,
@@ -216,6 +217,8 @@ instance Functor Maybe where
     fmap f (Just a) = Just (f a)
     fmap _ Nothing  = Nothing
 \end{minted}
+\begin{comment}
+%ÜBUNG
 \pause
 Functor-Instanz von Either:
 \begin{minted}{haskell}
@@ -223,6 +226,7 @@ instance Functor Either where
     fmap f (Right a) = Right (f a)
     fmap _ (Left b)  = Left b
 \end{minted}
+\end{comment}
 \pause
 Functor-Instanz von Listen:
 \begin{minted}{haskell}
@@ -326,6 +330,8 @@ instance Applicative Maybe where
     Nothing  <*> _         = Nothing
     (Just f) <*> something = fmap f something
 \end{minted}
+\begin{comment}
+% ÜBUNG
 \pause
 Applicative-Instanz von Either:
 \begin{minted}{haskell}
@@ -334,6 +340,7 @@ instance Applicative Either where
     (Right f) <*> something = fmap f something
     (Left e)  <*> _         = Left e
 \end{minted}
+\end{comment}
 \pause
 Applicative-Instanz von Listen:
 \begin{minted}{haskell}
@@ -446,6 +453,8 @@ instance Monad Maybe where
     (Just a) >>= f        = f a
     Nothing >>= _         = Nothing
 \end{minted}
+\begin{comment}
+% ÜBUNG
 \pause
 Monad-Instanz von Either:
 \begin{minted}{haskell}
@@ -454,6 +463,7 @@ instance Monad Either where
     (Right e) >>= f       = f e
     (Left e)  >>= _       = Left e
 \end{minted}
+\end{comment}
 \pause
 Monad-Instanz von Listen:
 \begin{minted}{haskell}
@@ -564,23 +574,78 @@ Diese Regeln sind relativ \glqq natürlich\grqq , da sie im prinzip nur Funktion
 \end{frame}
 
 \subsection{List-Comprehension}
-\begin{frame}
- foo
+\begin{frame}[fragile]
+Die bereits bekannte List-Comprehension
+\begin{minted}{haskell}
+let l = [x*y | x <- [1..5], y <- [1..5], x + y == 5]
+\end{minted}
+ist nur syntaktischer Zucker für die monadische do-notation:
+\begin{minted}{haskell}
+let l = do
+        x <- [1..5]
+        y <- [1..5]
+        guard (x + y == 5)
+        return x*y
+\end{minted}
+mit
+\begin{minted}{haskell}
+guard :: (MonadPlus m) => Bool -> m ()
+guard True = return ()
+guard False = mzero
+\end{minted}
+
 \end{frame}
 
 \section{Praktische Arbeit}
 
-\subsection{Case-Split}
-\begin{frame}
- Wie kriege ich sachen aus einem f a? -> Alle Fälle behandeln mit case.
+\subsection{State-Monade}
+\begin{frame}[fragile]
+Häufig hat man das Problem, dass man einen Zustand in einem Programm herumreichen möchte.\\
+\pause
+Hierzu gibt es 2 Möglichkeiten:
+\begin{enumerate}
+ \item Den Zustand immer explizit an die Funktion übergeben
+ \item Den Zustand in einer Monade verstecken
+\end{enumerate}
+\pause
+Letzteres hat den Vorteil, dass man auch Funktionen aufwerten kann, die den Zustand ignorieren.
 \end{frame}
-\subsection{Maybe}
-\begin{frame}
- Wie kriege ich sachen aus einem Maybe a? case x of Just a -> foo; Nothing -> bar
+
+\begin{frame}[fragile]
+Beispiel:
+\begin{minted}{haskell}
+countme :: (a -> b) -> a -> State Int b
+countme f a = do
+              modify (+1)
+              return (f a)
+
+example :: State Int Int
+example = do
+              x <- countme (+2) 2
+              y <- return (x*x)
+              z <- countme (-2) y
+              return z
+
+examplemain = runState example 0
+-- -> (14,2), 14 = wert von z, 2 = interner counter
+\end{minted}
 \end{frame}
-\subsection{Either}
-\begin{frame}
- Wie kriege ich sachen aus einem Either a? case x of Left a -> foo; Right b -> bar
+
+\begin{frame}[fragile]
+Beispiel 2:
+\begin{minted}{haskell}
+data Spieler = X | O
+data TicTacToeSpielfeld = Array (Int,Int) Spieler
+data TicTacToe a = State TicTacToeSpielfeld a
+
+macheSpielzug :: (Int, Int) -> Spieler -> TicTacToe ()
+macheSpielzug pos s = modify ((flip (//)) [(pos,s)])
+
+spielVorbei :: TicTacToe Bool
+spielVorbei = do
+                spielfeld <- get
+                return (istVorbei spielfeld)
+\end{minted}
 \end{frame}
 
 
