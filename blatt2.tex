@@ -52,9 +52,9 @@ Erstellen sie hierzu die Instanzen für
        \end{minted}
 \end{itemize}
 \section*{Aufgabe \theuebungszettel.2:}
-Ein weiterer einfacher Datentyp ist \texttt{Identity}, welcher keinen Effekt hat. Definiert ist \texttt{Identity} als
+Ein weiterer einfacher Datentyp ist \texttt{Identity}, welcher der Datentyp ist, der keinen Effekt hat. Definiert ist \texttt{Identity} als
 \begin{minted}{haskell}
-newtype Identity a = {runIdentity :: a}
+newtype Identity a = Identity {runIdentity :: a}
 \end{minted}
 Dieses definiert 2 Funktionen: Eine, um eine \texttt{Identity} zu kreieren und eine um wieder an ihren Inhalt zu kommen:
 \begin{minted}{haskell}
@@ -63,10 +63,10 @@ runIdentity :: Identity a -> a
 \end{minted}
 Erstellen sie hier ebenfalls Instanzen für Functor, Applicative und Monad \textbf{ohne} durch Patternmatching an den Inhalt zu kommen. (Nutzen sie hierfür die Funktion \texttt{runIdentity}).
 
-\section*{Aufgabe \theuebungszettel.2:}
+\section*{Aufgabe \theuebungszettel.3:}
 In der Vorlesung wurde ebenfalls die State-Monade besprochen. Die Definition ist wie folgt:
 \begin{minted}{haskell}
-newtype State s a = {runState :: s -> (a,s)}
+newtype State s a = State {runState :: s -> (a,s)}
 \end{minted}
 Dieses definiert ebenfalls 2 Funktionen:
 \begin{minted}{haskell}
