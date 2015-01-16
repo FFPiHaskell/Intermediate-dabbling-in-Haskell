@@ -573,6 +573,8 @@ f <=< return    == f
 Diese Regeln sind relativ \glqq natürlich\grqq , da sie im prinzip nur Funktionskomposition \texttt{(.)} auf Monaden wohldefinieren.
 \end{frame}
 
+\section{Praktische Arbeit}
+
 \subsection{List-Comprehension}
 \begin{frame}[fragile]
 Die bereits bekannte List-Comprehension
@@ -596,8 +598,6 @@ guard False = mzero
 
 \end{frame}
 
-\section{Praktische Arbeit}
-
 \subsection{State-Monade}
 \begin{frame}[fragile]
 Häufig hat man das Problem, dass man einen Zustand in einem Programm herumreichen möchte.\\
@@ -614,16 +614,16 @@ Letzteres hat den Vorteil, dass man auch Funktionen aufwerten kann, die den Zust
 \begin{frame}[fragile]
 Beispiel:
 \begin{minted}{haskell}
-countme :: (a -> b) -> a -> State Int b
-countme f a = do
+countme :: a -> State Int a
+countme a = do
               modify (+1)
-              return (f a)
+              return a
 
 example :: State Int Int
 example = do
-              x <- countme (+2) 2
+              x <- countme (2+2)
               y <- return (x*x)
-              z <- countme (-2) y
+              z <- countme (y-2)
               return z
 
 examplemain = runState example 0
