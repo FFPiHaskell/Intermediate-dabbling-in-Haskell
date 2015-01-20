@@ -10,6 +10,9 @@
 \usepackage{framed} % Frames around source code
 \usepackage[framemethod=tikz]{mdframed} % Frames
 \usepackage{verbatim} % \begin{comment}...\end{comment}
+\usepackage{etoolbox} % manipulate minted
+\AtBeginEnvironment{minted}{\fontsize{10}{10}\selectfont}
+\AfterEndEnvironment{minted}{}
 
 \mdfdefinestyle{fancy}{
   roundcorner=5pt,
@@ -631,6 +634,7 @@ examplemain = runState example 0
 \end{minted}
 \end{frame}
 
+\begin{comment}
 \begin{frame}[fragile]
 Beispiel 2:
 \begin{minted}{haskell}
@@ -647,7 +651,44 @@ spielVorbei = do
                 return (istVorbei spielfeld)
 \end{minted}
 \end{frame}
+\end{comment}
 
+\begin{frame}[fragile]
+Beispiel 2:
+\begin{minted}{haskell}
+module Main where
+import Control.Monad.State
+type CountValue = Int
+type CountState = (Bool, Int)
+ 
+startState :: CountState
+startState = (False, 0)
+
+play :: String -> State CountState CountValue
+--play  ...
+
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+play []     = do
+              (_, score) <- get
+              return score
+play (x:xs) = do
+ (on, score) <- get
+ case x of
+   'C' -> if on then put (on, score + 1) else put (on, score)
+   'A' -> if on then put (on, score - 1) else put (on, score)
+   'T' -> put (False, score)
+   'G' -> put (True, score)
+   _   -> put (on, score)
+ playGame xs
+
+main = print $ runState (play "GACAACTCGAAT") startState
+-- -> (-3,(False,-3))
+\end{minted}
+\end{frame}
 
 
 
