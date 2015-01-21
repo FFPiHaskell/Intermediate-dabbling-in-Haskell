@@ -176,7 +176,7 @@ Am wichtigsten ist die Monad-Instanz:
 \begin{minted}{haskell}
 instance Monad (State s) where
     return a = State $ \s -> (a,s)
-    f >>= (State rs) =
+    (State rs) >>= f =
                 State $ \s ->
                       let (a,s') = rs s
                           (State rs') = f a
@@ -187,6 +187,207 @@ instance Monad (State s) where
 Wir müssen wieder zuerst den State ausführen um an unser \texttt{a} zu gelangen. Danach können wir unsere Funktion \texttt{f} ausführen um eine neue Funktion zu bekommen, die wir auch aus dem State auspacken. Eine kleine Anwendung des erhaltenen States hierauf gibt uns schlussendlich unser Ergebnis.
 \end{frame}
 
+\section{Monad-Transformer}
+
+\subsection{Beispiel}
+\begin{frame}[fragile]
+Wir hatten letzte Woche die Maybe-Monade mit dem folgenden Anwendugsfall:
+\begin{minted}{haskell}
+f = do
+      folder <- getInbox
+      mail   <- getFirstMail folder
+      header <- getHeader mail
+      return header
+\end{minted}
+Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine IO-Aktion ausführen.\\
+~\\
+Problem: \texttt{IO /= Maybe}\\
+\pause
+Als Konsequenz können wir die do-notation nicht verwenden - wir fallen also wieder zurück auf die hässliche Notation:
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+f :: IO (Maybe Header)
+f = case getInbox of
+      (Just folder) -> 
+          do
+            putStrLn "debug"
+            return $ case getFirstMail folder of
+              (Just mail) -> 
+                  case getHeader mail of
+                    (Just head) -> return head
+                    Nothing     -> Nothing
+              Nothing     -> Nothing
+      Nothing       -> return Nothing
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Dieser Code ist ohne Frage hässlich. Stellt sich die Frage, ob wir nicht soetwas, wie \texttt{MaybeIO} bauen können, sodass wir wieder do-notation verwenden können.\\
+\pause
+Also kombinieren wir es (ähnlich zur State-Monade):
+\begin{minted}{haskell}
+data MaybeIO a = MaybeIO { runMaybeIO :: IO (Maybe a) }
+\end{minted}
+\pause
+Dieses liefert uns 2 Funktionen:
+\begin{minted}{haskell}
+MaybeIO    :: IO (Maybe a) -> MaybeIO a
+runMaybeIO :: MaybeIO a -> IO (Maybe a)
+\end{minted}
+Also eine Funktion, um in unsere neue Monade zu kommen und eine Funktion um dieses wieder Rückgängig zu machen.
+\end{frame}
+
+\subsection{F/A/M}
+\begin{frame}[fragile]
+Fangen wir mit der Functor-Instanz an:
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f input = wrapped
+               where
+                 unwrapped = runMaybeIO input
+                 -- IO (Maybe a) auspacken
+                 fmapped = fmap (fmap f) unwrapped
+                 -- erstes fmap mapped durch IO,
+                 -- zweites fmap durch Maybe
+                 wrapped = MaybeIO fmapped
+                 -- einpacken in den richtigen Typen
+\end{minted}
+\pause
+oder kurz:
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f = MaybeIO . fmap (fmap f) . runMaybeIO
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Applicative:
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure    = MaybeIO . return . Just
+            -- in Just packen, mit return in IO heben
+            -- und den Typen mit MaybeIO aliasen
+  f <*> x = MaybeIO $ (<*>) <$> f' <*> x'
+            where
+              f' = runMaybeIO f -- IO (Maybe f)
+              x' = runMaybeIO x -- IO (Maybe x)
+\end{minted}
+Das erste \texttt{(<*>)} ist Applicative auf Maybe und es wird in Applicative \texttt{<*>} von IO hineingemappt.
+\end{frame}
+
+\begin{frame}[fragile]
+Monad:
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return = pure
+  x >>= f = MaybeIO $ x''
+            where
+              x' = runMaybeIO x
+              x'' = x' >>= runMaybeIO . mb . fmap f
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb (Just a) = a
+              mb Nothing = MaybeIO $ return Nothing
+\end{minted}
+Zuerst packen wir das MaybeIO aus. \texttt{fmap f} bringt uns ein Maybe (MaybeIO a), welches wir mittels der Hilfsfunktion \texttt{mb} auspacken oder einen leeren Wert konstruieren.\\
+Dieses jagen wir noch durch runMaybeIO um wieder ein \texttt{IO (Maybe a)} zu bekommen, auf das wir dann den \texttt{>==}-Operator von IO anwenden können. Das Ergebnis verpacken wir noch in \texttt{MaybeIO} und sind fertig.
+\end{frame}
+
+\subsection{Beispiel revisited}
+\begin{frame}[fragile]
+Da wir nun eine Monade definiert haben, können wir ja wieder do nutzen:
+\begin{minted}{haskell}
+f = do
+     i <- getInbox
+     putStrLn "debug"
+     m <- getFirstMail i
+     h <- getHeader m
+     return h
+\end{minted}
+\end{frame}
+\begin{frame}[fragile]
+Allerdings:
+\begin{minted}{bash}
+    Couldn't match type ‘Maybe’ with ‘MaybeIO’
+    Expected type: MaybeIO Inbox
+      Actual type: Maybe Inbox
+    In a stmt of a 'do' block: in <- getInbox
+
+    Couldn't match type ‘IO’ with ‘MaybeIO’
+    Expected type: MaybeIO ()
+      Actual type: IO ()
+    In a stmt of a 'do' block: putStrLn "debug"
+
+    Couldn't match type ‘Maybe’ with ‘MaybeIO’
+    Expected type: MaybeIO Mail
+      Actual type: Maybe Mail
+    In a stmt of a 'do' block: m <- getFirstMail i
+    
+    Couldn't match type ‘Maybe’ with ‘MaybeIO’
+    Expected type: MaybeIO Header
+      Actual type: Maybe Header
+    In a stmt of a 'do' block: h <- getHeader m
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Wir brauchen also Konverter:
+\begin{itemize}
+ \item \texttt{Maybe -> MaybeIO}
+ \item \texttt{IO -> MaybeIO}
+\end{itemize}
+\pause
+Aber wir haben schon alles, was wir brauchen, wenn wir uns nur klar machen:
+\begin{minted}{haskell}
+return  :: Maybe a -> IO (Maybe a) -- return von IO
+MaybeIO :: IO (Maybe a) -> MaybeIO a
+\end{minted}
+\pause
+und
+\begin{minted}{haskell}
+Just      :: a -> Maybe a
+fmap Just :: IO a -> IO (Maybe a)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Somit wird unser Code von oben:
+\begin{minted}{haskell}
+f = do
+     i <- MaybeIO (return (getInbox))
+     MaybeIO (fmap Just (putStrLn "debug"))
+     m <- MaybeIO (return (getFirstMail i))
+     h <- MaybeIO (return (getHeader m))
+     return h
+\end{minted}
+\pause
+Zwar können wir nun do nutzen, aber das sieht doch eher hässlich aus. Außerdem ist so viel Code doppelt!
+\end{frame}
+
+\subsection{Finale Version}
+
+\begin{frame}[fragile]
+Wenn wir Muster finden, dann faktorisieren wir sie doch raus!
+\begin{minted}{haskell}
+liftMaybe :: Maybe a -> MaybeIO a
+liftMaybe x = MaybeIO (return x)
+
+liftIO :: IO a -> MaybeIO a
+liftIO x = MaybeIO (fmap Just x)
+\end{minted}
+\pause
+und wir erhalten:
+\begin{minted}{haskell}
+f = do
+     i <- liftMaybe getInbox
+     liftIO $ putStrLn "debug"
+     m <- liftMaybe $ getFirstMail i
+     h <- liftMaybe $ getHeader m
+     return h
+\end{minted}
+
+\end{frame}
 
 
 \end{document}
