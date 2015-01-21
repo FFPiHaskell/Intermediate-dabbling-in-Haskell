@@ -1,0 +1,192 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx} % Bilder
+\usepackage{wrapfig} % Umflussbilder
+\usepackage{multicol} % Multiple columns
+\usepackage{minted} % Haskell source code
+\usepackage{framed} % Frames around source code
+\usepackage[framemethod=tikz]{mdframed} % Frames
+\usepackage{verbatim} % \begin{comment}...\end{comment}
+\usepackage{etoolbox} % manipulate minted
+\AtBeginEnvironment{minted}{\fontsize{10}{10}\selectfont}
+\AfterEndEnvironment{minted}{}
+
+\mdfdefinestyle{fancy}{
+  roundcorner=5pt,
+  linewidth=4pt,
+  linecolor=red!80,
+  backgroundcolor=red!20
+}
+\newmdenv[style=fancy]{important}
+
+% Stuff for Beamer
+\beamertemplatenavigationsymbolsempty
+\usetheme{Warsaw}
+
+\title{Intermediate Dabbling in Haskell}
+
+\begin{document}
+
+%  \usebackgroundtemplate{\includegraphics[width=\paperwidth,height=\paperheight]{1.jpg}} 
+  
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}
+  \begin{center}
+    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
+    \large Jonas Betzendahl \& Stefan Dresselhaus
+    \end{center}
+  \end{frame}
+
+%----------------------------------------------------------------------------------------  
+\begin{frame}[allowframebreaks]{Outline}
+\frametitle{Übersicht}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{State-Monad}
+
+\subsection{Beispiele}
+\begin{frame}[fragile]
+Wir hatten in der letzten Vorlesung die State-Monade kurz angesprochen.\\
+Heute wenden wir uns der Definition zu und werden herausfinden, wie man noch weiter abstrahieren kann.\\
+\end{frame}
+
+\begin{frame}[fragile]
+Beispiel:
+\begin{minted}{haskell}
+countme :: a -> State Int a
+countme a = do
+              modify (+1)
+              return a
+
+example :: State Int Int
+example = do
+              x <- countme (2+2)
+              y <- return (x*x)
+              z <- countme (y-2)
+              return z
+
+examplemain = runState example 0
+-- -> (14,2), 14 = wert von z, 2 = interner counter
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Beispiel 2:
+\begin{minted}{haskell}
+module Main where
+import Control.Monad.State
+type CountValue = Int
+type CountState = (Bool, Int)
+ 
+startState :: CountState
+startState = (False, 0)
+
+play :: String -> State CountState CountValue
+--play  ...
+
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+play []     = do
+              (_, score) <- get
+              return score
+play (x:xs) = do
+ (on, score) <- get
+ case x of
+   'C' -> if on then put (on, score + 1) else put (on, score)
+   'A' -> if on then put (on, score - 1) else put (on, score)
+   'T' -> put (False, score)
+   'G' -> put (True, score)
+   _   -> put (on, score)
+ playGame xs
+
+main = print $ runState (play "GACAACTCGAAT") startState
+-- -> (-3,(False,-3))
+\end{minted}
+\end{frame}
+
+\subsection{Definition}
+\begin{frame}[fragile]
+Die State-Monade \glqq packt\grqq \ einen State in jeden Funktionsaufruf:
+\begin{minted}{haskell}
+newtype State s a = State { runState :: s -> (a,s) }
+
+foo :: a -> State s b
+foo :: a -> (s -> (b,s))
+foo :: a -> s -> (b,s)
+\end{minted}
+\pause
+Wir sehen, dass eine Funktion, die in die State-Monade aufgewertet wurde einfach nur ein weiteres Funktionsargument (den State \texttt{s}) mitgegeben wird und wir statt dem Ergebnis \texttt{b} ein \texttt{(b,s)} bekommen, was den neuen Zustand enthält.
+\end{frame}
+
+\begin{frame}[fragile]
+Man kann sich die State-Monade als Berechnung vorstellen, die noch nicht ausgeführt werden kann, weil der initiale State nicht gesetzt ist. Dies spiegelt sich auch in der Funktor-Instanz wieder:
+\pause
+\begin{minted}{haskell}
+instance Functor (State s) where
+  fmap f (State rs) = State $ \s -> 
+                      let (a,s') = rs s in (f a, s')
+\end{minted}
+\pause
+Wir sehen, dass wir erst mit \texttt{rs s} den State, den wir bekommen \glqq ausführen\grqq \ müssen um ein \texttt{a} zu generieren, auf das wir die Funktion anwenden können.\\
+Anschließend verpacken wir in unserem Ergebnis den modifizierten State und die angewendete Funktion.\\
+\pause
+Wichtig ist hier, dass wir wieder eine Funktion in \texttt{State} verpackt zurückgeben müssen, die einen State nimmt:
+\begin{minted}{haskell}
+newtype State s a = State { runState :: s -> (a,s) }
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+Ganz analog funktioniert die Applicative-Instanz:
+\begin{minted}{haskell}
+instance Applicative (State s) where
+    pure a = State $ \s -> (a,s)
+    (State rs) <*> (State rest) =
+                State $ \s ->
+                      let (f,s') = rs s
+                          (a,s'') = rest s'
+                      in
+                          (f a,s'')
+\end{minted}
+\pause
+Hier müssen wir den State 2x ausführen. Einmal um an das f zu kommen und dann verketten wir dies mit der restlichen State-Berechnung um auch noch an unser a zu kommen. Zurück geben wir den doppelt bearbeiteten State und den bearbeiteten Wert.\\
+\pause
+Wichtig ist hier die Reihenfolge! Wir hätten es auch umdrehen können:
+\begin{minted}{haskell}
+let (f,s'') = rs s'
+    (a,s') = rest s
+in
+    (f a,s'')
+\end{minted}
+allerdings arbeitet \texttt{<*>} immer von links nach rechts!
+\end{frame}
+
+\begin{frame}[fragile]
+Am wichtigsten ist die Monad-Instanz:
+\begin{minted}{haskell}
+instance Monad (State s) where
+    return a = State $ \s -> (a,s)
+    f >>= (State rs) =
+                State $ \s ->
+                      let (a,s') = rs s
+                          (State rs') = f a
+                      in
+                          rs' s'
+\end{minted}
+\pause
+Wir müssen wieder zuerst den State ausführen um an unser \texttt{a} zu gelangen. Danach können wir unsere Funktion \texttt{f} ausführen um eine neue Funktion zu bekommen, die wir auch aus dem State auspacken. Eine kleine Anwendung des erhaltenen States hierauf gibt uns schlussendlich unser Ergebnis.
+\end{frame}
+
+
+
+\end{document}
