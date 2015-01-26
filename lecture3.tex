@@ -127,6 +127,7 @@ foo :: a -> s -> (b,s)
 Wir sehen, dass eine Funktion, die in die State-Monade aufgewertet wurde einfach nur ein weiteres Funktionsargument (den State \texttt{s}) mitgegeben wird und wir statt dem Ergebnis \texttt{b} ein \texttt{(b,s)} bekommen, was den neuen Zustand enthält.
 \end{frame}
 
+\subsection{Functor}
 \begin{frame}[fragile]
 Man kann sich die State-Monade als Berechnung vorstellen, die noch nicht ausgeführt werden kann, weil der initiale State nicht gesetzt ist. Dies spiegelt sich auch in der Funktor-Instanz wieder:
 \pause
@@ -145,6 +146,7 @@ newtype State s a = State { runState :: s -> (a,s) }
 \end{minted}
 
 \end{frame}
+\subsection{Applicative}
 
 \begin{frame}[fragile]
 Ganz analog funktioniert die Applicative-Instanz:
@@ -170,6 +172,7 @@ in
 \end{minted}
 allerdings arbeitet \texttt{<*>} immer von links nach rechts!
 \end{frame}
+\subsection{Monad}
 
 \begin{frame}[fragile]
 Am wichtigsten ist die Monad-Instanz:
@@ -266,8 +269,8 @@ instance Functor MaybeIO where
 Applicative:
 \begin{minted}{haskell}
 instance Applicative MaybeIO where
-  pure    = MaybeIO . return . Just
-            -- in Just packen, mit return in IO heben
+  pure    = MaybeIO . pure . Just
+            -- in Just packen, mit pure in IO heben
             -- und den Typen mit MaybeIO aliasen
   f <*> x = MaybeIO $ (<*>) <$> f' <*> x'
             where
@@ -308,23 +311,23 @@ f = do
 \end{frame}
 \begin{frame}[fragile]
 Allerdings:
-\begin{minted}{bash}
-    Couldn't match type ‘Maybe’ with ‘MaybeIO’
+\begin{minted}{text}
+    Couldn't match type Maybe with MaybeIO
     Expected type: MaybeIO Inbox
       Actual type: Maybe Inbox
     In a stmt of a 'do' block: in <- getInbox
 
-    Couldn't match type ‘IO’ with ‘MaybeIO’
+    Couldn't match type IO with MaybeIO
     Expected type: MaybeIO ()
       Actual type: IO ()
     In a stmt of a 'do' block: putStrLn "debug"
 
-    Couldn't match type ‘Maybe’ with ‘MaybeIO’
+    Couldn't match type Maybe with MaybeIO
     Expected type: MaybeIO Mail
       Actual type: Maybe Mail
     In a stmt of a 'do' block: m <- getFirstMail i
     
-    Couldn't match type ‘Maybe’ with ‘MaybeIO’
+    Couldn't match type Maybe with MaybeIO
     Expected type: MaybeIO Header
       Actual type: Maybe Header
     In a stmt of a 'do' block: h <- getHeader m
@@ -386,8 +389,171 @@ f = do
      h <- liftMaybe $ getHeader m
      return h
 \end{minted}
+\end{frame}
+
+\section{Monad-Transformer cont.}
+
+\subsection{Recap}
+
+\begin{frame}[fragile]
+Wenn wir uns nochmals ansehen, welche Eigenschaft der IO-Monade wir genutzt haben, dann fällt uns auf:
+\pause
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f = MaybeIO . fmap (fmap f) . runMaybeIO
+\end{minted}
+\texttt{fmap} von IO als Funktor
+\pause
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure    = MaybeIO . pure . Just
+  f <*> x = MaybeIO $ (<*>) <$> (runMaybeIO f)
+                            <*> (runMaybeIO x)
+\end{minted}
+\texttt{pure} und \texttt{<*>} von IO als Applicative
+\pause
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return = pure
+  x >>= f = MaybeIO $ (runMaybeIO x)
+                      >>= runMaybeIO . mb . fmap f
+            where
+              mb (Just a) = a
+              mb Nothing = MaybeIO $ return Nothing
+\end{minted}
+\texttt{return} von IO
+\end{frame}
+
+\begin{frame}[fragile]
+Uns fällt auf: Wir verwenden gar keine intrisischen Eigenschaften von IO.\\
+Also können wir IO auch durch jede Monade ersetzten. Dies nennt man dann Monad Transformer.
+\begin{minted}{haskell}
+data MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+\end{minted}
+\pause
+Und der Code von eben wird zu:
+\begin{minted}{haskell}
+instance Functor m => Functor (MaybeT m) where
+  fmap f = MaybeT . fmap (fmap f) . runMaybeT
+
+instance Applicative m => Applicative (MaybeT m) where
+  pure    = MaybeT . pure . Just
+  f <*> x = MaybeT $ (<*>) <$> (runMaybeT f)
+                           <*> (runMaybeT x)
+
+instance Monad m => Monad (MaybeT m) where
+  return = pure
+  x >>= f = MaybeT $ (runMaybeT x)
+                     >>= runMaybeT . mb . fmap f
+            where
+              mb (Just a) = a
+              mb Nothing = MaybeT $ return Nothing
+\end{minted}
+\pause
+Wir haben nur die Monade heraus faktorisiert.
+\end{frame}
+
+\begin{frame}[fragile]
+Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\\
+\pause
+Über Typklassen!
+\begin{minted}{haskell}
+class Monad m => MonadIO m where
+    liftIO :: IO a -> m a
+\end{minted}
+Wir verlangen einfach, dass IO irgendwie verarbeitet werden muss.
+\pause
+\begin{important}
+IO ist ein Spezialfall, da IO als Monade nicht additiv ist. Es gibt somit keinen IOT.
+\end{important}
+\end{frame}
+
+\begin{frame}[fragile]
+Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\\
+Über Typklassen!
+\begin{minted}{haskell}
+class MonadTrans t where
+    lift :: (Monad m) => m a -> t m a
+\end{minted}
+\pause
+Dies ist die allgemeine Form für additive Monaden. Mit \texttt{lift} heben wir uns eine monadische Ebene höher.\\
+Doch was bedeutet das?
+\end{frame}
+
+\subsection{Beispiele}
+
+\begin{frame}[fragile]
+Wir haben schon ein paar Monaden kennengelernt. Diese sind fast alle additiv. Wir können somit folgendes bauen:
+\pause
+\begin{minted}{haskell}
+data MyMonadStack a = StateT (EitherT (MaybeT (IO a)))
+\end{minted}
+\pause
+Wie schreiben wir nun hierin Code?
+\begin{minted}{haskell}
+bsp :: MyMonadStack ()
+bsp = do
+    a <- fun                -- fun  :: MyMonadStack Int
+    b <- lift $ fun2        -- fun2 :: EitherT (MaybeT (IO Int))
+    c <- lift . lift $ fun3 -- fun3 :: MaybeT (IO Int))
+    liftIO $ putStrLn "foo"
+\end{minted}
 
 \end{frame}
+
+\begin{frame}[fragile]
+Um auf spezielle Ebenen im Monad-Stack zuzugreifen gibt es für jeden Zweck eine Typklasse. Beispielsweise:
+\pause
+\begin{minted}{haskell}
+instance (Monad m) => MonadState s (StateT s m) where
+  get   = StateT $ \s -> return (s,s)
+  put s = StateT $ \_ -> return ((),s)
+\end{minted}
+\pause
+Nun können wir einfach
+\begin{minted}{haskell}
+bsp :: MyMonadStack ()
+bsp = do
+    state <- get
+    put $ manipulateState state
+    liftIO $ putStrLn "foo"
+\end{minted}
+\pause
+Analog gibt es dies auch für \texttt{ReaderT} (\texttt{env}), welches ein read-only-Environment bereitstellt (z.b. eine Konfiguration) oder für \texttt{WriterT} (\texttt{tell}), welches ein write-only-Environment zur Verfügung stellt (z.b. Logging). Häufig findet man daher einen Read-Write-State-Transformer, kurz \texttt{RWST}-Stack.\\
+\pause
+Echtweltprogramme sind meist durch eine \texttt{RWST IO} mit der Außenwelt verbunden.
+\end{frame}
+
+\begin{frame}[fragile]
+Ein weiteres Echtwelt-Beispiel könnte etwa der folgende Aufruf sein:
+\begin{minted}{haskell}
+data Env = Env { filename :: String }
+
+readInputs :: ReaderT Env IO String
+readInputs = do
+           e <- env
+           f <- liftIO $ readFile (filename e)
+           return f
+\end{minted}
+\pause
+Dieser Aufruf liest einen Dateinamen aus einem Environment, kann per \texttt{liftIO} IO-Aktionen ausführen und das Ergebnis (den String mit dem Dateiinhalt) zurückliefern.
+\end{frame}
+
+\begin{frame}[fragile]
+Noch ein Beispiel aus einem Spiel könnte sein:
+\begin{minted}{haskell}
+mainLoop :: RWST Env () State IO ()
+mainLoop = do
+         e <- env
+         f <- liftIO $ getUserInput (keySettings e)
+         newWorld <- updateWorld f -- holt sich die Welt mittels 'get'
+         put newWorld
+         unless (f == endKey e) mainLoop
+\end{minted}
+\pause
+Dies ist ein klassisches Game-Loop, bestehend aus Konfigurationen im Env (Key settings), IO (User-Input abfragen), Update des internen Zustands (updateWorld) und das schreiben des neuen Zustandes (put newWorld). Sofern dann das Spiel nicht beendet ist loopen wir.
+\end{frame}
+
 
 
 \end{document}
