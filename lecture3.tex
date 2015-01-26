@@ -127,7 +127,7 @@ foo :: a -> s -> (b,s)
 Wir sehen, dass eine Funktion, die in die State-Monade aufgewertet wurde einfach nur ein weiteres Funktionsargument (den State \texttt{s}) mitgegeben wird und wir statt dem Ergebnis \texttt{b} ein \texttt{(b,s)} bekommen, was den neuen Zustand enthält.
 \end{frame}
 
-\subsection{Functor}
+\subsection{Functor/Applicative/Monad}
 \begin{frame}[fragile]
 Man kann sich die State-Monade als Berechnung vorstellen, die noch nicht ausgeführt werden kann, weil der initiale State nicht gesetzt ist. Dies spiegelt sich auch in der Funktor-Instanz wieder:
 \pause
@@ -146,7 +146,6 @@ newtype State s a = State { runState :: s -> (a,s) }
 \end{minted}
 
 \end{frame}
-\subsection{Applicative}
 
 \begin{frame}[fragile]
 Ganz analog funktioniert die Applicative-Instanz:
@@ -161,7 +160,7 @@ instance Applicative (State s) where
                           (f a,s'')
 \end{minted}
 \pause
-Hier müssen wir den State 2x ausführen. Einmal um an das f zu kommen und dann verketten wir dies mit der restlichen State-Berechnung um auch noch an unser a zu kommen. Zurück geben wir den doppelt bearbeiteten State und den bearbeiteten Wert.\\
+Hier müssen wir den State 2x ausführen. Einmal um an das f zu kommen und dann verketten wir dies mit der restlichen State-Berechnung um auch an unser a zu kommen. Zurück geben wir den doppelt bearbeiteten State und den bearbeiteten Wert.\\
 \pause
 Wichtig ist hier die Reihenfolge! Wir hätten es auch umdrehen können:
 \begin{minted}{haskell}
@@ -172,7 +171,6 @@ in
 \end{minted}
 allerdings arbeitet \texttt{<*>} immer von links nach rechts!
 \end{frame}
-\subsection{Monad}
 
 \begin{frame}[fragile]
 Am wichtigsten ist die Monad-Instanz:
@@ -421,7 +419,7 @@ instance Monad MaybeIO where
               mb (Just a) = a
               mb Nothing = MaybeIO $ return Nothing
 \end{minted}
-\texttt{return} von IO
+\texttt{return} und \texttt{>>=} von IO
 \end{frame}
 
 \begin{frame}[fragile]
@@ -430,7 +428,9 @@ Also können wir IO auch durch jede Monade ersetzten. Dies nennt man dann Monad 
 \begin{minted}{haskell}
 data MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 \end{minted}
-\pause
+\end{frame}
+
+\begin{frame}[fragile]
 Und der Code von eben wird zu:
 \begin{minted}{haskell}
 instance Functor m => Functor (MaybeT m) where
@@ -546,7 +546,8 @@ mainLoop :: RWST Env () State IO ()
 mainLoop = do
          e <- env
          f <- liftIO $ getUserInput (keySettings e)
-         newWorld <- updateWorld f -- holt sich die Welt mittels 'get'
+         newWorld <- updateWorld f 
+                     --holt sich die Welt mittels 'get'
          put newWorld
          unless (f == endKey e) mainLoop
 \end{minted}
