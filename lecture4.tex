@@ -1,0 +1,302 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx} % Bilder
+\usepackage{wrapfig} % Umflussbilder
+\usepackage{multicol} % Multiple columns
+\usepackage{minted} % Haskell source code
+\usepackage{framed} % Frames around source code
+\usepackage[framemethod=tikz]{mdframed} % Frames
+\usepackage{verbatim} % \begin{comment}...\end{comment}
+\usepackage{etoolbox} % manipulate minted
+\AtBeginEnvironment{minted}{\fontsize{10}{10}\selectfont}
+\AfterEndEnvironment{minted}{}
+
+\mdfdefinestyle{fancy}{
+  roundcorner=5pt,
+  linewidth=4pt,
+  linecolor=red!80,
+  backgroundcolor=red!20
+}
+\newmdenv[style=fancy]{important}
+
+% Stuff for Beamer
+\beamertemplatenavigationsymbolsempty
+\usetheme{Warsaw}
+
+\title{Intermediate Dabbling in Haskell}
+
+\begin{document}
+
+%  \usebackgroundtemplate{\includegraphics[width=\paperwidth,height=\paperheight]{1.jpg}} 
+  
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}
+  \begin{center}
+    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
+    \large Jonas Betzendahl \& Stefan Dresselhaus
+    \end{center}
+  \end{frame}
+
+%----------------------------------------------------------------------------------------  
+\begin{frame}[allowframebreaks]{Outline}
+\frametitle{Übersicht}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Parsing}
+
+\subsection{Motivation}
+
+\begin{frame}[fragile]
+\large Wozu das ganze?\\
+\normalsize In der \glqq echten Welt\grqq \ haben wir häufig Eingabedaten in verschiedensten Formaten:
+\begin{itemize}
+ \item Text (z.B. Config-Files, Log-Files)
+ \item JSON (z.B. im Web-Kontext)
+ \item XML (z.B. (X)HTML)
+ \item Binärcode (z.B. 3D-Modelle, Netzwerkcode, ...)
+\end{itemize}
+\pause
+Diese wollen wir nun in Haskell nutzbar machen, um sie aufzubereiten, zu filtern oder generell weiterzuverarbeiten.
+\end{frame}
+
+\begin{frame}[fragile]
+\large Wie gehen wir das ganze an?\\
+\normalsize Naiv: Textvergleiche, Patterns und reguläre Ausdrücke.\\
+\bigskip
+\pause
+This is not the Haskell-way to do that.\\
+\bigskip
+\pause
+In Haskell möchten wir gerne \textbf{kleine Teilprobleme lösen} (wie z.b. das Lesen eines Zeichens oder einer Zahl) und diese dann zu größeren Lösungen \textbf{kombinieren}.
+\end{frame}
+
+\subsection{Theorie}
+\begin{frame}[fragile]
+Kernstück für das stückweise Parsen bildet die Applicative-Typklasse mit ihrer monoidal-Erweiterung \glqq Alternative\grqq .\\
+\pause
+\bigskip
+Was heisst das genau?\\
+\bigskip
+\pause
+\glqq Alternative\grqq \  ist in der Lage viele Dinge zu probieren und dann das erste zurückzuliefern, was geklappt hat.\\
+So ist man in der Lage verschiedene Möglichkeiten des weiter-parsens auszudrücken.
+\end{frame}
+
+\section{Arbeit am Beispiel}
+\subsection{Beispiel}
+\begin{frame}[fragile]
+Kommen wir zunächst zu einem Beispiel. Gegeben ist folgendes Log, welches in Haskell übersetzt werden soll:
+\small
+\begin{verbatim}
+2013-06-29 11:16:23 124.67.34.60 keyboard
+2013-06-29 11:32:12 212.141.23.67 mouse
+2013-06-29 11:33:08 212.141.23.67 monitor
+2013-06-29 12:12:34 125.80.32.31 speakers
+2013-06-29 12:51:50 101.40.50.62 keyboard
+2013-06-29 13:10:45 103.29.60.13 mouse
+\end{verbatim}
+\normalsize
+Wir haben hier ein Liste von Daten, IP-Addressen und Geräten, die irgendwie interagiert haben.
+\end{frame}
+
+\begin{frame}[fragile]
+Zunächst schauen wir uns den Aufbau einer Zeile an
+\begin{verbatim}
+2013-06-29 11:16:23 124.67.34.60 keyboard
+\end{verbatim}
+\pause
+Sie besteht aus
+\begin{enumerate}
+ \item einem Datum (YYYY-MM-DD hh:mm:ss)
+ \item einer IP (0.0.0.0 - 255.255.255.255)
+ \item einem Gerät (String als Identifier)
+\end{enumerate}
+\end{frame}
+
+\subsection{Definition der Datenstrukturen}
+\begin{frame}[fragile]
+Für alls definieren wir nun unsere Wunsch-Datenstrukturen:\\\pause
+\bigskip
+Eine Zeile lässt sich darstellen als
+\begin{minted}{haskell}
+data LogZeile = LogZeile Datum IP Geraet
+\end{minted}
+und das gesamte Log als viele Zeilen:
+\begin{minted}{haskell}
+data Log = Log [LogZeile]
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Datum (YYYY-MM-DD hh:mm:ss) können wir darstellen als
+\begin{minted}{haskell}
+import Data.Time
+
+data Datum = Datum
+             { tag  :: Day
+             , zeit :: TimeOfDay
+             } deriving (Show, Eq)
+
+> Datum (fromGregorian 2014 1 2) (TimeOfDay 13 37 0)
+Datum {tag = 2014-01-02, zeit = 13:37:00}
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+Eine IP (0.0.0.0 - 255.255.255.255) ist darstellbar als
+\begin{minted}{haskell}
+import Data.Word
+
+data IP = IP Word8 Word8 Word8 Word8 deriving (Show,Eq)
+
+> IP 13 37 13 37
+IP 13 37 13 37
+\end{minted}
+mit Word8 als unsigned 8-Bit-Integer.\\
+\pause
+Wenn falsche Werte nicht darstellbar sind, dann haben wir sie auch nicht in unserem Programm als Problem.
+\end{frame}
+
+\begin{frame}[fragile]
+Ein Gerät (String als Identifier) können wir nur als Solches definieren:
+\begin{minted}{haskell}
+data Geraet = Mouse 
+            | Keyboard 
+            | Monitor 
+            | Speakers 
+            deriving (Show,Eq)
+\end{minted}
+Hier können wir nachher bei Bedarf auch schnell welche hinzufügen und der Compiler meckert dann an allen stellen herum, wo wir nicht mehr alle Fälle abfangen.
+\end{frame}
+
+\subsection{Parsing in die Datenstrukturen}
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+> Datum (fromGregorian 2014 1 2) (TimeOfDay 13 37 0)
+Datum {tag = 2014-01-02, zeit = 13:37:00}
+\end{minted}
+\pause
+Mit attoparsec liest sich der Code fast von allein:
+\small
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+  y  <- count 4 digit; char '-'
+  mm <- count 2 digit; char '-'
+  d  <- count 2 digit; char ' '
+  h  <- count 2 digit; char ':'
+  m  <- count 2 digit; char ':'
+  s  <- count 2 digit;
+  return $
+    Datum { tag  = fromGregorian (read y) (read mm) (read d)
+          , zeit = TimeOfDay (read h) (read m) (read s)
+          }
+\end{minted}
+\normalsize
+
+\end{frame}
+
+\begin{frame}[fragile]
+Für die IP sieht der Code ähnlich aus:
+\small
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Attoparsec.Char8
+import Data.Word
+
+parseIP :: Parser IP
+parseIP = do
+  d1 <- decimal
+  char '.'
+  d2 <- decimal
+  char '.'
+  d3 <- decimal
+  char '.'
+  d4 <- decimal
+  return $ IP d1 d2 d3 d4
+\end{minted}
+\normalsize
+\end{frame}
+
+\begin{frame}[fragile]
+Für das Gerät brauchen wir die Mächtigkeit von Alternativen:
+\small
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Attoparsec.Char8
+import Control.Applicative
+
+geraetParser :: Parser Geraet
+geraetParser =
+     (string "mouse"    >> return Mouse)
+ <|> (string "keyboard" >> return Keyboard)
+ <|> (string "monitor"  >> return Monitor)
+ <|> (string "speakers" >> return Speakers)
+\end{minted}
+\normalsize
+\texttt{<|>} ist der alternativ-Operator, der das Rechte ausführt, wenn das Linke einen Fehler wirft.\\
+\pause
+Wir matchen hier jeweils auf den String, schmeissen das gematchte Ergebnis weg (den String selbst) und liefern unseren Datentyp zurück.
+\end{frame}
+
+\begin{frame}[fragile]
+Für die gesamte Zeile packen wir einfach unsere Parser zusammen:
+\small
+\begin{minted}{haskell}
+zeilenParser :: Parser LogZeile
+zeilenParser = do
+     datum <- zeitParser
+     char ' '
+     ip <- parseIP
+     char ' '
+     geraet <- geraetParser
+     return $ LogZeile datum ip geraet
+\end{minted}
+\normalsize
+\end{frame}
+
+\begin{frame}[fragile]
+Für das Log nehmen wir die many-Funktion aus \glqq Alternative\grqq :
+\begin{minted}{haskell}
+logParser :: Parser Log
+logParser = many $ zeilenParser <* endOfLine
+\end{minted}
+\texttt{<*} fungiert hier als ein Parser-Kombinator, der erst rechts matched, dann links matched und dann das Ergebnis des Rechten zurückliefert.\\
+Hier verwenden wir diesen um das Zeilenende hinter jeder Zeile loszuwerden.
+\end{frame}
+
+\begin{frame}[fragile]
+Nun schreiben wir ein kleines Testprogramm:
+\begin{minted}{haskell}
+main :: IO ()
+main = do
+     log <- B.readFile "log.txt"
+     print $ parseOnly logParser log
+\end{minted}
+und führen es aus:
+\tiny
+\begin{verbatim}
+Right [LogZeile (Datum {tag = 2013-06-29, zeit = 11:16:23}) (IP 124 67 34 60) Keyboard,
+       LogZeile (Datum {tag = 2013-06-29, zeit = 11:32:12}) (IP 212 141 23 67) Mouse,
+       LogZeile (Datum {tag = 2013-06-29, zeit = 11:33:08}) (IP 212 141 23 67) Monitor,
+       LogZeile (Datum {tag = 2013-06-29, zeit = 12:12:34}) (IP 125 80 32 31) Speakers,
+       LogZeile (Datum {tag = 2013-06-29, zeit = 12:51:50}) (IP 101 40 50 62) Keyboard,
+       LogZeile (Datum {tag = 2013-06-29, zeit = 13:10:45}) (IP 103 29 60 13) Mouse]
+\end{verbatim}
+\normalsize
+
+\end{frame}
+
+
+\end{document}
