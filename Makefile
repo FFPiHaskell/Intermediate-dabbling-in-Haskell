@@ -8,3 +8,4 @@ clean:
 	rm -f *.snm
 	rm -f *.toc
 	rm -f *.vrb
+	rm -f *.tex.backup
