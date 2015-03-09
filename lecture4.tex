@@ -121,7 +121,7 @@ Sie besteht aus
 
 \subsection{Definition der Datenstrukturen}
 \begin{frame}[fragile]
-Für alls definieren wir nun unsere Wunsch-Datenstrukturen:\\\pause
+Für alles definieren wir nun unsere Wunsch-Datenstrukturen:\\\pause
 \bigskip
 Eine Zeile lässt sich darstellen als
 \begin{minted}{haskell}
@@ -272,7 +272,7 @@ Für das Log nehmen wir die many-Funktion aus \glqq Alternative\grqq :
 logParser :: Parser Log
 logParser = many $ zeilenParser <* endOfLine
 \end{minted}
-\texttt{<*} fungiert hier als ein Parser-Kombinator, der erst rechts matched, dann links matched und dann das Ergebnis des Rechten zurückliefert.\\
+\texttt{<*} (aus Applicative) fungiert hier als ein Parser-Kombinator, der erst links matched, dann rechts matched und dann das Ergebnis des Linken zurückliefert.\\
 Hier verwenden wir diesen um das Zeilenende hinter jeder Zeile loszuwerden.
 \end{frame}
 
