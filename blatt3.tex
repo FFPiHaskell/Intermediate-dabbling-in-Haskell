@@ -52,9 +52,18 @@ Erstellen sie hierzu die Instanzen für
        \end{minted}
 \end{itemize}
 \section*{Aufgabe \theuebungszettel.2:}
-TODO: Irgendwas mit RWST.. zur Fingerübung.\\
-GameLoop mit Links/Rechts/ESC-Steurung für +1/-1/quit und Anzeige des Zustands.\\
-Tasten im Env, State nur Int.
-
+In dieser Aufgabe geht es um die Verwendung eines Monad-Stacks. Hierzu schreiben sie ein (sehr!) simples Spiel:\\
+Durch drücken von \texttt{u} (up) bzw. \texttt{d} (down) wird ein interner Counter hoch- bzw. runtergezählt. Arbeiten sie sich in den gegebenen Code ein und erstellen sie das Game-Loop
+\begin{minted}{haskell}
+mainLoop :: RWST Env () State IO ()
+\end{minted}
+und die Tasteneingabe
+\begin{minted}{haskell}
+getInput :: RWST Env () State IO Input
+\end{minted}
+Benutzen sie hierzu die gegebene pure Hilfsfunktion
+\begin{minted}{haskell}
+getInputfromEnv :: Char -> Env -> Input
+\end{minted}
 
 \end{document}

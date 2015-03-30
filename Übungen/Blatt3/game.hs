@@ -8,7 +8,9 @@ module Main where
  Only one Function needs to be implemented and the
  steps are laid out there.
 
- Task: Write the Main-Loop.
+ Tasks:
+ - Write the Input-Function getInput
+ - Write the Main-Loop.
 -}
 
 import Control.Monad
@@ -41,9 +43,7 @@ initialState = State 0
 
 getInput :: RWST Env () State IO Input
 getInput = do
-            c <- liftIO getChar
-            e <- ask     -- get env from ReaderT
-            return $ getInputfromEnv c e
+            undefined
 
 getInputfromEnv :: Char -> Env -> Input
 getInputfromEnv c e
