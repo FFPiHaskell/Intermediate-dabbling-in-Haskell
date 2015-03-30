@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Data.Time
 import Data.Word
-import Data.Attoparsec.Char8
+import Data.Attoparsec.Text
+import Data.Text.Encoding
 import qualified Data.ByteString.Char8 as B (readFile)
 import Control.Applicative
 
@@ -70,4 +71,4 @@ logParser = many $ zeilenParser <* endOfLine
 main :: IO ()
 main = do
      log <- B.readFile "log.txt"
-     print $ parseOnly logParser log
+     print $ parseOnly logParser (decodeUtf8 log)
