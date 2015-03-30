@@ -1,22 +1,5 @@
 module Main where
 
-{-
- In this Exercise you should implement EitherT.
- Start by defining fmap, pure and <*>. Then try
- the Monad-Instance.
-
- Remember: You don't have to modify data - only
- unpack and repack.
-
- A little Test-Program in inside the main-function
- and should work if you have done everything
- correctly.
-
- Output should be the following:
- 10: 10
- Fehlertest == Left "Fehlertest"
--}
-
 import Data.Functor
 import Control.Applicative
 import Control.Monad.IO.Class
@@ -27,21 +10,25 @@ import Control.Monad (liftM)
 data EitherT l m r = EitherT { runEitherT :: m (Either l r) }
 
 instance Functor f => Functor (EitherT l f) where
-    fmap f = undefined
+    fmap f = EitherT . fmap (fmap f) . runEitherT
 
 instance Applicative f => Applicative (EitherT l f) where
-    pure = undefined
-    ef <*> ex = undefined
+    pure = EitherT . pure . pure
+    ef <*> ex = EitherT $ (<*>) <$> runEitherT ef <*> runEitherT ex
 
 instance Monad m => Monad (EitherT l m) where
-    return = undefined
-    x >>= f = undefined
+    return = EitherT . return . return
+    x >>= f = EitherT $ do
+               a <- runEitherT x
+               case a of
+                 Left l  -> return (Left l)
+                 Right r -> runEitherT (f r)
 
 instance MonadIO m => MonadIO (EitherT e m) where
-  liftIO = undefined
+  liftIO = lift . liftIO
 
 instance MonadTrans (EitherT e) where
-  lift = undefined
+  lift = EitherT . liftM Right
 
 main :: IO ()
 main = do
