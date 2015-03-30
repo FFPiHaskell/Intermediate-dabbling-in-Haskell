@@ -1,4 +1,4 @@
-\documentclass{beamer}
+\documentclass[unknownkeysallowed]{beamer}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -30,7 +30,7 @@
 
   \begin{frame}
   \begin{center}
-    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \Huge\textbf{Fortgeschrittene funktionale Programmierung in Haskell}\\ \bigskip
     \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
     \large Jonas Betzendahl \& Stefan Dresselhaus
     \end{center}
@@ -44,8 +44,8 @@
 	
 	Organisatorisches\\\bigskip
 	Tools \& Ressourcen\\\bigskip
-	Funktionale Programmierung 101\\\bigskip
-	Haskell Crash-Kurs
+	Thinking in Types\\\bigskip
+	Functionally solving problems\\\bigskip
     \end{center}
 \end{frame}
 
@@ -54,7 +54,7 @@
   \begin{frame}
 
     \begin{center}
-    \Large\textbf{Orga-Krams}
+    \Large\textbf{Organisatorisches}
     \end{center}
   \end{frame}
 
@@ -62,13 +62,13 @@
   
   \begin{frame}
     \begin{center}
-    \Large\textbf{Orga-Krams (1): Veranstaltungen}\\ \bigskip \normalsize
-    Es gibt Vorlesungen (\$wochentag1, AA - BB Uhr in \$Raum1)\\
-    und Übungen (\$wochentag2, CC - DD Uhr in \$Raum2).\bigskip
+    \Large\textbf{Organisatorisches: Veranstaltungen}\\ \bigskip \normalsize
+    Es gibt Vorlesungen (Freitags, 14-16 Uhr in V2-205)\\
+    und Übungen (Montags, 12-14 \& 18-20 Uhr in V2-221)\bigskip
 
-	Die Vorlesungen starten mit einem eher praktisch orientierten Abschnitt ab Heute gefolgt in der zweiten Semesterhälfte von einem eher theoretischen Teil.\bigskip
+	Vorlesungen aufgeteilt in \bigskip
 	
-	Teilnahme an den Übungen ist nicht verpflichtend, aber wahrscheinlich für euch von großem Vorteil.  
+	Teilnahme ist nicht verpflichtend, aber wahrscheinlich von Vorteil.  
     \end{center}
   \end{frame}
   
@@ -76,13 +76,13 @@
   
   \begin{frame}
     \begin{center}
-    \Large\textbf{Orga-Krams (2): Input / Output}\\ \bigskip \normalsize
+    \Large\textbf{Organisatorisches (2): Input / Output}\\ \bigskip \normalsize
     
     Für das Modul gibt es 5 (echte) Leistungspunkte\\
     Als Leistung müsst ihr ein kleines Programmierprojekt abschließen.
-    Details dazu gibt es in der Übung\bigskip
+    Details dazu in den Übungen.\bigskip
     
-    Wegen bürokratischer Hürden können die Leistungspunkte nur in der \emph{individuellen} Ergänzung eingebracht werden. Nicht in Wahlpflichtbereichen und auch nicht in der strukturierten Ergänzung.
+    Bürokratische Hürden $\Rightarrow$ Leistungspunkte nur für \emph{individuelle} Ergänzung.
     \end{center}
   \end{frame}
   
@@ -90,7 +90,7 @@
   
   \begin{frame}
     \begin{center}
-    \Large\textbf{Orga-Krams (3): Personenkult}\\ \bigskip \normalsize
+    \Large\textbf{Organisatorisches (3): Personenkult}\\ \bigskip \normalsize
 
 	Wir, das sind Jonas Betzendahl und Stefan Dresselhaus.\\
 	Mailadressen: \texttt{\{jbetzend,sdressel\}@techfak\dots}\\ \bigskip
@@ -104,7 +104,7 @@
   
   \begin{frame}
     \begin{center}
-	\Large\textbf{Orga-Krams (4): Material von uns für euch}\\ \bigskip \normalsize
+	\Large\textbf{Organisatorisches (4): Material von uns für euch}\\ \bigskip \normalsize
 	Alle Übungsblätter, Foliensätze, Beispiele, Vorlagen und sonstige Unterlagen findet ihr entweder im ekVV oder auf der Website dieser Veranstaltung. Die URL ist:
 	
 	\bigskip\texttt{www.dieseurlmussnochersetztwerden.de}\bigskip
@@ -172,7 +172,7 @@
   \begin{frame}
     \begin{center}
     \Large\textbf{T \& R (4): cabal}\\ \bigskip \normalsize
-    Ebenfalls in der \emph{Haskell Platform} enthalten ist \texttt{cabal}, Haskells eigenes Paket-Management-System. \texttt{cabal} erlaubt es euch, einfach via Terminal Bibliotheken von Hackage lokal (!) und im Zweifelsfall auch problemlos in einer Sandbox zu installieren. \texttt{cabal} ist außerdem ein Build-System, kann Test-Suites ausführen und und und. Aber dazu im Zweifelsfall später mehr.\bigskip
+    Ebenfalls in der \emph{Haskell Platform} enthalten ist \texttt{cabal}, Haskells eigenes Paket-Management-System. \texttt{cabal} erlaubt es euch, einfach via Terminal Bibliotheken von Hackage lokal (!) und im Zweifelsfall auch problemlos in einer Sandbox zu installieren. \texttt{cabal} ist außerdem ein Build-System, kann Test-Suites ausführen und und und. Aber auch dazu später mehr.\bigskip
     
     Das folgende Beispiel installiert \texttt{lens}, eine Bibliothek die uns im Lauf der Vorlesung noch begegnen wird:\bigskip
    
@@ -192,7 +192,8 @@
 	\includegraphics[scale=0.15]{lyah.png} 
 	
 	\columnbreak    
-    Das Buch \glqq Learn You A Haskell\grqq\ ist die beste$^{™}$ Ressource um Haskell zu lernen. Es ist verständlich und locker geschrieben und berühmt für gute Erklärungen.\bigskip
+    Das Buch \glqq Learn You A Haskell\grqq\ ist die beste™ Ressource um die ersten Schritte in Haskell zu 
+    lernen. Es ist verständlich und locker geschrieben und berühmt für gute Erklärungen.\bigskip
    
     Ihr findet es online frei und kostenlos verfügbar hier:
     
@@ -214,10 +215,9 @@
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
+
     \begin{center}
-    \Large\textbf{T \& R (7): Community}\\ \bigskip \normalsize
-    Die Haskell-Community ist jenseits von dedizierten Mailingslisten hauptsächlich auf Reddit (\texttt{http://www.reddit.com/r/haskell}) und im IRC (\texttt{\#haskell} auf Freenode) zu finden. Sie gilt als sehr offen, hilfreich und anfängerfreundlich.\\\bigskip
-    Als Illustration dazu ein inzwischen berühmt gewordener Ausschnitt aus dem IRC:
+    \Large\textbf{Quer durch die Prelude \\ Thinking in Types}
     \end{center}
   \end{frame}
   
@@ -225,103 +225,229 @@
   
   \begin{frame}
 
-    \framesubtitle{Community} \small
-    \texttt{<xQ> HASKELL IS FOR ***** *****. YOU'RE ALL A BUNCH OF ***** ******}\\
-    \texttt{<xQ> JAVASCRIPT FOR LIFE *****}\\
-    \pause
-    \texttt{\dots}\\
-    \texttt{<A> xQ: Do you have any specific questions?}\\
-    \texttt{<A> xQ: We'd love to help you make your first steps.}\\
-    \pause
-    \texttt{<xQ> i just want to get kicked out of a bunch of channels for fun}\\
-    \texttt{<A> Have you seen LYAH? It's a very enjoyable book on Haskell. It also has a reputation of being very uplifting.}\\
-    \texttt{<xQ> why is no one cooperating with me?}\\
-    \pause
-    \texttt{\dots}\\
-    \texttt{<xQ> what's haskell good for though?}\\
-    \texttt{\dots}\\
-    \texttt{<xQ> Alright thanks guys, I'll be back later to actually learn some haskell for real}\\
-  \end{frame}
-
-%----------------------------------------------------------------------------------------  
-  
-  \begin{frame}
-
-    \begin{center}
-    \Large\textbf{Funktionale Programmierung 101}
+    \begin{center}    
+    Die Prelude ist Haskells Standardbibliothek und hat die wichtigsten Funktionen und Datentypen schon
+    für euch zusammen gestellt. 
     \end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
-  \begin{frame}
-    \begin{center}
-    \Large\textbf{FP-101 (1): Definition}\\ \bigskip \normalsize
-    
-    \textbf{Funktionale Programmierung} ist ein \emph{deklaratives} Programmierparadigma, in dem darauf abgezielt wird, den Programmfluss als Auswertung mehrerer (mathematischer) Funktionen auszudrücken. Dabei wird besonderer Wert darauf gelegt, so genannte \emph{Seiteneffekte} zu vermeiden.
+  \begin{frame}[fragile]
 
-    \end{center}
-  \end{frame}
-  
-%----------------------------------------------------------------------------------------  
-  
-\begin{frame}[fragile]
     \begin{center}
-    \Large\textbf{FP-101 (2): Deklaratives Programmieren}\\ \bigskip \normalsize    
-    \end{center}
+    \Large\textbf{Die wichtigsten Typen...}\\
     
-    Im Gegensatz zur imperativen Programmierung gibt der Programmierer nur an, \emph{welche} Werte er errechnet bekommen möchte, nicht jedoch, \emph{wie} sie berechnet werden sollen. Das bleibt der Implementierung der Sprache (dem Compiler) überlassen. 
-    
-\begin{minted}[size=\footnotesize]{haskell}
-triples :: (Int, Int, Int)
-triples = [(a,b,c) | a <- [1..10], b <- [1..10], 
-                     c <- [1..10], a^2 + b^2 == c^2]
+\begin{minted}[size=tiny]{haskell}
+Bool          -- True, False
+Int, Integer  -- 32bit und arbitrary precision
+Float, Double -- Floating-point 
+Char, String  -- Zeichen & Zeichenketten
+              -- (String = [Char])
 \end{minted}
-    
+
+\pause
+\Large\textbf{... und Typkonstruktoren (polymorph)}\\
+
+\begin{minted}[size=tiny]{haskell}             
+[a]     -- Listen     
+(a,b)   -- Tupel      
+Maybe a -- Option type, "Just a" oder "Nothing"
+\end{minted}
+
+    \end{center}
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
   
-\begin{frame}[fragile]
+  \begin{frame}[fragile]
+
     \begin{center}
-        \Large\textbf{FP-101 (3): Seiteneffekte}\\ \bigskip \normalsize    
-    
-\begin{minted}{java}
-   public int fuenf()
-   {
-       System.out.println("Seiteneffekt!");
-       global_var = null;
-       return 5;
-   }
-\end{minted} 
-    \end{center}
-
-Diese zwei Statements haben sehr (!) unterschiedliches Verhalten:    
-    
-    \mint{java}|return 5 + 5;       // referential transparency|
-
-    \mint{java}|return 5 + fuenf(); // no referential transparency|  
-
-\end{frame}
-  
-%----------------------------------------------------------------------------------------  
-  
-\begin{frame}[fragile]
-    \begin{center}
-     \Large\textbf{FP-101 (4): Higher-Order Functions}\\ \bigskip \normalsize    
-    \end{center}
-    
-    Funktionen mit anderen Funktionen als Parameter.\\
-    \texttt{map} z.B. wendet eine Funktion auf alle Elemente einer Liste an. 
+    \Large\textbf{QddP: Identity}\\\bigskip
 
 \begin{minted}{haskell}
-ghci > map (+10) [1..10]
-[11,12,13,14,15,16,17,18,19,20]
+                  id :: a -> a
+                  id x = x
+\end{minted}
 
-ghci > map reverse ["abcde", "123", "kayak", "haskell"]
-["edcba","321","kayak","lleksah"]
-\end{minted}    
+Typsignaturen, Polymorphismus, Pattern matching
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Konstanten}\\\bigskip
+
+\begin{minted}{haskell}
+                  const :: a -> b -> a
+                  const x _ =  x
+\end{minted}
+
+Currying, wildcards
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Funktionsverkettung}\\\bigskip
+
+\begin{minted}{haskell}
+                  (.) :: (b -> c) -> (a -> b) -> a -> c
+                  (.) f g = \x -> f (g x)
+\end{minted}
+
+Verkettung, Rechts nach Links lesen
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Booleans (1)}\\\bigskip
+
+\begin{minted}{haskell}
+                  data Bool = False | True
+                  
+                  not :: Bool -> Bool
+                  not True = False
+                  not _    = True
+\end{minted}
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Booleans (2)}\\\bigskip
+
+\begin{minted}{haskell}
+                  (&&) :: Bool -> Bool -> Bool
+                  (&&) True True = True
+                  (&&) _    _    = False
+                  
+                  (||) :: Bool -> Bool -> Bool
+                  (||) False False = False
+                  (||) _     _     = True
+\end{minted}
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Maybe (1)}\\\bigskip
+
+\begin{minted}{haskell}
+                  data Maybe a = Nothing
+                               | Just a
+\end{minted}
+
+Tiefe etwa wie bei Bool
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Either (1)}\\\bigskip
+
+\begin{minted}{haskell}
+                  data Either a b = Left  a
+                                  | Right b
+\end{minted}
+
+Tiefe etwa wie bei Bool
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Tuples}\\\bigskip
+
+foobar
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: Lists}\\\bigskip
+
+foobar, Tiefe weiter als Maybe, Either, Bool
+
+    \end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{QddP: basic IO}\\\bigskip
+
+foobar, Verweis auf später
+
+    \end{center}
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}
+
+    \begin{center}
+    \Large\textbf{Solving problems by composition}
+    \end{center}
+  \end{frame}
+  
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}
+
+    \begin{center}
+    \Large\textbf{Beispiel:}\bigskip
     
+    \textbf{Aufgabe:} Sie bekommen einen Dateinamen übergeben. Lesen Sie die Datei Zeile für Zeile aus
+    \end{center}
+  \end{frame}
+  
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+
+    \begin{center}
+    \Large\textbf{Beispiel:}\\\bigskip
+
+foobar: Lösung für Aufgabe in Haskell und C, mehr Beispiele
+
+    \end{center}
 \end{frame}
   
 \end{document}
