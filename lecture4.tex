@@ -298,5 +298,164 @@ Right [LogZeile (Datum {tag = 2013-06-29, zeit = 11:16:23}) (IP 124 67 34 60) Ke
 
 \end{frame}
 
+\section{Parser-Funktionsweise}
+\begin{frame}[fragile]
+Wie funktioniert so ein Parser nun intern genau?\\
+\bigskip
+Wir werden im folgenden attoparsec nicht im Detail erklären, sondern eher die Idee, die dahinter steht.
+\end{frame}
+
+\subsection{Poor-mans parser}
+\begin{frame}[fragile]
+Eigentlich hätten wir gerne eine Funktion
+\begin{minted}{haskell}
+parse :: String -> a
+\end{minted}
+\pause
+aber was machen wir, wenn etwas von dem String überbleibt, damit wir später weitere dinge parsen können?\\
+\pause
+Also brauchen wir
+\begin{minted}{haskell}
+parse :: String -> (a,String)
+\end{minted}
+\pause
+Aber das Parsen kann auch Fehlschlagen. Und Fehlermeldungen wären auch schön.
+\pause
+\begin{minted}{haskell}
+parse :: String -> (Either String a,String)
+\end{minted}
+oder alternativ
+\begin{minted}{haskell}
+parse :: String -> Either String (a,String)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Im folgenden nehmen wir
+\begin{minted}{haskell}
+parse :: String -> (Either String a,String)
+\end{minted}
+als Parser an. So können wir z.b. weiterparsen, wenn ein Teil einen Fehler wirft. Außerdem wollen wir einen fancy type:
+\begin{minted}{haskell}
+data Parser a = 
+     Parser {
+            runParser :: String -> (Either String a, String)
+     }
+\end{minted}
+\pause
+Dies gibt uns (wie schon beim State) 2 Funktionen:
+\begin{minted}{haskell}
+Parser    :: (String -> (Either String a, String)) -> Parser a
+runParser :: Parser a -> String -> (Either String a, String)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Natürlich bildet unser Parser wieder eine Monade. So können wir verschiedene Parser miteinander zu großen kombinieren.\\
+Um das besser zu verstehen, gehen wir im Folgenden die nötigen Definitionen (Functor, Applicative, Monad) durch.
+\end{frame}
+
+\subsection{F/A/M}
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+instance Functor Parser where
+fmap f p = Parser $ \input ->
+             let
+               (res, rem) = runParser p input
+             in
+               (fmap f res, rem)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+instance Applicative Parser where
+  pure a    = Parser $ \input -> (Right a,input)
+  pf <*> pa = Parser $ \input ->
+                let
+                  (rf, rem1) = runParser pf input
+                  (ra, rem2) = runParser pa rem1
+                in
+                  (rf <*> ra, rem2)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+instance Monad Parser where
+  return a  = pure a
+  pa >>= f  = Parser $ \input ->
+                let
+                  (ra, rem1) = runParser pa input
+                in
+                  case ra of
+                    Right a  -> runParser (f a) rem1
+                    Left err -> (Left err, rem1)
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Was fehlt uns noch?\\
+\pause
+\begin{itemize}
+ \item Langweilige Definition simpler Parser (digit, lit, space, ...)
+ \item Erweiterung mit Continuations (Text \glqq nachschieben\grqq)
+ \item Implementation einer Standardfehlerbehandlung
+\end{itemize}
+\pause
+Wir kümmern uns um das letzgenannte, indem wir Alternative implementieren
+\end{frame}
+
+\subsection{Alternative}
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+instance Alternative Parser where
+  empty     = Parser $ \inp -> (Left "",inp)
+  pa <|> pb = Parser $ \input -> 
+                let
+                  (ra, rem1) = runParser pa input
+                in
+                  case ra of
+                    Right _ -> (ra, rem1)
+                    _       -> runParser pb input
+\end{minted}
+Schlägt der Parser hier fehl, dann wird der bereits benutzte Input wiederhergestellt und ein weiterer Parser probiert.
+\end{frame}
+
+\begin{frame}[fragile]
+Nun können wir ein paar Simple Dinge parsen:
+\begin{minted}{haskell}
+parse1 :: Parser Int
+parse1 = Parser $ \inp -> case inp of
+                    ('1':xs) -> (Right 1,xs)
+                    x        -> (Left "no 1", x)
+
+parse0 :: Parser Int
+parse0 = Parser $ \inp -> case inp of
+                    ('0':xs) -> (Right 0, xs)
+                    x        -> (Left "no 0", x)
+\end{minted}
+\pause
+Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq nicht möglich sind. Somit können wir verhindern, dass Leute mit dem Eingabestring schindluder treiben.
+\end{frame}
+
+\begin{frame}[fragile]
+Binärzahlen können wir dann wie folgt parsen:
+\begin{minted}{haskell}
+parseBin :: Parser Int
+parseBin = parse0 <|> parse1
+
+testParser :: Parser [Int]
+testParser = many parseBin
+
+main :: IO ()
+main = print $ runParser testParser "101001"
+-- (Right [1,0,1,0,0,1],"")
+\end{minted}
+\end{frame}
+
+
+
+
 
 \end{document}
