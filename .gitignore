@@ -6,3 +6,5 @@
 *.tex.backup
 *.toc
 *.vrb
+*.hi
+*.o
