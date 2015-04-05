@@ -1,0 +1,47 @@
+\documentclass[a4paper,10pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{minted}
+\geometry{a4paper,left=30mm,right=30mm, top=3cm, bottom=2cm} 
+
+\newcommand{\underfat}[1]{\underline{\textbf{#1}}}
+\newcommand{\theuebungszettel}{4}
+
+\parindent0pt
+
+\begin{document}
+
+\begin{center}
+  \begin{huge}
+    \underfat{Fortgeschrittene funktionale}\\
+    \underfat{Programmierung in Haskell}\\
+  \end{huge}
+\begin{LARGE}
+\textbf{Übungszettel \theuebungszettel}
+\end{LARGE}
+\end{center}
+\section*{Aufgabe \theuebungszettel.1:}
+In der Vorlesung haben wir besprochen, dass man eine Lens auch für nicht-existente Felder schreiben kann. Gegeben ein Zeitdatentyp
+\begin{verbatim}
+data TimeSplice = TS { days :: Int
+                     , hours :: Int
+                     , minutes :: Int
+                     , seconds :: Float
+                  }
+                  deriving (Show, Eq)
+\end{verbatim}
+Schreiben sie einen Isomorphismus, welcher eine Operation auf Sekunden vollführt, aber weiterhin einen TimeSlice nimmt:
+\begin{minted}{haskell}
+convert :: Iso TimeSplice TimeSplice Float Float
+convert = iso ...
+
+alterSeconds :: (Float -> Float) -> TimeSplice -> TimeSplice
+alterSeconds = over convert
+\end{minted}
+
+\end{document}
