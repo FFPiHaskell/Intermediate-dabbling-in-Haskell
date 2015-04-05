@@ -19,6 +19,7 @@ import Data.Attoparsec.Text
 import Data.Text.Encoding
 import qualified Data.ByteString.Char8 as B (readFile)
 import Control.Applicative
+import System.Environment (getArgs)
 
 data Date = Date
             { day :: Day
@@ -34,9 +35,9 @@ data Device = Mouse
             | Speakers 
             deriving (Show,Eq)
 
-data LogLine = LogLine Date IP Device deriving Show
+--data LogLine = LogLine Date IP Device deriving Show
 -- Use this one for task 3:
--- data LogLine = LogLine Date IP Device (Maybe Source) deriving Show
+data LogLine = LogLine Date IP Device (Maybe Source) deriving Show
 
 
 type Log = [LogLine]
@@ -45,12 +46,17 @@ data Source = Internet | Friend | NoAnswer deriving Show
 
 dateParser :: Parser Date
 dateParser = do
-  y  <- count 4 digit; char '-'
-  mm <- count 2 digit; char '-'
-  d  <- count 2 digit; char ' '
-  h  <- count 2 digit; char ':'
-  m  <- count 2 digit; char ':'
-  s  <- count 2 digit;
+  y  <- count 4 digit
+  char '-'
+  mm <- count 2 digit
+  char '-'
+  d  <- count 2 digit
+  char ' '
+  h  <- count 2 digit
+  char ':'
+  m  <- count 2 digit
+  char ':'
+  s  <- count 2 digit
   return $
     Date { day = fromGregorian (read y) (read mm) (read d)
          , tod = TimeOfDay (read h) (read m) (read s)
@@ -58,7 +64,21 @@ dateParser = do
 
 americanDateParser :: Parser Date
 americanDateParser = do
-  undefined
+  mm <- count 2 digit
+  char '/'
+  d <- count 2 digit
+  char '/'
+  y <- count 4 digit
+  char ' '
+  h  <- count 2 digit
+  char ':'
+  m  <- count 2 digit
+  char ':'
+  s  <- count 2 digit
+  return $
+    Date { day = fromGregorian (read y) (read mm) (read d)
+         , tod = TimeOfDay (read h) (read m) (read s)
+         }
 
 parseIP :: Parser IP
 parseIP = do
@@ -80,13 +100,18 @@ deviceParser =
 
 americanDeviceParser :: Parser Device
 americanDeviceParser = do
-  undefined
+     (string "1"        >> return Mouse)
+ <|> (string "2"        >> return Keyboard)
+ <|> (string "3"        >> return Monitor)
+ <|> (string "4"        >> return Speakers)
+
+parseSource :: Parser Source
+parseSource =
+     (string "internet" >> return Internet)
+ <|> (string "noanswer" >> return NoAnswer)
+ <|> (string "friend"   >> return Friend)
 
 
-{- Task 2: extend this function to work on both
-   formats and combined versions of the logfile.
-   Hint: Alternative may be interesting.
--}
 lineParser :: Parser LogLine
 lineParser = do
      datum <- dateParser
@@ -94,12 +119,37 @@ lineParser = do
      ip <- parseIP
      char ' '
      geraet <- deviceParser
-     return $ LogLine datum ip geraet
+     optional $ char ' '
+     s <- optional parseSource
+     return $ LogLine datum ip geraet s
+
+americanLineParser :: Parser LogLine
+americanLineParser = do
+     ip <- parseIP
+     char ' '
+     datum <- americanDateParser
+     char ' '
+     geraet <- americanDeviceParser
+     optional $ char ' '
+     s <- optional parseSource
+     return $ LogLine datum ip geraet s
 
 logParser :: Parser Log
-logParser = many $ lineParser <* endOfLine
+logParser = many $ (lineParser <|> americanLineParser) <* endOfLine
+
+parseAndPrintLog :: String -> IO ()
+parseAndPrintLog l = do
+     putStrLn $ l ++ ":"
+     log <- B.readFile l
+     case parseOnly logParser (decodeUtf8 log) of
+       Left err -> print err
+       Right r  -> mapM_ print r
 
 main :: IO ()
 main = do
-     log <- B.readFile "log.txt"
-     print $ parseOnly logParser (decodeUtf8 log)
+     args <- getArgs
+     mapM_ parseAndPrintLog args
+
+
+
+

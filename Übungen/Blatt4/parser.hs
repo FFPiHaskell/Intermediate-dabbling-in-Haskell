@@ -7,7 +7,7 @@
  
  Tasks:
  1. write all functions which are undefined.
- 2. extend the lineParser-function to also accept
+ 2. extend the logParser-function to also accept
     the american format.
  3. Add the optional fields to the lineParser.
  4. Make the log read in a commandline argument.
@@ -45,12 +45,17 @@ data Source = Internet | Friend | NoAnswer deriving Show
 
 dateParser :: Parser Date
 dateParser = do
-  y  <- count 4 digit; char '-'
-  mm <- count 2 digit; char '-'
-  d  <- count 2 digit; char ' '
-  h  <- count 2 digit; char ':'
-  m  <- count 2 digit; char ':'
-  s  <- count 2 digit;
+  y  <- count 4 digit
+  char '-'
+  mm <- count 2 digit
+  char '-'
+  d  <- count 2 digit
+  char ' '
+  h  <- count 2 digit
+  char ':'
+  m  <- count 2 digit
+  char ':'
+  s  <- count 2 digit
   return $
     Date { day = fromGregorian (read y) (read mm) (read d)
          , tod = TimeOfDay (read h) (read m) (read s)
@@ -82,11 +87,9 @@ americanDeviceParser :: Parser Device
 americanDeviceParser = do
   undefined
 
+parseSource :: Parser Source
+parseSource = undefined
 
-{- Task 2: extend this function to work on both
-   formats and combined versions of the logfile.
-   Hint: Alternative may be interesting.
--}
 lineParser :: Parser LogLine
 lineParser = do
      datum <- dateParser
@@ -95,6 +98,10 @@ lineParser = do
      char ' '
      geraet <- deviceParser
      return $ LogLine datum ip geraet
+
+americanLineParser :: Parser LogLine
+americanLineParser = do
+     undefined
 
 logParser :: Parser Log
 logParser = many $ lineParser <* endOfLine
