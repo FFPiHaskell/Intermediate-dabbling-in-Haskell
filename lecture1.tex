@@ -20,31 +20,32 @@
 
 % Stuff for Beamer
 \beamertemplatenavigationsymbolsempty
-\usetheme{Madrid}
+\usetheme{Warsaw}
 
 \begin{document} 
   
 %----------------------------------------------------------------------------------------  
 
   \begin{frame}
-  \begin{center}
+  %\begin{center}
     \huge\textbf{Fortgeschrittene funktionale Programmierung in Haskell}\\ \bigskip
     \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
     \large Jonas Betzendahl \& Stefan Dresselhaus
-    \end{center}
+    %\end{center}
   \end{frame}
 
 %----------------------------------------------------------------------------------------  
   
 \begin{frame}
-\begin{center}
-	\Large\textbf{\underline{Überblick für Heute:}}\\ \bigskip\bigskip\normalsize
+%\begin{center}
+	\Large\textbf{\underline{Überblick für Heute:}}\bigskip \normalsize
 	
-	Organisatorisches\\\bigskip
-	Tools \& Ressourcen\\\bigskip
-	Thinking in Types\\\bigskip
-	Functionally solving problems\\\bigskip
-    \end{center}
+	\begin{itemize}
+	\item Organisatorisches \& Überlebenstipps
+	\item Wiederholung Haskell-Basics
+	\end{itemize}
+
+%\end{center}
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
@@ -60,62 +61,64 @@
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{Organisatorisches: Veranstaltungen}\\ \bigskip \normalsize
+    %\begin{center}
+    \Large\textbf{Organisatorisches: Veranstaltungen}\bigskip \normalsize
+    
     Es gibt Vorlesungen (Freitags, 14-16 Uhr in V2-205)\\
     und Übungen (Montags, 12-14 \& 18-20 Uhr in V2-221)\bigskip
 	
 	Teilnahme an den Übungen ist nicht verpflichtend, aber von Vorteil.  
-    \end{center}
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{Organisatorisches (2): Input / Output}\\ \bigskip\bigskip \normalsize
+    %\begin{center}
+    \Large\textbf{Organisatorisches (2): Input / Output}\bigskip \normalsize
     
     Das Modul gibt es 5 (echte) Leistungspunkte.\\
-    Bürokratische Hürden $\Rightarrow$ Leistungspunkte nur für \emph{individuelle} Ergänzung \bigskip
+    Bürokratische Hürden $\Rightarrow$ LP nur für \emph{individuelle} Ergänzung \bigskip
     
-    Kriterium: erfolgreicher Abschluss eines kleinen Programmierprojektes\\
+    \textbf{Kriterium:} erfolgreicher Abschluss eines kleinen Programmierprojektes
     (Aufgabe TBA, Details in den Übungen)
-    \end{center}
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{Organisatorisches (3): Personenkult}\\ \bigskip\bigskip \normalsize
+    %\begin{center}
+    \Large\textbf{Organisatorisches (3): Personenkult}\bigskip \normalsize
 
 	Wir, das sind Jonas Betzendahl und Stefan Dresselhaus.\\
 	Mailadressen: \texttt{\{jbetzend,sdressel\}@techfak\dots}\\ \bigskip
     
-    Formal verantwortlich:\\Dr. Alexander Sczyrba (\texttt{asczyrba@techfak\dots})\bigskip
+    Formal verantwortlich:\\Dr. Alexander Sczyrba (\texttt{asczyrba@techfak\dots})
     
-    (Anlaufstelle für Fragen im Kontext der Fakultät und Beschwerden zu uns)
-    \end{center}
+    (für Fragen im Kontext der Fakultät und Beschwerden zu uns)
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-	\Large\textbf{Organisatorisches (4): Material}\\ \bigskip\bigskip \normalsize
+    %\begin{center}
+	\Large\textbf{Organisatorisches (4): Material}\bigskip \normalsize
+	
 	Aufgabenblätter, Foliensätze, Beispiele, Vorlagen und sonstige Unterlagen entweder im ekVV oder zum Selberklonen auf GitHub:
 	
 	\bigskip\texttt{https://github.com/FFPiHaskell}\bigskip
 	
-	Audio \& Video - Mitschnitte auf YouTube, \\Näheres momentan ebenfalls TBA
-    \end{center}
+	Audio \& Video - Mitschnitte auf YouTube, Näheres momentan ebenfalls TBA
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{T \& R (1): Haskell / GHC}\\ \bigskip \normalsize
+    %\begin{center}
+    \Large\textbf{T \& R (1): Haskell / GHC}\bigskip \normalsize
     
     Standard in dieser Vorlesung ist der  \\ \texttt{Glasgow Haskell Compiler} (GHC)
     ($\geqslant$ v. 7.8, wo relevant) \bigskip
@@ -123,42 +126,45 @@
     Rundum-Glücklich-Paket für eigene Rechner: \emph{Haskell Platform}\\
     \texttt{https://www.haskell.org/platform/}\bigskip
     
-    Einen aktuellen GHC (7.10) kriegt ihr im GZI mit dem rcinfo-Paket \texttt{ghc} \smallskip
+    Aktuellen GHC (7.10) kriegt ihr im GZI mit dem rcinfo-Paket \texttt{ghc} \smallskip
     
     \begin{important}
     \textbf{Wichtig:}\\ Der Haskell-Interpreter \texttt{Hugs} wird von uns explizit \underline{nicht} unterstützt.
     \end{important}
-    \end{center}
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{T \& R (2): GHCi}\\ \bigskip \normalsize
+    %\begin{center}
+    \Large\textbf{T \& R (2): GHCi}\bigskip \normalsize
     
     Der GHC hat auch eine interaktive Umgebung: GHC\emph{I}.\\\bigskip
     \includegraphics[scale=0.4]{ghci_example.png} 
     
     \bigskip GHCi bietet auch ein REPL (Read - Evaluate - Print - Loop),\\\emph{sehr} nützlich zum Entwickeln (ähnlich zu \texttt{Hugs}).
-    \end{center}
+    %\end{center}
   \end{frame}
   
   %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{T \& R (3): Hackage}\\ \bigskip \normalsize
-    Die meisten Bibliotheken von Haskell wohnen auf \emph{Hackage}: \\ \bigskip \texttt{https://hackage.haskell.org/} \\ \bigskip
-    Dort findet ihr übersichtliche Zusammenfassungen der Bibliotheken, detaillierte Auflistungen der exportierten Funktionen und Datentypen und direkte Links zu den jeweiligen Implementationen (!).
-    \end{center}
+    %\begin{center}
+    \Large\textbf{T \& R (3): Hackage}\bigskip \normalsize
+    
+    Die meisten Bibliotheken von Haskell wohnen auf \emph{Hackage}: \\ \bigskip \texttt{https://hackage.haskell.org/}
+    
+    Dort findet ihr übersichtliche Zusammenfassungen der Bibliotheken, detaillierte Auflistungen der exportierten Funktionen und Datentypen und die jeweiligen Implementationen (!).
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{T \& R (4): cabal}\\ \bigskip \normalsize
+    %\begin{center}
+    \Large\textbf{T \& R (4): cabal}\bigskip \normalsize
+    
     Haskells \texttt{cabal} ist ein Programm zum erstellen, verpacken und installieren
     von Bibliotheken und Programmen:
     
@@ -169,16 +175,16 @@
     \item Dependency management
     \item \dots
     \end{itemize}
-    \end{center}
+    %\end{center}
   \end{frame}
   
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}
-    \begin{center}
-    \Large\textbf{T \& R (5): LYAHFGG}\\ \bigskip \normalsize
-    \begin{multicols}{2}
+    %\begin{center}
+    \Large\textbf{T \& R (5): LYAHFGG}\bigskip \normalsize
     
+    \begin{multicols}{2}
     \begin{center}
 	\includegraphics[scale=0.15]{lyah.png} 
 	\end{center}
@@ -191,7 +197,7 @@
     
     \texttt{http://learnyouahaskell.com/}
     \end{multicols}
-    \end{center}
+    %\end{center}
   \end{frame}
 
 %----------------------------------------------------------------------------------------  
@@ -207,9 +213,9 @@
   
   \begin{frame}[fragile]
   
-  \begin{center}
-  \Large\textbf{\underline{Haskell auf einer Folie:}} \normalsize
-  \end{center}
+  %\begin{center}
+  \Large\textbf{\underline{Haskell auf einer Folie:}} \bigskip \normalsize
+  %\end{center}
 
   \begin{minted}[size=tiny]{haskell}
   -- Only those elements that conform to the predicate
@@ -250,9 +256,9 @@
   
   \begin{frame}[fragile]
   
-  \begin{center}
-  \Large\textbf{\underline{Haskell auf \tiny etwas mehr als \,\Large einer Folie:}} \normalsize
-  \end{center}
+  %\begin{center}
+  \Large\textbf{\underline{Haskell auf \tiny etwas mehr als \,\Large einer Folie:}} \bigskip \normalsize
+  %\end{center}
   
   Folgende Typen solltet ihr schon kennen...
   
