@@ -49,7 +49,7 @@
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
-  \section{Orga}
+  \section{Organisatorisches}
   
   \begin{frame}
 
@@ -226,6 +226,8 @@
       | otherwise =     filter p xs
   \end{minted}
   
+  \pause
+  
   \begin{multicols}{2}
   \begin{itemize}
   \item Typsignaturen    \pause
@@ -249,8 +251,16 @@
   \end{itemize}
   
 \end{frame}
-  
 
+%----------------------------------------------------------------------------------------  
+\section{Typen \& Purity}
+\begin{frame}
+
+    \begin{center}
+    \Large\textbf{Typen \& Purity}
+    \end{center}
+
+\end{frame}
 
 %----------------------------------------------------------------------------------------  
   
@@ -279,24 +289,45 @@
   ... und so machen wir ganz neue Typen:
 
   \begin{minted}[size=tiny]{haskell}
-   data Bool = False | True
-   data [a]  = [] | a : [a] -- algebraisch, rekursiv
-   
-   newtype Sekunden = Sekunden Int
-   
    type List a = [a]
   \end{minted}
   
-  \pause
-  $\Rightarrow$ Typklassen werden nächste Woche besprochen
+  \pause  
+   
+  \begin{minted}[size=tiny]{haskell}
+   newtype Sekunden = Sekunden Int
+  \end{minted}
   
-\end{frame}  
+  \pause
+  
+  \begin{minted}[size=tiny]{haskell}
+   data Bool = False | True
+   data [a]  = [] | a : [a] -- algebraisch, rekursiv
+  \end{minted}
+  
+\end{frame}
 
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}[fragile]
   
+  \Large\textbf{Problemstellung:}\bigskip \normalsize
 
+  Was ist das Problem mit folgender Funktion?
+
+  \begin{minted}[size=tiny]{haskell}
+   quadrat :: a -> a
+   quadrat x = x * x
+  \end{minted}
+  
+  \pause
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+  
+   
 
   \begin{minted}[size=tiny]{haskell}
         -- ... to be implemented
