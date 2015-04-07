@@ -43,6 +43,9 @@
 	\begin{itemize}
 	\item Organisatorisches \& Überlebenstipps
 	\item Wiederholung Haskell-Basics
+	\item Thinking in Types
+	\item Lazy Evaluation
+	\item Problemlösen durch Zusammenstecken
 	\end{itemize}
 
 %\end{center}
@@ -121,15 +124,15 @@
     \Large\textbf{T \& R (1): Haskell / GHC}\bigskip \normalsize
     
     Standard in dieser Vorlesung ist der  \\ \texttt{Glasgow Haskell Compiler} (GHC)
-    ($\geqslant$ v. 7.8, wo relevant) \bigskip
+    ($\geqslant$ v. 7.8, wo relevant) \pause \bigskip
     
     Rundum-Glücklich-Paket für eigene Rechner: \emph{Haskell Platform}\\
-    \texttt{https://www.haskell.org/platform/}\bigskip
+    \texttt{https://www.haskell.org/platform/} \pause \bigskip
     
-    Aktuellen GHC (7.10) kriegt ihr im GZI mit dem rcinfo-Paket \texttt{ghc} \smallskip
+    Aktuellen GHC (7.10) kriegt ihr im GZI mit dem rcinfo-Paket \texttt{ghc} \pause \smallskip
     
     \begin{important}
-    \textbf{Wichtig:}\\ Der Haskell-Interpreter \texttt{Hugs} wird von uns explizit \underline{nicht} unterstützt.
+    \textbf{Wichtig:}\\Der Haskell-Interpreter \texttt{Hugs} wird von uns \underline{nicht} unterstützt!
     \end{important}
     %\end{center}
   \end{frame}
@@ -238,8 +241,8 @@
   \columnbreak
   
   \begin{itemize}
-  \item Guards            \pause
   \item higher order fun. \pause
+  \item Guards            \pause
   \item Curryfizierung    \pause
   \end{itemize}
 
@@ -253,11 +256,11 @@
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
-\section{Typen \& Purity}
+\section{Thinking in Types}
 \begin{frame}
 
     \begin{center}
-    \Large\textbf{Typen \& Purity}
+    \Large\textbf{Thinking in Types}
     \end{center}
 
 \end{frame}
@@ -320,14 +323,116 @@
    quadrat x = x * x
   \end{minted}
   
+  \bigskip
   \pause
+  
+  $\to$ Funktion \texttt{(*)} könnte undefiniert für a sein (Funktionstypen) \\ \pause
+  $\to$ Verschiedene Lösungsansätze: \pause
+  
+  \begin{itemize}
+  \item \glqq Local choice\grqq , nur polymorphes Symbol (Abstraktionsverlust) \pause
+  \item Standardimplementationen für Gleichheit etc. (Laufzeitfehler)
+  \end{itemize}
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}[fragile]
   
-   
+  \Large\textbf{Haskell-Lösung: Typklassen} \normalsize
+
+  \begin{minted}[size=tiny]{haskell}
+   quadrat :: Num a => a -> a
+   quadrat x = x * x
+  \end{minted}
+  
+  Polymorphismus beschränkt auf die Typen, die auch bestimmte Funktionen unterstützen.\pause  
+  \begin{multicols}{2}
+  \emph{Abstrakte Definition:}
+  
+  \begin{minted}[size=tiny]{haskell}
+class Num a where
+  (+)    :: a -> a -> a
+  (*)    :: a -> a -> a
+  negate :: a -> a
+  ...
+  \end{minted}
+
+  \vfill \vfill  
+  
+  \pause
+  \columnbreak  
+  \emph{Konkrete Instanz:}
+  
+  \begin{minted}[size=tiny]{haskell}
+instance Num Int where
+  i + j    = plusInt i j
+  i * j    = mulInt  i j 
+  negate i = negInt  i
+  ... 
+  \end{minted}
+  \pause
+  \texttt{plusInt, mulInt} und \texttt{negInt} an anderer Stelle definiert.
+  \end{multicols}  
+  
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+  
+  \begin{frame}[fragile]
+  
+  Es gibt in Haskell zwei Möglichkeiten, einen Typen einer Typklasse hinzuzufügen:\pause  
+  
+  \begin{multicols}{2}
+  \emph{Von Hand:}
+  
+  \begin{minted}[size=tiny]{haskell}
+  class Show a where
+   show :: a -> String
+  
+  data Bool = False | True
+
+  instance Show Bool where
+    show False = "False"
+    show True  = "True"
+  \end{minted}
+  
+  \pause
+  \columnbreak  
+  \emph{Automatisch:}
+  
+  \begin{minted}[size=tiny]{haskell}
+  class Show a where
+    show :: a -> String  
+  
+  data Bool = False | True 
+              deriving Show
+  \end{minted}
+  \end{multicols} 
+  
+  \pause
+  
+  $\Rightarrow$ Mehr zu Typklassen (inkl. \texttt{Functor, Applicative, Monad}) 
+  nächste Woche.
+ 
+  
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
+  
+\section{Lazy Evaluation}
+\begin{frame}
+
+    \begin{center}
+    \Large\textbf{Lazy Evaluation}
+    \end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}[fragile]
 
   \begin{minted}[size=tiny]{haskell}
         -- ... to be implemented
