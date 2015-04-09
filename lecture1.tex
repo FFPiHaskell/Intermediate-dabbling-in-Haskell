@@ -114,7 +114,7 @@
 	
 	\bigskip\texttt{https://github.com/FFPiHaskell}\bigskip
 	
-	Audio \& Video - Mitschnitte auf YouTube, Näheres momentan ebenfalls TBA
+	\emph{Audio \& Video - Mitschnitte}:\\ \dots auf YouTube, Näheres momentan ebenfalls TBA
     %\end{center}
   \end{frame}
   
@@ -122,7 +122,7 @@
   
   \begin{frame}
     %\begin{center}
-    \Large\textbf{T \& R (1): Haskell / GHC}\bigskip \normalsize
+    \Large\textbf{T\&R (1): Haskell / GHC}\bigskip \normalsize
     
     Standard in dieser Vorlesung ist der  \\ \texttt{Glasgow Haskell Compiler} (GHC)
     ($\geqslant$ v. 7.8, wo relevant) \pause \bigskip
@@ -142,7 +142,7 @@
   
   \begin{frame}
     %\begin{center}
-    \Large\textbf{T \& R (2): GHCi}\bigskip \normalsize
+    \Large\textbf{T\&R (2): GHCi}\bigskip \normalsize
     
     Der GHC hat auch eine interaktive Umgebung: GHC\emph{I}.\\\bigskip
     \includegraphics[scale=0.4]{ghci_example.png} 
@@ -155,7 +155,7 @@
   
   \begin{frame}
     %\begin{center}
-    \Large\textbf{T \& R (3): Hackage}\bigskip \normalsize
+    \Large\textbf{T\&R (3): Hackage}\bigskip \normalsize
     
     Die meisten Bibliotheken von Haskell wohnen auf \emph{Hackage}: \\ \bigskip \texttt{https://hackage.haskell.org/}
     
@@ -167,7 +167,7 @@
   
   \begin{frame}
     %\begin{center}
-    \Large\textbf{T \& R (4): cabal}\bigskip \normalsize
+    \Large\textbf{T\&R (4): cabal}\bigskip \normalsize
     
     Haskells \texttt{cabal} ist ein Programm zum erstellen, verpacken und installieren
     von Bibliotheken und Programmen:
@@ -176,7 +176,8 @@
     \item lokale Installation (keine sudo-Rechte notwendig)
     \item Zugriff auf Hackage 
     \item Hilfe beim Erstellen von Paketen
-    \item Dependency management
+    \item Management von Abhängigkeiten
+    \item Sandboxes
     \item \dots
     \end{itemize}
     %\end{center}
@@ -186,7 +187,7 @@
   
   \begin{frame}
     %\begin{center}
-    \Large\textbf{T \& R (5): LYAHFGG}\bigskip \normalsize
+    \Large\textbf{T\&R (5): LYAHFGG}\bigskip \normalsize
     
     \begin{multicols}{2}
     \begin{center}
@@ -370,7 +371,7 @@
   
   \begin{frame}[fragile]
   
-  \Large\textbf{Haskell-Lösung: Typklassen} \normalsize
+  \Large\textbf{Haskells Lösung: Typklassen} \normalsize
 
   \begin{minted}[size=tiny]{haskell}
    quadrat :: Num a => a -> a
@@ -415,7 +416,7 @@ instance Num Int where
   Es gibt in Haskell zwei Möglichkeiten, einen Typen einer Typklasse hinzuzufügen:\pause  
   
   \begin{multicols}{2}
-  \emph{Von Hand:}
+  \emph{Von Hand (geht immer):}
   
   \begin{minted}[size=tiny]{haskell}
   class Show a where
@@ -430,7 +431,7 @@ instance Num Int where
   
   \pause
   \columnbreak  
-  \emph{Automatisch:}
+  \emph{Automatisch (geht meistens):}
   
   \begin{minted}[size=tiny]{haskell}
   class Show a where
@@ -647,16 +648,53 @@ main = do putStrLn "Please enter text: "
           str <- getLine
           (putStrLn . unwords . reverse . words) str
   \end{minted}
+  
+\pause
+
+  \begin{minted}[size=tiny]{haskell}
+getLine  :: IO String
+words    :: String -> [String]
+map      :: (a -> b) -> [a] -> [b]
+reverse  :: [a] -> [a]
+unwords  :: [String] -> String
+putStrLn :: String -> IO ()
+  \end{minted}
+\bigskip 
+\pause
+
+$\Rightarrow$ Hohes Abstraktionslevel
+
+
 \end{frame}
 
 
 %----------------------------------------------------------------------------------------
 
-  \begin{frame}[fragile]
+\begin{frame}
 
-  \begin{minted}[size=tiny]{haskell}
-        -- ... to be implemented
-  \end{minted}
+\Large\textbf{\underline{Zusammenfassung:}}\bigskip\normalsize
+
+\begin{itemize}
+\item Thinking in Types: \pause
+      \begin{itemize}
+      \item Starke, statische Typen: Der Compiler ist dein Freund \pause
+      \item Seiteneffekte nur in IO \pause
+      \end{itemize}
+\item Funktionen sind \glqq first class citizens\grqq \pause
+\item Problemlösung durch Kombination von Funktionen  \pause
+\end{itemize}
+  
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\begin{center}
+\Large\textbf{Fragen?}
+\end{center}
+
 \end{frame}
   
 
