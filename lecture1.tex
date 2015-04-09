@@ -266,7 +266,7 @@
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
-  
+  \subsection{Grundlagen}
   \begin{frame}[fragile]
   
   %\begin{center}
@@ -313,7 +313,7 @@
 %----------------------------------------------------------------------------------------  
   
   \begin{frame}[fragile]
-  
+  \subsection{Typklassen}
   \Large\textbf{Problemstellung:}\bigskip \normalsize
 
   Was ist das Problem mit folgender Funktion?
@@ -410,14 +410,51 @@ instance Num Int where
   \end{minted}
   \end{multicols} 
   
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}[fragile]
+  
+  Weitere Beispiele für Typklassen: \pause
+
+  \begin{minted}[size=tiny]{haskell}
+class Eq a where
+  (==) :: a -> a -> Bool
+  ...
+  \end{minted}
+  
+  \pause
+  
+  \begin{minted}[size=tiny]{haskell}
+class Eq a => Ord a where
+  (<=)    :: a -> a -> Bool     -- minimal definition
+  compare :: a -> a -> Ordering -- data Ordering=LT|EQ|GT
+  ...
+  \end{minted}
+  
+  \pause
+  
+  \begin{minted}[size=tiny]{haskell}
+class Show a where
+  show :: a -> String
+  \end{minted}
+  
   \pause
   
   $\Rightarrow$ Mehr zu Typklassen (inkl. \texttt{Functor, Applicative, Monad}) 
   nächste Woche.
- 
-  
+
 \end{frame}
 
+%----------------------------------------------------------------------------------------  
+  \subsection{Purity}
+  \begin{frame}[fragile]
+
+  \begin{minted}[size=tiny]{haskell}
+        -- ... to be implemented
+  \end{minted}
+\end{frame}
 
 %----------------------------------------------------------------------------------------
   
