@@ -282,7 +282,9 @@
 \begin{frame}
 
     \begin{center}
-    \Large\textbf{Thinking in Types}
+    \Large\textbf{Thinking in Types} \bigskip
+    
+    \includegraphics[scale=0.25]{typing.png} 
     \end{center}
 
 \end{frame}
@@ -506,7 +508,13 @@ class Show a where
 \begin{frame}
 
     \begin{center}
-    \Large\textbf{Lazy Evaluation}
+    \Large\textbf{Lazy Evaluation} \scriptsize \bigskip
+    
+    \textit{" Garbage collection means the programmer doesn't need to worry about the end of 
+    a value's life. Laziness means she doesn't need to worry about its beginning, 
+    either."}
+    (Doaitse Swierstra)
+    
     \end{center}
 
 \end{frame}
@@ -521,13 +529,120 @@ class Show a where
 \end{center}
 \end{frame}
 
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+
+\emph{Lazy Evaluation} (a.k.a. call-by-need) bedeutet, einen Ausdruck erst dann zu berechnen, wenn er aktiv nachgefragt wird.\bigskip \pause
+
+Eine weitere Komponente ist das so genannte \glqq sharing\grqq\ von einmal berechneten Werten, um unnötige Rechenzeit zu sparen.\bigskip \pause
+
+Das hat offensichtliche Vorteile: \pause \smallskip
+\begin{itemize}
+\item Gesteigerte Performance \pause
+	\begin{itemize}
+	\item Memoization
+	\end{itemize} \pause
+\item Unendliche Datenstrukturen \pause
+\item Faule Kontrollstrukturen 
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}[fragile]
+
+\Large\textbf{Beispiele:} \normalsize \smallskip
+\pause
+
+Unendliche Datenstrukturen:
+
+\begin{minted}[fontsize=\footnotesize]{haskell}
+fibs :: [Int]
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+\end{minted}
+
+\pause
+
+\begin{minted}[fontsize=\footnotesize]{haskell}
+fibs = [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597 ...
+\end{minted}
+
+\smallskip
+\pause
+
+Konstrollstrukturen als eigene Abstraktion (statt primitiv):
+\pause
+
+\begin{multicols}{2}
+
+\begin{minted}[fontsize=\footnotesize]{haskell}
+-- lazy, as by default
+
+foo :: Int -> Int -> Int
+foo x y = 2 * x
+\end{minted}
+
+\pause
+
+\begin{minted}[fontsize=\footnotesize]{haskell}
+ghci: foo 5 undefined
+10
+\end{minted}
+
+\pause
+\columnbreak
+
+\begin{minted}[fontsize=\footnotesize]{haskell}
+{-# LANGUAGE BangPatterns #-}
+
+bar :: Int -> Int -> Int
+bar x !y = 2 * x
+\end{minted}
+
+\pause
+
+\begin{minted}[fontsize=\footnotesize]{haskell}
+ghci: bar 5 undefined
+*** Exception: Prelude.undefined
+\end{minted}
+\end{multicols}
+\pause
+
+Die Unterschiede können bei Funktionen mit Seiteneffekten subtil aber gefährlich werden.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+
+Lazy Evaluation kann auch genau \emph{nicht} das sein, was man braucht:
+
+\begin{itemize}
+\item File - IO   (Datei schließen, bevor Inhalt gelesen wurde) \pause
+\item Performance (Trotz Analyse durch den Compiler)            \pause
+\item Exception Handling                                        \pause
+\item \dots \pause
+\end{itemize}
+
+\bigskip
+
+Für diese Fälle gibt es Möglichkeiten, den Default zu umgehen (\emph{strictness annotation}, siehe \emph{BangPatterns}). Für Code mit hohen Anforderungen bzgl. Performance ist das quasi unumgänglich. \bigskip \pause
+
+Es herrscht Uneinigkeit darüber, was der Standard sein sollte.
+
+\end{frame}
+
 %----------------------------------------------------------------------------------------
   
 \section{Problemlösen durch Zusammensetzen}
 \begin{frame}
 
     \begin{center}
-    \Large\textbf{Problemlösen durch Zusammensetzen}
+    \Large\textbf{Problemlösen durch Zusammensetzen} \bigskip \bigskip
+    
+    \includegraphics[scale=0.175]{ben-Jigsaw-puzzle-2.png} 
     \end{center}
 
 \end{frame}
@@ -654,7 +769,6 @@ main = do putStrLn "Please enter text: "
   \begin{minted}[size=tiny]{haskell}
 getLine  :: IO String
 words    :: String -> [String]
-map      :: (a -> b) -> [a] -> [b]
 reverse  :: [a] -> [a]
 unwords  :: [String] -> String
 putStrLn :: String -> IO ()
@@ -664,21 +778,21 @@ putStrLn :: String -> IO ()
 
 $\Rightarrow$ Hohes Abstraktionslevel
 
-
 \end{frame}
-
 
 %----------------------------------------------------------------------------------------
 
 \begin{frame}
 
 \Large\textbf{\underline{Zusammenfassung:}}\bigskip\normalsize
+\pause
 
 \begin{itemize}
 \item Thinking in Types: \pause
       \begin{itemize}
       \item Starke, statische Typen: Der Compiler ist dein Freund \pause
-      \item Seiteneffekte nur in IO \pause
+      \item Seiteneffekte nur in IO; Wert vs. Berechnung \pause
+      \item call-by-need \& sharing
       \end{itemize}
 \item Funktionen sind \glqq first class citizens\grqq \pause
 \item Problemlösung durch Kombination von Funktionen  \pause
