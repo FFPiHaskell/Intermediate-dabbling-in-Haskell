@@ -311,9 +311,9 @@
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
-  
-  \begin{frame}[fragile]
   \subsection{Typklassen}
+  \begin{frame}[fragile]
+  
   \Large\textbf{Problemstellung:}\bigskip \normalsize
 
   Was ist das Problem mit folgender Funktion?
@@ -420,7 +420,7 @@ instance Num Int where
 
   \begin{minted}[size=tiny]{haskell}
 class Eq a where
-  (==) :: a -> a -> Bool
+  (==) :: a -> a -> Bool        -- minimal definition
   ...
   \end{minted}
   
@@ -437,7 +437,7 @@ class Eq a => Ord a where
   
   \begin{minted}[size=tiny]{haskell}
 class Show a where
-  show :: a -> String
+  show :: a -> String           -- minimal definition
   \end{minted}
   
   \pause
@@ -447,13 +447,15 @@ class Show a where
 
 \end{frame}
 
-%----------------------------------------------------------------------------------------  
-  \subsection{Purity}
-  \begin{frame}[fragile]
+%----------------------------------------------------------------------------------------
 
-  \begin{minted}[size=tiny]{haskell}
-        -- ... to be implemented
-  \end{minted}
+\subsection{Purity}
+\begin{frame}
+
+    \begin{center}
+    \Large\textbf{Purity}
+    \end{center}
+
 \end{frame}
 
 %----------------------------------------------------------------------------------------
