@@ -1,5 +1,6 @@
 \documentclass[unknownkeysallowed]{beamer}
 
+\usepackage{color}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[german]{babel}
@@ -213,6 +214,27 @@
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
+
+\begin{frame}
+\begin{center}
+
+  "Haskell is a purely functional programming language\\with strong and static types
+  and lazy evaluation"
+  
+\end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+\begin{center}
+
+  "Haskell is a \textcolor{red}{purely} \textcolor{blue}{functional} programming language \\ with \textcolor{green}{strong and static types} and \textcolor{magenta}{lazy evaluation}"
+  
+\end{center}
+\end{frame}
+  
+%----------------------------------------------------------------------------------------  
   
   \begin{frame}[fragile]
   
@@ -241,16 +263,15 @@
   \columnbreak
   
   \begin{itemize}
-  \item higher order fun. \pause
+  \item Higher order fun. \pause
   \item Guards            \pause
   \item Curryfizierung    \pause
   \end{itemize}
 
   \end{multicols}
-  
 
   \begin{itemize}
-  \item Anwendung von Funktionen: \mint{haskell}|f x y -- statt f(x,y)|
+  \item Anwenden von Funktionen: \mint{haskell}|f x y -- statt f(x,y) wie z.B. in Java| 
   \end{itemize}
   
 \end{frame}
@@ -263,6 +284,16 @@
     \Large\textbf{Thinking in Types}
     \end{center}
 
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+\begin{center}
+
+  "Haskell is a purely functional programming language \\ with \textcolor{green}{strong and static types} and lazy evaluation"
+  
+\end{center}
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
@@ -420,15 +451,15 @@ instance Num Int where
 
   \begin{minted}[size=tiny]{haskell}
 class Eq a where
-  (==) :: a -> a -> Bool        -- minimal definition
-  ...
+  (==) :: a -> a -> Bool  -- Minimale Definition für
+  ...                     -- eine Instanz der Klasse
   \end{minted}
   
   \pause
   
   \begin{minted}[size=tiny]{haskell}
 class Eq a => Ord a where
-  (<=)    :: a -> a -> Bool     -- minimal definition
+  (<=)    :: a -> a -> Bool     -- Minimale Definition
   compare :: a -> a -> Ordering -- data Ordering=LT|EQ|GT
   ...
   \end{minted}
@@ -437,7 +468,7 @@ class Eq a => Ord a where
   
   \begin{minted}[size=tiny]{haskell}
 class Show a where
-  show :: a -> String           -- minimal definition
+  show :: a -> String           -- Minimale Definition
   \end{minted}
   
   \pause
@@ -458,6 +489,16 @@ class Show a where
 
 \end{frame}
 
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+\begin{center}
+
+  "Haskell is a \textcolor{red}{purely} functional programming language \\ with strong and static types and lazy evaluation"
+  
+\end{center}
+\end{frame}
+
 %----------------------------------------------------------------------------------------
   
 \section{Lazy Evaluation}
@@ -470,6 +511,146 @@ class Show a where
 \end{frame}
 
 %----------------------------------------------------------------------------------------  
+
+\begin{frame}
+\begin{center}
+
+  "Haskell is a purely functional programming language \\ with strong and static types and \textcolor{magenta}{lazy evaluation}"
+  
+\end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+  
+\section{Problemlösen durch Zusammensetzen}
+\begin{frame}
+
+    \begin{center}
+    \Large\textbf{Problemlösen durch Zusammensetzen}
+    \end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+\begin{center}
+
+  "Haskell is a purely \textcolor{blue}{functional} programming language \\ with strong and static types and lazy evaluation"
+  
+\end{center}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}[fragile]
+
+In der Informatik ist \emph{\glqq devide and conquer\grqq} häufig ein guter Ansatz.
+ 
+In Haskell ist die Lösung zu einem größeren Problem ebenfalls oft das \glqq Zusammenstecken\grqq\
+von Lösungen kleinerer Teilprobleme.
+
+\pause
+
+\begin{minted}[fontsize=\small]{haskell}
+-- function composition
+(.) :: (b -> c) -> (a -> b) -> a -> c
+(.) f g = \x -> f (g x)
+\end{minted}
+
+\bigskip
+  
+\pause 
+
+\textbf{Beispielaufgabe:} Schreibe ein Programm das eine Zeile Text von \texttt{stdin} liest und die  Wörter in umgekehrter Reihenfolge auf \texttt{stdout} wieder ausgibt.
+
+\end{frame} 
+
+%----------------------------------------------------------------------------------------
+
+  \begin{frame}[fragile]
+  
+  \begin{multicols}{2}
+
+  \begin{minted}[fontsize=\tiny]{c}
+int main()
+{
+  //the array to store the entered sentence
+  char *text=(char *)malloc(100*sizeof(char));
+  //used for storing words
+  char *temp=(char *)malloc(10*sizeof(char));
+  printf("Enter the line of text\n");
+  gets(text); //use gets
+  int ctr=0;
+  // initalize words as one because there would
+  // be at least one word
+  int words=1; 
+  int row;   
+  
+  while(text[ctr]!='\0')
+    if(text[ctr++]==' ')
+      //count number of words by counting spaces
+      words++;
+  
+  //A 2-D array of words is made
+  char **word=(char **)malloc(words*sizeof(char));
+  for(row=0;row<words;row++)
+    word[row]=(char *)malloc(10*sizeof(char));
+    
+  int len=0;
+  row=0;
+  \end{minted}
+
+\columnbreak  
+  
+  \begin{minted}[fontsize=\tiny]{c}
+  while(len<strlen(text))
+  {
+    sscanf(text+len,"%s",temp);//scanf from appropriate
+    strcpy(word[row++],temp);//copy the extracted word
+    len=len+strlen(temp)+1;//scan the next word
+  }
+  
+  char *swaptemp=(char *)malloc(10*sizeof(char));
+  for(row=0;row<words/2;row++)
+  {
+    // swap the first with last second with second 
+    // last and so on
+    strcpy(swaptemp,word[row]);
+    strcpy(word[row],word[words-row-1]);
+    strcpy(word[words-row-1],swaptemp);
+  }
+  
+  strcpy(text,"");
+  
+  for(row=0;row<words;row++)
+  {
+    strcat(text,word[row]);
+    strcat(text," ");//form the new text by conca
+  }
+  
+  printf("%s",text);
+  getch();
+}
+\end{minted}  
+  
+\end{multicols}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+  \begin{frame}[fragile]
+
+  \begin{minted}[size=tiny]{haskell}
+main :: IO ()
+main = do putStrLn "Please enter text: "
+          str <- getLine
+          (putStrLn . unwords . reverse . words) str
+  \end{minted}
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
 
   \begin{frame}[fragile]
 
