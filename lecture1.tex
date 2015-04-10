@@ -264,14 +264,14 @@
   \begin{multicols}{2}
   \begin{itemize}
   \item Typsignaturen    \pause
-  \item Pattern Matching \pause
   \item Polymorphismus   \pause
+  \item Higher order fun. \pause
   \end{itemize}
   
   \columnbreak
   
   \begin{itemize}
-  \item Higher order fun. \pause
+  \item Pattern Matching \pause
   \item Guards            \pause
   \item Curryfizierung    \pause
   \end{itemize}
@@ -616,7 +616,7 @@ $\Rightarrow$ Es gibt einen Unterschied zwischen \emph{Wert} und \emph{Berechnun
 -- All good! =)
 main :: IO ()
 main = do
-  putStrLn "Hallo! Wie heitßt du?"
+  putStrLn "Hallo! Wie heisst du?"
   str <- getLine
   -- str :: String, 
   -- trotzdem noch im IO-Typ
@@ -702,7 +702,7 @@ Das hat offensichtliche Vorteile: \pause \smallskip
 Unendliche Datenstrukturen:
 
 \begin{minted}[fontsize=\footnotesize]{haskell}
-fibs :: [Int]
+fibs :: [Integer]
 fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
 \end{minted}
 
@@ -910,13 +910,25 @@ main = do putStrLn "Bitte Text eingeben: "
   
 \pause
 
-  \begin{minted}[size=tiny]{haskell}
+\begin{minted}[size=tiny]{haskell}
 getLine  :: IO String
+\end{minted}
+\pause
+\begin{minted}[size=tiny]{haskell}
 words    :: String -> [String]
+\end{minted}
+\pause
+\begin{minted}[size=tiny]{haskell}
 reverse  :: [a] -> [a]
+\end{minted}
+\pause
+\begin{minted}[size=tiny]{haskell}
 unwords  :: [String] -> String
+\end{minted}
+\pause
+\begin{minted}[size=tiny]{haskell}
 putStrLn :: String -> IO ()
-  \end{minted}
+\end{minted}
 \bigskip 
 \pause
 
@@ -937,7 +949,7 @@ $\Rightarrow$ Hohes Abstraktionslevel
       \begin{itemize}
       \item Starke, statische Typen: Der Compiler ist dein Freund \pause
       \item Seiteneffekte nur in IO; Wert vs. Berechnung \pause
-      \item call-by-need \& sharing
+      \item call-by-need \& sharing\pause
       \end{itemize}
 \item Funktionen sind \glqq first class citizens\grqq \pause
 \item Problemlösung durch Kombination von Funktionen
