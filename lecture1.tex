@@ -43,7 +43,7 @@
 	
 	\begin{itemize}
 	\item Organisatorisches \& Überlebenstipps
-	\item Wiederholung Haskell-Basics
+	\item Wiederholung Haskell-Grundlagen
 	\item Thinking in Types
 	\item Lazy Evaluation
 	\item Problemlösen durch Zusammenstecken
@@ -58,7 +58,9 @@
   \begin{frame}
 
     \begin{center}
-    \Large\textbf{Organisatorisches \& Überlebenstipps}
+    \Large\textbf{Organisatorisches \& Überlebenstipps} \bigskip
+    
+    \includegraphics[scale=0.3]{Noun-project-1063.png} 
     \end{center}
   \end{frame}
 
@@ -207,10 +209,12 @@
 
 %----------------------------------------------------------------------------------------  
 
-\section{Wiederholung}
+\section{Grundlagen}
 \begin{frame}
 \begin{center}
-\Large\textbf{Wiederholung Haskell-Basics}
+\Large\textbf{Wiederholung Haskell-Grundlagen} \bigskip
+
+\includegraphics[scale=0.35]{listmonster.png} 
 \end{center}
 \end{frame}
 
@@ -219,7 +223,7 @@
 \begin{frame}
 \begin{center}
 
-  "Haskell is a purely functional programming language\\with strong and static types
+  "Haskell is a pure, functional programming language\\with strong and static types
   and lazy evaluation"
   
 \end{center}
@@ -230,7 +234,7 @@
 \begin{frame}
 \begin{center}
 
-  "Haskell is a \textcolor{red}{purely} \textcolor{blue}{functional} programming language \\ with \textcolor{green}{strong and static types} and \textcolor{magenta}{lazy evaluation}"
+  "Haskell is a \textcolor{red}{pure,} \textcolor{blue}{functional} programming language \\ with \textcolor{green}{strong and static types} and \textcolor{magenta}{lazy evaluation}"
   
 \end{center}
 \end{frame}
@@ -284,7 +288,7 @@
     \begin{center}
     \Large\textbf{Thinking in Types} \bigskip
     
-    \includegraphics[scale=0.25]{typing.png} 
+    \includegraphics[scale=0.3]{typing.png} 
     \end{center}
 
 \end{frame}
@@ -294,7 +298,7 @@
 \begin{frame}
 \begin{center}
 
-  "Haskell is a purely functional programming language \\ with \textcolor{green}{strong and static types} and lazy evaluation"
+  "Haskell is a pure, functional programming language \\ with \textcolor{green}{strong and static types} and lazy evaluation"
   
 \end{center}
 \end{frame}
@@ -487,7 +491,9 @@ class Show a where
 \begin{frame}
 
     \begin{center}
-    \Large\textbf{Purity}
+    \Large\textbf{Purity} \bigskip
+    
+    \includegraphics[scale=0.25]{PureFun.png} 
     \end{center}
 
 \end{frame}
@@ -497,10 +503,145 @@ class Show a where
 \begin{frame}
 \begin{center}
 
-  "Haskell is a \textcolor{red}{purely} functional programming language \\ with strong and static types and lazy evaluation"
+  "Haskell is a \textcolor{red}{pure}, functional programming language \\ with strong and static types and lazy evaluation"
   
 \end{center}
 \end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+
+Eine Funktion oder Methode wird \emph{\glqq pur\grqq} genannt, wenn sie sich auf eine mathematische Funktion reduzieren lässt. Das bedeutet: \pause
+
+\begin{itemize}
+\item Keine Seiteneffekte\\ (keinen Zustand ändern, keine Datei löschen etc.) \pause
+\item Keine destruktiven Updates von Variablen (immutablility)\pause
+\end{itemize}
+
+(Fast) alle Funktionen in Haskell sind pur.\bigskip
+
+\pause
+
+\underline{Stichwort \emph{referential transparency:}}
+
+Ein Ausdruck ist \emph{transparent}, wenn er jederzeit durch seinen Wert ersetzt werden kann, ohne dass sich das Verhalten des Programms ändert.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}[fragile]
+
+\emph{Referential Transparency}: a case study
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+-- pure
+zehn :: Int
+zehn = 5 + 5
+\end{minted}
+
+\pause
+\columnbreak
+
+\begin{minted}{java}
+/* impure */
+public int zehn() {
+    return 5 + fuenf();
+}
+
+private int fuenf() {
+    // oops...
+    raketenAbfeuern();
+    return 5;
+}
+\end{minted}
+\end{multicols}
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}
+
+% must ... not ... make ... stupid ... cons-list joke!
+\underline{\textbf{Pure programming:}  The \emph{pros} and \emph{cons}:} \pause
+
+\begin{multicols}{2}
+
+\textcolor{green}{\underline{PRO:}} \pause\smallskip
+
+\begin{itemize}
+\item Typsicherheit! \\ \footnotesize
+      Wir wissen per Compiler, dass passiert was wir wollen \pause \normalsize
+\item Modularität! \\ \footnotesize
+      Kein global state, Komponenten sind also sicher und isoliert \pause \normalsize
+\end{itemize}
+
+\columnbreak
+
+\textcolor{red}{\underline{CON:}} \pause\smallskip
+
+\begin{itemize}
+\item Nutzlosigkeit! \\
+\footnotesize Ganz ohne Seiteneffekte haben wir keinen Grund, ein Programm auszuführen.\\
+\smallskip
+\smallskip
+Der Rechner wird warm, mehr passiert nicht.
+\end{itemize}
+\end{multicols}
+
+\pause
+$\Rightarrow$ IO hat in Haskell einen eigenen Typen, damit offensichtlich ist, wo Seiteneffekte statt finden.
+\mint{haskell}|... can not unify (Int) with (IO Int) ...|
+
+\pause
+$\Rightarrow$ Es gibt einen Unterschied zwischen \emph{Wert} und \emph{Berechnung}!
+\end{frame}
+
+%----------------------------------------------------------------------------------------  
+
+\begin{frame}[fragile]
+
+\underline{\textbf{Pure programming:} The \emph{dos} and \emph{don'ts}:} \pause
+
+\begin{multicols}{2}
+
+\textcolor{green}{\underline{DO:}} \bigskip
+
+\begin{minted}[fontsize=\scriptsize]{haskell}
+-- All good! =)
+main :: IO ()
+main = do
+  putStrLn "Hallo! Wie heitßt du?"
+  str <- getLine
+  -- str :: String, 
+  -- trotzdem noch im IO-Typ
+  putStrLn ("Hallo, " ++ show str) 
+  
+\end{minted}
+
+\columnbreak
+\pause
+
+\textcolor{red}{\underline{DON'T:}} \bigskip
+
+\begin{minted}[fontsize=\scriptsize]{haskell}
+-- You're doing it wrong! >.<
+pureInput :: String
+pureInput = unsafePerformIO . getLine
+\end{minted}
+
+\vfill
+
+\end{multicols}
+
+\pause
+$\Rightarrow$ Haskells Herangehensweise an \texttt{IO} ist nicht für jeden intuitiv.
+ Übung hilft allerdings. Mehr dazu in den Tutorien.
+
+\end{frame}
+
 
 %----------------------------------------------------------------------------------------
   
@@ -524,7 +665,7 @@ class Show a where
 \begin{frame}
 \begin{center}
 
-  "Haskell is a purely functional programming language \\ with strong and static types and \textcolor{magenta}{lazy evaluation}"
+  "Haskell is a pure, functional programming language \\ with strong and static types and \textcolor{magenta}{lazy evaluation}"
   
 \end{center}
 \end{frame}
@@ -652,7 +793,7 @@ Es herrscht Uneinigkeit darüber, was der Standard sein sollte.
 \begin{frame}
 \begin{center}
 
-  "Haskell is a purely \textcolor{blue}{functional} programming language \\ with strong and static types and lazy evaluation"
+  "Haskell is a pure, \textcolor{blue}{functional} programming language \\ with strong and static types and lazy evaluation"
   
 \end{center}
 \end{frame}
@@ -759,7 +900,7 @@ int main()
 
   \begin{minted}[size=tiny]{haskell}
 main :: IO ()
-main = do putStrLn "Please enter text: "
+main = do putStrLn "Bitte Text eingeben: "
           str <- getLine
           (putStrLn . unwords . reverse . words) str
   \end{minted}
@@ -776,6 +917,7 @@ putStrLn :: String -> IO ()
 \bigskip 
 \pause
 
+$\Rightarrow$ Thinking in Types      \\ \pause
 $\Rightarrow$ Hohes Abstraktionslevel
 
 \end{frame}
@@ -795,7 +937,7 @@ $\Rightarrow$ Hohes Abstraktionslevel
       \item call-by-need \& sharing
       \end{itemize}
 \item Funktionen sind \glqq first class citizens\grqq \pause
-\item Problemlösung durch Kombination von Funktionen  \pause
+\item Problemlösung durch Kombination von Funktionen
 \end{itemize}
   
 \end{frame}
