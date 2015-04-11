@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+  \PYGdefault{k+kr}{class} \PYGdefault{k+kt}{Show} \PYGdefault{n}{a} \PYGdefault{k+kr}{where}
+   \PYGdefault{n}{show} \PYGdefault{o+ow}{::} \PYGdefault{n}{a} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{k+kt}{String}
+
+  \PYGdefault{k+kr}{data} \PYGdefault{k+kt}{Bool} \PYGdefault{o+ow}{=} \PYGdefault{k+kt}{False} \PYGdefault{o}{|} \PYGdefault{k+kt}{True}
+
+  \PYGdefault{k+kr}{instance} \PYGdefault{k+kt}{Show} \PYGdefault{k+kt}{Bool} \PYGdefault{k+kr}{where}
+    \PYGdefault{n}{show} \PYGdefault{k+kt}{False} \PYGdefault{o+ow}{=} \PYGdefault{l+s}{\PYGdefaultZdq{}False\PYGdefaultZdq{}}
+    \PYGdefault{n}{show} \PYGdefault{k+kt}{True}  \PYGdefault{o+ow}{=} \PYGdefault{l+s}{\PYGdefaultZdq{}True\PYGdefaultZdq{}}
+\end{Verbatim}

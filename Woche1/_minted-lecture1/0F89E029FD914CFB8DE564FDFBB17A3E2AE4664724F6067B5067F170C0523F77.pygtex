@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+   \PYGdefault{n}{quadrat} \PYGdefault{o+ow}{::} \PYGdefault{k+kt}{Num} \PYGdefault{n}{a} \PYGdefault{o+ow}{=\PYGdefaultZgt{}} \PYGdefault{n}{a} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{n}{a}
+   \PYGdefault{n}{quadrat} \PYGdefault{n}{x} \PYGdefault{o+ow}{=} \PYGdefault{n}{x} \PYGdefault{o}{*} \PYGdefault{n}{x}
+\end{Verbatim}

@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+   \PYGdefault{k+kd}{public} \PYGdefault{k+kt}{int} \PYGdefault{n+nf}{fuenf}\PYGdefault{o}{()}
+   \PYGdefault{o}{\PYGdefaultZob{}}
+       \PYGdefault{n}{System}\PYGdefault{o}{.}\PYGdefault{n+na}{out}\PYGdefault{o}{.}\PYGdefault{n+na}{println}\PYGdefault{o}{(}\PYGdefault{l+s}{\PYGdefaultZdq{}Seiteneffekt!\PYGdefaultZdq{}}\PYGdefault{o}{);}
+       \PYGdefault{n}{global\PYGdefaultZus{}var} \PYGdefault{o}{=} \PYGdefault{k+kc}{null}\PYGdefault{o}{;}
+       \PYGdefault{k}{return} \PYGdefault{l+m+mi}{5}\PYGdefault{o}{;}
+   \PYGdefault{o}{\PYGdefaultZcb{}}
+\end{Verbatim}

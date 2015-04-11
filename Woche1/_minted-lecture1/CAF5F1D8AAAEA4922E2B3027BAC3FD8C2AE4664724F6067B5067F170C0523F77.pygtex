@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGdefault{k+kr}{class} \PYGdefault{k+kt}{Eq} \PYGdefault{n}{a} \PYGdefault{o+ow}{=\PYGdefaultZgt{}} \PYGdefault{k+kt}{Ord} \PYGdefault{n}{a} \PYGdefault{k+kr}{where}
+  \PYGdefault{p}{(}\PYGdefault{o}{\PYGdefaultZlt{}=}\PYGdefault{p}{)}    \PYGdefault{o+ow}{::} \PYGdefault{n}{a} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{n}{a} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{k+kt}{Bool}     \PYGdefault{c+c1}{\PYGdefaultZhy{}\PYGdefaultZhy{} minimal definition}
+  \PYGdefault{n}{compare} \PYGdefault{o+ow}{::} \PYGdefault{n}{a} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{n}{a} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{k+kt}{Ordering} \PYGdefault{c+c1}{\PYGdefaultZhy{}\PYGdefaultZhy{} data Ordering=LT|EQ|GT}
+  \PYGdefault{o}{...}
+\end{Verbatim}

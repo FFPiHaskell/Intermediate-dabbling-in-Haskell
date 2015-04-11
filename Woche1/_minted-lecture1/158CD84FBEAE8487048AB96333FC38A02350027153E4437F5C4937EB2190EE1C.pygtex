@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGdefault{k}{return} \PYGdefault{l+m+mi}{5} \PYGdefault{o}{+} \PYGdefault{n}{fuenf}\PYGdefault{o}{();} \PYGdefault{c+c1}{// no referential transparency}
+\end{Verbatim}

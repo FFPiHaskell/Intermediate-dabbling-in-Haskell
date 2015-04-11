@@ -1,0 +1,83 @@
+\documentclass[a4paper,10pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{minted}
+\geometry{a4paper,left=30mm,right=30mm, top=3cm, bottom=2cm} 
+
+\newcommand{\underfat}[1]{\underline{\textbf{#1}}}
+\newcommand{\theuebungszettel}{2}
+
+\parindent0pt
+
+\begin{document}
+
+\begin{center}
+  \begin{huge}
+    \underfat{Fortgeschrittene funktionale}\\
+    \underfat{Programmierung in Haskell}\\
+  \end{huge}
+\begin{LARGE}
+\textbf{Übungszettel \theuebungszettel}
+\end{LARGE}
+\end{center}
+\section*{Aufgabe \theuebungszettel.1:}
+In der Vorlesung wurde neben dem Datentypen Maybe auch Either vorgestellt. Zur Erinnerung: Either ist definiert als
+\begin{minted}{haskell}
+data Either a b = Left a
+                | Right b
+\end{minted}
+Erstellen sie hierzu die Instanzen für
+\begin{itemize}
+ \item Functor
+       \begin{minted}{haskell}
+  class Functor f where
+      fmap :: (a -> b) -> f a -> f b
+       \end{minted}
+ \item Applicative
+       \begin{minted}{haskell}
+  class Functor f => Applicative f where
+      pure  :: a -> f a
+      (<*>) :: f (a -> b) -> f a -> f b
+       \end{minted}
+ \item Monad
+       \begin{minted}{haskell}
+  class Applicative m => Monad m where
+      return :: a -> m a
+      (>>=)  :: m a -> (a -> m b) -> m b
+       \end{minted}
+\end{itemize}
+\section*{Aufgabe \theuebungszettel.2:}
+Ein weiterer einfacher Datentyp ist \texttt{Identity}, welcher der Datentyp ist, der keinen Effekt hat. Definiert ist \texttt{Identity} als
+\begin{minted}{haskell}
+newtype Identity a = Identity {runIdentity :: a}
+\end{minted}
+Dieses definiert 2 Funktionen: Eine, um eine \texttt{Identity} zu kreieren und eine um wieder an ihren Inhalt zu kommen:
+\begin{minted}{haskell}
+Identity    :: a -> Identity a
+runIdentity :: Identity a -> a
+\end{minted}
+Erstellen sie hier ebenfalls Instanzen für Functor, Applicative und Monad \textbf{ohne} durch Patternmatching an den Inhalt zu kommen. (Nutzen sie hierfür die Funktion \texttt{runIdentity}).
+
+\section*{Aufgabe \theuebungszettel.3:}
+In der Vorlesung wurde ebenfalls die State-Monade besprochen. Die Definition ist wie folgt:
+\begin{minted}{haskell}
+newtype State s a = State {runState :: s -> (a,s)}
+\end{minted}
+Dieses definiert ebenfalls 2 Funktionen:
+\begin{minted}{haskell}
+State    :: (s -> (a,s)) -> State s a
+runState :: State s a -> s -> (a,s)
+\end{minted}
+Erstellen sie hier ebenfalls die Instanzen:
+\begin{minted}{haskell}
+Functor (State s)
+Applicative (State s)
+Monad (State s)
+\end{minted}
+
+\end{document}
