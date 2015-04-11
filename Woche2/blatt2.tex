@@ -26,12 +26,12 @@
 \end{LARGE}
 \end{center}
 \section*{Aufgabe \theuebungszettel.1:}
-In der Vorlesung wurde neben dem Datentypen Maybe auch Either vorgestellt. Zur Erinnerung: Either ist definiert als
+In der Vorlesung wurde neben dem Datentypen \texttt{Maybe} auch \texttt{Either} vorgestellt. Zur Erinnerung: \texttt{Either} ist definiert als
 \begin{minted}{haskell}
 data Either a b = Left a
                 | Right b
 \end{minted}
-Erstellen sie hierzu die Instanzen für
+Erstellen Sie hierzu die Instanzen für
 \begin{itemize}
  \item Functor
        \begin{minted}{haskell}
@@ -56,24 +56,24 @@ Ein weiterer einfacher Datentyp ist \texttt{Identity}, welcher der Datentyp ist,
 \begin{minted}{haskell}
 newtype Identity a = Identity {runIdentity :: a}
 \end{minted}
-Dieses definiert 2 Funktionen: Eine, um eine \texttt{Identity} zu kreieren und eine um wieder an ihren Inhalt zu kommen:
+Dieses definiert zwei Funktionen: Eine, um eine \texttt{Identity} zu erstellen, und eine, um wieder an ihren Inhalt zu kommen:
 \begin{minted}{haskell}
 Identity    :: a -> Identity a
 runIdentity :: Identity a -> a
 \end{minted}
-Erstellen sie hier ebenfalls Instanzen für Functor, Applicative und Monad \textbf{ohne} durch Patternmatching an den Inhalt zu kommen. (Nutzen sie hierfür die Funktion \texttt{runIdentity}).
+Erstellen Sie hier ebenfalls Instanzen für Functor, Applicative und Monad \textbf{ohne} Pattern-matching auf den Inhalt der \texttt{Identity} (Nutzen Sie die Funktion \texttt{runIdentity}).
 
 \section*{Aufgabe \theuebungszettel.3:}
 In der Vorlesung wurde ebenfalls die State-Monade besprochen. Die Definition ist wie folgt:
 \begin{minted}{haskell}
 newtype State s a = State {runState :: s -> (a,s)}
 \end{minted}
-Dieses definiert ebenfalls 2 Funktionen:
+Dieses definiert ebenfalls zwei Funktionen:
 \begin{minted}{haskell}
 State    :: (s -> (a,s)) -> State s a
 runState :: State s a -> s -> (a,s)
 \end{minted}
-Erstellen sie hier ebenfalls die Instanzen:
+Erstellen Sie hier ebenfalls die Instanzen:
 \begin{minted}{haskell}
 Functor (State s)
 Applicative (State s)
