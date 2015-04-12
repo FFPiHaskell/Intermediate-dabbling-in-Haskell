@@ -42,7 +42,7 @@ Um einen einzelnen \texttt{Char} zu \glqq rotieren\grqq\ kann die Typklasseninst
 
 Implementieren Sie eine Funktion, die eine Datei (z.B. die mitgelieferte \texttt{gnu.txt}) von der Festplatte ausliest, alle Zeilen löscht, die nicht einem an Ihre Funktion übergebenen Prädikat (also einer Funktion \texttt{(String -> Bool)}) entsprechen und dann unter einem anderen Namen abspeichert.
 
-\mint{haskell}|filterFile :: (String -> Bool) -> FilePath -> IO ()|
+\mint{haskell}|filterFile :: (String -> Bool) -> FilePath -> FilePath -> IO ()|
 
 Die hierfür notwendigen \texttt{IO}-Funktionen finden Sie ebenfalls in der \emph{Prelude}.
 
