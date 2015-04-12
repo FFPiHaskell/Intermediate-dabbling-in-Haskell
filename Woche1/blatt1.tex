@@ -1,0 +1,81 @@
+\documentclass[a4paper,10pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{minted}
+\geometry{a4paper,left=30mm,right=30mm, top=3cm, bottom=2cm} 
+
+\newcommand{\underfat}[1]{\underline{\textbf{#1}}}
+\newcommand{\theuebungszettel}{1}
+
+\parindent0pt
+
+\begin{document}
+
+\begin{center}
+  \begin{huge}
+    \underfat{Fortgeschrittene funktionale}\\
+    \underfat{Programmierung in Haskell}\\
+  \end{huge}
+\begin{LARGE}
+\textbf{Übungszettel \theuebungszettel}
+
+\end{LARGE}
+\end{center}
+
+\section*{Aufgabe \theuebungszettel.1:}
+
+Implementieren Sie eine einfache Verschiebechiffre\footnote{http://de.wikipedia.org/wiki/Caesar-Verschlüsselung}, die jeden \texttt{Char} in einem \texttt{String} um eine gegebene Anzahl von Schritten verschiebt. Diese Funktion soll \glqq in beide Richtungen\grqq , also sowohl zum ver- als auch zum entschlüsseln nutzbar sein.
+
+\begin{minted}{haskell}
+-- Für alle n soll gelten: (caesar (-n)) . (caesar n) = id 
+caesar :: Int -> String -> String
+\end{minted}
+
+Um einen einzelnen \texttt{Char} in zu \glqq rotieren\grqq\ kann die Typklasseninstanz \texttt{Enum} von \texttt{Char} nützlich sein. Lesen Sie sich dafür die entsprechende Dokumentation in der \emph{Prelude}\footnote{http://hackage.haskell.org/package/base-4.8.0.0/docs/Prelude.html} durch.
+
+\section*{Aufgabe \theuebungszettel.2:}
+
+Implementieren Sie eine Funktion, die eine Datei (z.B. die mitgelieferte \texttt{gnu.txt}) von der Festplatte ausliest, alle Zeilen löscht, die nicht einem an Ihre Funktion übergebenen Prädikat (also einer Funktion \texttt{(String -> Bool)}) entsprechen und dann unter einem anderen Namen abspeichert.
+
+\mint{haskell}|filterFile :: (String -> Bool) -> FilePath -> IO ()|
+
+\section*{Aufgabe \theuebungszettel.3:}
+
+\underline{Hinweis:} In dieser Aufgaben können an manchen Stellen \emph{List Comprehensions} von Nutzen sein.
+
+\subsection*{Aufgabenteil (a):}
+
+Schreiben Sie eine Funktion, die alle Primzahlen kleiner oder gleich einer Eingabezahl findet. Schreiben Sie außerdem eine Funktion, die eine endlose Liste von Primzahlen generiert (ohne gesonderte Eingabe).
+Hier sind zwei mögliche Typsignaturen:
+
+\begin{minted}{haskell}
+finitePrimes   :: Integer -> [Integer]
+infinitePrimes :: [Integer]
+\end{minted}
+
+\subsection*{Aufgabenteil (b):}
+
+Implementieren Sie zwei Funktionen mit folgendem Verhalten. Sie können dafür Ihre Ergebnisse aus Aufgabenteil \textbf{(a)} verwenden.
+
+\begin{itemize}
+\item Gegeben einen Wert vom Typ \texttt{Integer}, geben Sie die Primfaktoren dieses Wertes
+      als aufsteigende Liste zurück (Diese Liste ist eindeutig für jedes $n \in \mathbb{N}$)\footnote{http://de.wikipedia.org/wiki/Primfaktorzerlegung\#Fundamentalsatz\_der\_Arithmetik}.
+
+      \mint{haskell}|primfaktoren :: Integer -> [Integer]|
+
+\item Gegeben einen Wert vom Typ \texttt{Integer} soll ein Tupel von zwei Primzahlen ausgegeben
+      werden, die summiert die eingegebene Zahl ergeben.
+
+      \mint{haskell}|goldbach :: Integer -> (Integer, Integer)|
+      
+      (Das so ein Paar von Primzahlen für jedes $n \in \mathbb{N}$ existiert, ist die 
+      \emph{Goldbachsche Vermutung}\footnote{http://de.wikipedia.org/wiki/Goldbachsche\_Vermutung}, 
+      eine bisher unbewiesenen Aussage der Mathematik)
+\end{itemize}
+
+\end{document}
