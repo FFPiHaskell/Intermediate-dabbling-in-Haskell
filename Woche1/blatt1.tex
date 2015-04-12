@@ -29,20 +29,22 @@
 
 \section*{Aufgabe \theuebungszettel.1:}
 
-Implementieren Sie eine einfache Verschiebechiffre\footnote{http://de.wikipedia.org/wiki/Caesar-Verschlüsselung}, die jeden \texttt{Char} in einem \texttt{String} um eine gegebene Anzahl von Schritten verschiebt. Diese Funktion soll \glqq in beide Richtungen\grqq , also sowohl zum ver- als auch zum entschlüsseln nutzbar sein.
+Implementieren Sie eine einfache Verschiebechiffre\footnote{http://de.wikipedia.org/wiki/Caesar-Verschlüsselung}, die jeden \texttt{Char} in einem \texttt{String} um eine gegebene Anzahl von Schritten verschiebt. Diese Funktion soll \glqq in beide Richtungen\grqq , also sowohl zum Ver- als auch zum Entschlüsseln nutzbar sein.
 
 \begin{minted}{haskell}
 -- Für alle n soll gelten: (caesar (-n)) . (caesar n) = id 
 caesar :: Int -> String -> String
 \end{minted}
 
-Um einen einzelnen \texttt{Char} in zu \glqq rotieren\grqq\ kann die Typklasseninstanz \texttt{Enum} von \texttt{Char} nützlich sein. Lesen Sie sich dafür die entsprechende Dokumentation in der \emph{Prelude}\footnote{http://hackage.haskell.org/package/base-4.8.0.0/docs/Prelude.html} durch.
+Um einen einzelnen \texttt{Char} zu \glqq rotieren\grqq\ kann die Typklasseninstanz \texttt{Enum} von \texttt{Char} nützlich sein. Lesen Sie sich dafür die entsprechende Dokumentation in der \emph{Prelude}\footnote{http://hackage.haskell.org/package/base-4.8.0.0/docs/Prelude.html} durch.
 
 \section*{Aufgabe \theuebungszettel.2:}
 
 Implementieren Sie eine Funktion, die eine Datei (z.B. die mitgelieferte \texttt{gnu.txt}) von der Festplatte ausliest, alle Zeilen löscht, die nicht einem an Ihre Funktion übergebenen Prädikat (also einer Funktion \texttt{(String -> Bool)}) entsprechen und dann unter einem anderen Namen abspeichert.
 
 \mint{haskell}|filterFile :: (String -> Bool) -> FilePath -> IO ()|
+
+Die hierfür notwendigen \texttt{IO}-Funktionen finden Sie ebenfalls in der \emph{Prelude}.
 
 \section*{Aufgabe \theuebungszettel.3:}
 
