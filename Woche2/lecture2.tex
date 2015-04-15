@@ -22,11 +22,18 @@
 }
 \newmdenv[style=fancy]{important}
 
+% redifine \em for \emph to use bold instead of italics
+\makeatletter
+\DeclareRobustCommand{\em}{%
+  \@nomath\em \if b\expandafter\@car\f@series\@nil
+  \normalfont \else \bfseries \fi}
+\makeatother
+
 % Stuff for Beamer
 \beamertemplatenavigationsymbolsempty
 \usetheme{Warsaw}
 
-\title{Intermediate Dabbling in Haskell}
+\title{Fortgeschrittene funktionale Programmierung in Haskell}
 
 \begin{document}
 
@@ -36,7 +43,7 @@
 
   \begin{frame}
   \begin{center}
-    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \huge\textbf{Fortgeschrittene funktionale Programmierung in Haskell}\\ \bigskip
     \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
     \large Jonas Betzendahl \& Stefan Dresselhaus
     \end{center}
@@ -150,6 +157,80 @@
  \end{minted}
 \end{frame}
 
+\subsection{Produkte, Summen und Exponenten}
+\begin{frame}[fragile]
+Man kann Typen generell in 4 Kategorien einteilen:
+\pause
+\begin{itemize}
+ \item Summentypen: Maybe, Either, Bool, Int, ...
+ \item Produkttypen: Vektoren, Tupel, ...
+ \item rekursive Typen: Liste, Stream, ...
+ \item Exponentialtypen: Funktionen
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+Wie viele mögliche Werte kann
+\begin{minted}{haskell}
+data Sum = S1 Bool | S2 (Maybe Bool) deriving Show
+\end{minted}
+annehmen?
+\pause
+\begin{minted}{haskell}
+S1 True | S1 False |
+S2 (Just True) | S2 (Just False) | S2 (Nothing)
+\end{minted}
+Insgesamt 5. Daher auch die Bezeichnung Summentyp, da $2+(2+1) = 5$ (2 Belegungen für Bool, 2+1 für Maybe Bool).
+\end{frame}
+
+\begin{frame}[fragile]
+Wie viele mögliche Werte kann
+\begin{minted}{haskell}
+data Prod = P Bool Sum
+\end{minted}
+annehmen?
+\pause
+\begin{minted}{haskell}
+P True (S1 True) | P False (S1 True) | P True (S1 False) | ...
+... | P1 True (S2 Nothing) | P1 False (S2 Nothing)
+\end{minted}
+Insgesamt 10. Daher auch die Bezeichnung Produkttyp, da $2*5 = 10$ (2 Belegungen für Bool, 5 für Sum).
+\end{frame}
+
+\begin{frame}[fragile]
+Wie viele mögliche Funktionen der Form
+\begin{minted}{haskell}
+f :: Maybe Bool -> Bool
+\end{minted}
+gibt es?
+\pause
+Insgesamt 8, weil $8 = 2^3$:
+\begin{verbatim}
+Just True | Just False | Nothing
+    False        False     False
+    False        False      True
+    False         True     False
+    False         True      True
+     True        False     False
+     True        False      True
+     True         True     False
+     True         True      True
+\end{verbatim}
+\end{frame}
+
+\begin{frame}[fragile]
+Wozu interessiert uns das?
+\pause
+\begin{itemize}
+ \item Wir können Abschätzen, wie viele \textbf{mögliche} Implementationen es gibt
+ \item Es sollte uns lehren immer die kleinstmöglichen Typen zu nehmen
+ \item Es bietet viele theoretische Spielereien (Beweise, Kategorientheorie, ...)
+ \pause
+ \item Wir können euch jetzt mit \glqq Summentyp\grqq \ und \glqq Produkttyp\grqq \ nerven und können hierauf verweisen :)
+\end{itemize}
+
+\end{frame}
+
 % ------------------------------------------------------------------------------------------------------------
 
 \section{Typklassen}
@@ -204,7 +285,7 @@ Hilfreiche Analogie:\\
 Für den Anfang kann man sich den \textbf{Kontext} als eine Kiste vorstellen, in der etwas liegt.\\
 \bigskip
 \pause
-\texttt{fmap} wertet also nur Funktionen, die auf dem \emph{Inhalt} der Kiste funktionieren würden, zu Funktionen auf, die auf \emph{Kisten mit Dingen} funktionieren.\\\bigskip
+\texttt{fmap} wertet also nur Funktionen, die auf dem \textbf{Inhalt} der Kiste funktionieren würden, zu Funktionen auf, die auf \textbf{Kisten mit Dingen} funktionieren.\\\bigskip
 \pause
 Man kann \texttt{fmap} daher auch etwas anders Klammern:
 \begin{minted}{haskell}
@@ -237,7 +318,9 @@ instance Functor [] where
     fmap f (x:xs) = f x : (fmap f xs)
     fmap _ []     = []
 \end{minted}
-\texttt{fmap} auf Listen ist einfach das bekannte \texttt{map}
+\texttt{fmap} auf Listen ist einfach das bekannte \texttt{map}.\\
+\pause
+\texttt{fmap} hat auch eine infix-Schreibweise: \texttt{<\$>}.
 \end{frame}
 
 
@@ -355,6 +438,19 @@ instance Applicative [] where
 \end{frame}
 
 \begin{frame}[fragile]
+Auch für Applicative gibt es Gesetze:
+\begin{minted}{haskell}
+pure f   <*> x      = fmap f x
+pure id  <*> v      = v
+pure f   <*> pure x = pure (f x)
+     u   <*> pure y = pure ($ y) <*> u
+pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+\end{minted}
+Diese Gesetze regeln (abgesehen von der Verkettung) nur, dass sich Applicative konsistent zu Functor verhält.
+\end{frame}
+
+
+\begin{frame}[fragile]
 \mint{haskell}|ghci > import Control.Applicative|
 \mint{haskell}|ghci > Just (+1) <*> Just 3|
 \pause
@@ -374,6 +470,25 @@ instance Applicative [] where
 \mint{haskell}|ghci > pure (*) <*> [1..3] <*> [1..3]|
 \pause
 \mint{haskell}|       [1,2,3,2,4,6,3,6,9]|
+\end{frame}
+
+% ------------------------------------------------------------------------------------------------------------
+
+\subsection{Monoid}
+\begin{frame}[fragile]
+Ein Monoid ist ein Konzept, was häufiger mal auftaucht. Mathematisch gesehen ist ein Monoid eine Menge mit \textbf{assoziativer Operation} und \textbf{neutralem Element}.\\
+Folglich lautet die Definition in Haskell:
+\begin{minted}{haskell}
+class Monoid a where
+ mempty  :: a
+ mappend :: a -> a -> a
+ mconcat :: [a] -> a
+ mconcat = foldr mappend mempty
+\end{minted}
+\pause
+Monoide, die ihr schon kennt, sind z.B. Listen (mit \texttt{[]} und \texttt{++}) und Bäume.\\
+\pause
+Für \texttt{mappend} schreibt man auch \texttt{<>}.
 \end{frame}
 
 % ------------------------------------------------------------------------------------------------------------
@@ -578,6 +693,16 @@ Diese Regeln sind relativ \glqq natürlich\grqq , da sie im prinzip nur Funktion
 
 \section{Praktische Arbeit}
 
+\subsection{do-notation}
+\begin{frame}[fragile]
+Die do-notation hängt - wie wir eben gesehen haben - mit der Monade zusammen und ist über \texttt{>>=} definiert.\\
+\pause
+Damit verhält sich diese Notation \textbf{für jede Monade anders}.\\
+\pause
+Vorher hatten wir nur \texttt{do} im Kontext von \texttt{IO}. Daher gehen wir nun auf andere Monaden ein und wie hier die do-notation genutzt wird.
+\end{frame}
+
+
 \subsection{List-Comprehension}
 \begin{frame}[fragile]
 Die bereits bekannte List-Comprehension
@@ -612,6 +737,20 @@ Hierzu gibt es 2 Möglichkeiten:
 \end{enumerate}
 \pause
 Letzteres hat den Vorteil, dass man auch Funktionen aufwerten kann, die den Zustand ignorieren.
+\end{frame}
+
+\begin{frame}[fragile]
+Die State-Monade macht keine \glqq Magie\grqq \ im Hintergrund, sondern hält einfach nur einen Zustand fest und hat den Typen
+\mint{haskell}|State s a|
+wobei \texttt{s} der interne Zustand und \texttt{a} der Rückgabewert ist.
+\pause
+Um damit zu arbeiten gibt es u.A. folgende Hilfsfunktionen:
+\begin{minted}{haskell}
+get    :: State s s
+put    :: s -> State s ()
+modify :: (s -> s) -> State s ()
+\end{minted}
+jeweils um den internen Zustand zu holen, setzen oder zu modifizieren.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -658,13 +797,12 @@ Beispiel 2:
 \begin{minted}{haskell}
 module Main where
 import Control.Monad.State
-type CountValue = Int
 type CountState = (Bool, Int)
  
 startState :: CountState
 startState = (False, 0)
 
-play :: String -> State CountState CountValue
+play :: String -> State CountState Int
 --play  ...
 
 \end{minted}
@@ -683,7 +821,7 @@ play (x:xs) = do
    'T' -> put (False, score)
    'G' -> put (True, score)
    _   -> put (on, score)
- playGame xs
+ play xs
 
 main = print $ runState (play "GACAACTCGAAT") startState
 -- -> (-3,(False,-3))
