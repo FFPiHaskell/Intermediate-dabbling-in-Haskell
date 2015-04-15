@@ -64,6 +64,7 @@ runIdentity :: Identity a -> a
 Erstellen Sie hier ebenfalls Instanzen für Functor, Applicative und Monad \textbf{ohne} Pattern-matching auf den Inhalt der \texttt{Identity} (Nutzen Sie die Funktion \texttt{runIdentity}).
 
 \section*{Aufgabe \theuebungszettel.3:}
+\emph{Hinweis: Dies ist eine Knobelaufgabe, in der beide obigen Aufgaben auf einmal gemacht werden müssen. Typed Holes (\_) helfen euch sehr weiter.}\\
 In der Vorlesung wurde ebenfalls die State-Monade besprochen. Die Definition ist wie folgt:
 \begin{minted}{haskell}
 newtype State s a = State {runState :: s -> (a,s)}
