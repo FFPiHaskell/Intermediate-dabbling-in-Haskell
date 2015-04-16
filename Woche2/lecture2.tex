@@ -192,9 +192,19 @@ annehmen?
 \pause
 \begin{minted}{haskell}
 P True (S1 True) | P False (S1 True) | P True (S1 False) | ...
-... | P1 True (S2 Nothing) | P1 False (S2 Nothing)
+... | P True (S2 Nothing) | P False (S2 Nothing)
 \end{minted}
 Insgesamt 10. Daher auch die Bezeichnung Produkttyp, da $2*5 = 10$ (2 Belegungen für Bool, 5 für Sum).
+\end{frame}
+
+\begin{frame}[fragile]
+Wie viele mögliche Werte kann
+\begin{minted}{haskell}
+data Stream a = SI a (Stream a)
+\end{minted}
+annehmen?\\
+\pause
+Unendlich viele.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -260,7 +270,7 @@ class Eq a => Ord a  where
 -- definiert automatisch: compare, >=, <, >, max, min
 \end{minted}
 \pause
-Im folgenden stellen wir 3 Zentrale Typklassen vor: Functor, Applicative, Monad
+Im folgenden stellen wir ein paar Typklassen vor: Functor, Applicative, Monoid, Monad, MonadPlus
 \end{frame}
 
 % ------------------------------------------------------------------------------------------------------------
@@ -493,6 +503,8 @@ Für \texttt{mappend} schreibt man auch \texttt{<>}.
 
 % ------------------------------------------------------------------------------------------------------------
 
+\section{Typclassen cont.}
+
 \subsection{Monad}
 \begin{frame}
 Wozu Monaden?
@@ -653,6 +665,8 @@ f = getInbox >>= getFirstMail >>= getHeader
 \pause
 Eine weitere Funktion, die einem in diesem Kontext begegnet ist \texttt{>>}, welche das Ergebnis verwirft und die nächste Funktion ohne Parameter aufruft:
 \begin{minted}{haskell}
+  m >> k = m >>= \_ -> k                    
+
 main = putStrLn "Geben sie etwas ein."
                     >>  getLine 
                     >>= putStrLn
@@ -663,7 +677,7 @@ Dieses Programm gibt einen String aus (mit dem Ergebnis \texttt{IO ()}) und wir 
 
 \subsection{Monad-Rules}
 \begin{frame}[fragile]
-Monaden haben ähnlich zu Functor und Applicative auch mathematische Regeln, die man erfüllen Muss.\\
+Monaden haben ähnlich zu Functor und Applicative auch mathematische Regeln, die man erfüllen muss.\\
 \begin{itemize}
  \item Linksidentität\\
        \mint{haskell}|return x >>= f == f x|
@@ -690,6 +704,43 @@ f <=< return    == f
 \pause
 Diese Regeln sind relativ \glqq natürlich\grqq , da sie im prinzip nur Funktionskomposition \texttt{(.)} auf Monaden wohldefinieren.
 \end{frame}
+
+\subsection{MonadPlus}
+\begin{frame}[fragile]
+Wir können jede Monade auch als Monoid auffassen (mit \texttt{return} als neutralem Element und \texttt{>>=} als Verknüpfung).\\
+\pause
+Wenn wir \texttt{return} als 1 sehen und \texttt{>>=} als Multiplikation, dann haben manche Monaden auch eine \texttt{0} und eine Addition mit einem Distributivgesetz.\\
+Hierfür gibt es die Klasse \texttt{MonadPlus}:
+\begin{minted}{haskell}
+class (Monad m) => MonadPlus m where
+  mzero :: m a
+  mplus :: m a -> m a -> m a
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Beispiel:
+\begin{minted}{haskell}
+instance MonadPlus [] where
+  mzero = []
+  mplus = (++)
+\end{minted}
+\pause
+Genaugenommen gibt es 2 Möglichkeiten für ein Distributivgesetz: Analog zu einem Körper (wie bei \texttt{[]}) oder mittels \glqq Left Catch\grqq \ (z.B. bei Maybe, IO, STM, ...).\\
+\pause
+Unterschied:
+\begin{minted}{haskell}
+mplus mzero a = a
+mplus a mzero = a
+\end{minted}
+vs.
+\begin{minted}{haskell}
+mplus mzero b = b
+mplus a b     = a
+\end{minted}
+\end{frame}
+
+
 
 \section{Praktische Arbeit}
 
