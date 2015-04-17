@@ -58,9 +58,12 @@
 \section{Typen}
 \subsection{Beispiele}
 \begin{frame}
- Primitive Datentypen sind eine Annotation, wie die Bits im Speicher interpretiert werden sollen.\\
+ Primitive Datentypen sind eine Annotation, wie die Bits im Speicher interpretiert werden sollen. \bigskip
+ 
  \pause
+ 
  Einige primitive Datentypen sollten euch aus anderen Programmiersprachen schon bekannt sein:
+ 
  \begin{itemize}
   \item Zahlen (z.B. Int, Integer, Float, Double, ...)
   \item Zeichenketten (z.B. String, UTF-8-Strings, ...)
@@ -69,19 +72,20 @@
 \end{frame}
 
 \begin{frame}
- Es gibt auch Datentypen höherer Ordnung. Diese zeichnen sich dadurch aus, dass sie alleine nicht vollständig sind.\\
+ Es gibt auch Datentypen höherer Ordnung. Diese zeichnen sich dadurch aus, dass sie alleine nicht vollständig sind. \bigskip
+ 
  \pause
  Auch hier sollten schon einige bekannt sein:\\
- (a,k,v steht hier jeweis für einen (primitiven) Datentypen)
+ (\texttt{a}, \texttt{k} und \texttt{v} steht hier jeweis für einen (primitiven) Datentypen) \pause
  \begin{itemize}
-  \item Liste von a
-  \item Hashmap von k und v
-  \item Vektor von a
-  \item Tree von a
+  \item Liste von \texttt{a} \pause
+  \item Hashmap von \texttt{k} und \texttt{v} \pause
+  \item Vektor von \texttt{a} \pause
+  \item Tree von \texttt{a} \pause
   \item Zusammengesetzte Typen (z.B. Structs in C/C++)
  \end{itemize}
  \pause
- Im folgenden gehen wir auf 2 wesentliche zusammengesetzte Typen in Haskell ein: Maybe und Either.
+ Im Folgenden gehen wir auf zwei wesentliche zusammengesetzte Typen in Haskell ein: \texttt{Maybe} und \texttt{Either}.
 \end{frame}
 
 
@@ -95,37 +99,52 @@
  \pause
  Was hat das für einen Sinn?\\
  \pause
- Maybe gibt das Ergebnis einer Berechnung an, die fehlschlagen kann.\\
+ \texttt{Maybe a} gibt das Ergebnis einer Berechnung vom Typ \texttt{a} an, die fehlschlagen kann.\bigskip
+ 
+ \pause
+ 
  In klassischen Sprachen wird hier meist ein \glqq abgesprochener\grqq \ Fehlerzustand zurückgegeben (0, -1, null, ...). In Haskell wird dies über den Rückgabetyp deutlich gemacht.
 \end{frame}
 
 \begin{frame}[fragile]
- Nachteile
+ Nachteile:
  \begin{itemize}
   \item Ein neuer Datentyp, den man kennen muss
  \end{itemize}
  \pause
- Vorteile
+ Vorteile:
  \begin{itemize}
-  \item keine Absprachen, die man vergessen kann
-  \item einheitliche Behandlung aller Fälle
-  \item mehrere möglicherweise fehlschlagende Operationen gruppieren und nur solange evaluieren, bis die erste fehlschlägt oder alle erfolgreich sind
+  \item keine Absprachen, die man vergessen kann \pause
+  \item einheitliche Behandlung aller Fälle \pause
+  \item mehrere möglicherweise fehlschlagende Operationen gruppieren und nur solange evaluieren, bis die erste fehlschlägt oder alle erfolgreich sind 
  \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
- Beispiel: Finden eines Elementes in einer Liste
+ Beispiel: Finden eines Elementes in einer Liste \bigskip
+ 
  \pause
  \begin{minted}{haskell}
  ghci > import Data.List
+ ghci > :t findIndex
+ findIndex :: (a -> Bool) -> [a] -> Maybe Int
+ \end{minted}
+ 
+ \pause
+ 
+ \begin{minted}{haskell}
  ghci > findIndex (== 5) [1..10]
  Just 4               -- [1..10] !! 4 => 5
+ \end{minted}
  
+ \pause
+ 
+ \begin{minted}{haskell}
  ghci > findIndex (== 1000) [1..10]
  Nothing
  \end{minted}
  \pause
- Da wir \texttt{1000} in der Liste der Zahlen von 1-10 nicht finden können, haben wir keinen gültigen Index, daher bekommen wir ein Nothing.
+ Da wir \texttt{1000} in der Liste der \texttt{Int}s von 1-10 nicht finden können, haben wir keinen gültigen Index, daher wird \texttt{Nothing} zurück gegeben.
 \end{frame}
 
 \subsection{Either}
@@ -136,22 +155,30 @@
                  | Right b
  \end{minted}
  \pause
- Was hat das für einen Sinn?\\
+ Was hat das für einen Sinn?\bigskip
+ 
  \pause
  Either benutzt man, wenn man ein erwartetes Ergebnis \texttt{Right b} vom Typen \texttt{b} hat \textbf{oder} einen Fehlerzustand \texttt{Left a} vom Typen \texttt{a}.\\
- Meistens ist das erste Argument \texttt{String} um eine lesbare Fehlermeldung zu bekommen.\\
+ Meistens ist das erste Argument \texttt{String} um eine lesbare Fehlermeldung zu bekommen.
+ 
  \pause
  \bigskip
- Einfach zu merken: \glqq Right\grqq \ ist der \glqq richtige\grqq \ Fall.
+ 
+ Einfach zu merken: \texttt{Right} \ ist der \glqq richtige\grqq \ Konstruktor.
 \end{frame}
 
 \begin{frame}[fragile]
- Beispiele für eine Benutzung von Either:
+ Beispiel für eine Benutzung von \texttt{Either}: \bigskip
+ 
  \begin{minted}{haskell}
  parse5 :: String -> Either String Int
  parse5 "5" = Right 5
  parse5 _   = Left "Could not parse 5"
+ \end{minted}
  
+ \pause 
+ 
+ \begin{minted}{haskell}
  parse5 "5"   -- Right 5
  parse5 "abc" -- Left "Could not parse 5"
  \end{minted}
@@ -159,61 +186,74 @@
 
 \subsection{Produkte, Summen und Exponenten}
 \begin{frame}[fragile]
-Man kann Typen generell in 4 Kategorien einteilen:
+Man kann Typen generell in 4 Kategorien einteilen: \bigskip
+
 \pause
 \begin{itemize}
- \item Summentypen: Maybe, Either, Bool, Int, ...
- \item Produkttypen: Vektoren, Tupel, ...
- \item rekursive Typen: Liste, Stream, ...
- \item Exponentialtypen: Funktionen
-\end{itemize}
+ \item \textbf{Summentypen}: Maybe, Either, Bool, Int, ... \pause
+ \item \textbf{Produkttypen}: Vektoren, Tupel, ... \pause
+ \item \textbf{rekursive Typen}: Liste, Stream, ... \pause
+ \item \textbf{Exponentialtypen}: Funktionen \pause
+\end{itemize} \bigskip
+
+Warum werden diese Typen gerade so genannt?
 \end{frame}
 
 \begin{frame}[fragile]
-Wie viele mögliche Werte kann
+Wie viele mögliche Werte kann folgender Typ annehmen?
 \begin{minted}{haskell}
 data Sum = S1 Bool | S2 (Maybe Bool) deriving Show
 \end{minted}
-annehmen?
+\bigskip
+
 \pause
 \begin{minted}{haskell}
-S1 True | S1 False |
-S2 (Just True) | S2 (Just False) | S2 (Nothing)
+S1 True, S1 False,
+S2 (Just True), S2 (Just False), S2 (Nothing)
 \end{minted}
-Insgesamt 5. Daher auch die Bezeichnung Summentyp, da $2+(2+1) = 5$ (2 Belegungen für Bool, 2+1 für Maybe Bool).
+\pause
+\bigskip
+
+Insgesamt 5. Daher auch die Bezeichnung Summentyp, da $2+(2+1) = 5$ (2 Belegungen für \texttt{Bool}, 2+1 für \texttt{Maybe Bool}).
 \end{frame}
 
 \begin{frame}[fragile]
-Wie viele mögliche Werte kann
+Wie viele mögliche Werte kann folgender Typ annehmen?
 \begin{minted}{haskell}
 data Prod = P Bool Sum
 \end{minted}
-annehmen?
 \pause
+\bigskip
+
 \begin{minted}{haskell}
-P True (S1 True) | P False (S1 True) | P True (S1 False) | ...
-... | P True (S2 Nothing) | P False (S2 Nothing)
+P True (S1 True), P False (S1 True), P True (S1 False), ...
+... , P True (S2 Nothing), P False (S2 Nothing)
 \end{minted}
-Insgesamt 10. Daher auch die Bezeichnung Produkttyp, da $2*5 = 10$ (2 Belegungen für Bool, 5 für Sum).
+\pause
+\bigskip
+
+Insgesamt 10. Daher auch die Bezeichnung Produkttyp, da $2*5 = 10$ (2 Belegungen für \texttt{Bool}, 5 für \texttt{Sum}).
 \end{frame}
 
 \begin{frame}[fragile]
-Wie viele mögliche Werte kann
+Wie viele mögliche Werte kann folgender Typ annehmen?
 \begin{minted}{haskell}
 data Stream a = SI a (Stream a)
 \end{minted}
-annehmen?\\
 \pause
-Unendlich viele.
+\bigskip
+
+Unendlich viele (siehe auch: unendliche Listen).
 \end{frame}
 
 \begin{frame}[fragile]
-Wie viele mögliche Funktionen der Form
+Wie viele mögliche Funktionen folgender Form gibt es?
 \begin{minted}{haskell}
 f :: Maybe Bool -> Bool
 \end{minted}
-gibt es?
 \pause
+\bigskip
+
 Insgesamt 8, weil $8 = 2^3$:
 \begin{verbatim}
 Just True | Just False | Nothing
@@ -232,11 +272,11 @@ Just True | Just False | Nothing
 Wozu interessiert uns das?
 \pause
 \begin{itemize}
- \item Wir können Abschätzen, wie viele \textbf{mögliche} Implementationen es gibt
- \item Es sollte uns lehren immer die kleinstmöglichen Typen zu nehmen
- \item Es bietet viele theoretische Spielereien (Beweise, Kategorientheorie, ...)
+ \item Wir können Abschätzen, wie viele \textit{mögliche} Bewohner eines Typen es gibt. \pause
+ \item Es sollte uns lehren immer die kleinstmöglichen Typen zu nehmen. \pause
+ \item Es bietet viele theoretische Spielereien (Beweise, Kategorientheorie, ...). \pause
  \pause
- \item Wir können euch jetzt mit \glqq Summentyp\grqq \ und \glqq Produkttyp\grqq \ nerven und können hierauf verweisen :)
+ \item Wir können euch jetzt mit \glqq Summentyp\grqq \ und \glqq Produkttyp\grqq\ nerven und können hierauf verweisen :)
 \end{itemize}
 
 \end{frame}
@@ -245,16 +285,16 @@ Wozu interessiert uns das?
 
 \section{Typklassen}
 \begin{frame}
-Viele Typen haben ähnliche oder gleiche Eigenschaften. Diese Eigenschaften fasst man zu Typklassen zusammen.\\
+Viele Typen haben ähnliche oder gleiche Eigenschaften. Diese Eigenschaften fasst man zu \textbf{Typklassen} zusammen.\\
 \pause
 \begin{itemize}
- \item Zahlen kann man alle verrechnen, auch wenn z.B. Int und Double verschiedene Typen haben
- \item Listen, Vektoren, Arrays haben alle Elemente, über die man z.B. iterieren kann
- \item Maybe, Either, Listen, etc. haben (vielleicht) Elemente, die man verändern kann
+ \item Zahlen kann man alle verrechnen, auch wenn z.B. \texttt{Int} und \texttt{Double} verschiedene Typen sind.
+ \item Listen, Vektoren, Arrays haben alle Elemente, über die man z.B. iterieren kann.
+ \item Maybe, Either, Listen, etc. haben (vielleicht) einen Inhalt, die man verändern kann.
 \end{itemize}
 \pause
 \begin{important}
-\textbf{Warnung:} Typklassen haben nichts mit den Klassen der Objektorientierung zu tun, sondern eher mit Templates und abstrakten Klassen
+\textbf{Warnung:} Typklassen haben nichts mit den Klassen der Objektorientierung zu tun, sondern eher mit Templates und abstrakten Klassen.
 \end{important}
 \end{frame}
 
@@ -270,32 +310,42 @@ class Eq a => Ord a  where
 -- definiert automatisch: compare, >=, <, >, max, min
 \end{minted}
 \pause
-Im folgenden stellen wir ein paar Typklassen vor: Functor, Applicative, Monoid, Monad, MonadPlus
+\bigskip
+
+Im folgenden stellen wir ein paar Typklassen vor:\\
+\texttt{Functor, Applicative, Monoid, Monad, MonadPlus}
 \end{frame}
 
 % ------------------------------------------------------------------------------------------------------------
 
 \subsection{Functor}
 \begin{frame}[fragile]
- Ein Funktor F lässt sich auf jedem Datentypen definieren, der sowas wie einen \glqq Inhalt\grqq \ hat.\\
+ Ein Funktor F lässt sich auf jedem Datentypen definieren, der sowas wie einen \glqq Inhalt\grqq \ hat.\smallskip
+ 
  \pause
- Genauer: Er wird definiert über die Funktion \texttt{fmap}, die es erlaubt eine Funktion auf den Inhalt anzuwenden.
+ Genauer: Dass ein Datentyp ein Funktor ist wird definiert über die Funktion \texttt{fmap}, die es erlaubt, eine Funktion auf den Inhalt anzuwenden. \smallskip
+ 
  \begin{minted}{haskell}
 class Functor f where
     fmap :: (a -> b) -> f a -> f b
  \end{minted}
- \texttt{f} heisst hier \textbf{der Kontext}, in dem \texttt{a} existiert.\\
+ \smallskip
+ 
+ \texttt{f} heisst hier \textbf{der Kontext}, in dem \texttt{a} steht.\\
 \pause
 \bigskip
+
 Spoiler: Liste ist ein Funktor. Maybe auch. Wieso?
 \end{frame}
 
 \begin{frame}[fragile]
 Hilfreiche Analogie:\\
-Für den Anfang kann man sich den \textbf{Kontext} als eine Kiste vorstellen, in der etwas liegt.\\
+Für den Anfang kann man sich den \textbf{Kontext} als eine \glqq Kiste\grqq \ vorstellen, in der etwas liegt.\\
 \bigskip
+
 \pause
 \texttt{fmap} wertet also nur Funktionen, die auf dem \textbf{Inhalt} der Kiste funktionieren würden, zu Funktionen auf, die auf \textbf{Kisten mit Dingen} funktionieren.\\\bigskip
+
 \pause
 Man kann \texttt{fmap} daher auch etwas anders Klammern:
 \begin{minted}{haskell}
@@ -305,7 +355,7 @@ Man kann \texttt{fmap} daher auch etwas anders Klammern:
 \end{frame}
 
 \begin{frame}[fragile]
-Functor-Instanz von Maybe:
+Functor-Instanz von \texttt{Maybe}:
 \begin{minted}{haskell}
 instance Functor Maybe where
     fmap f (Just a) = Just (f a)
@@ -314,7 +364,7 @@ instance Functor Maybe where
 \begin{comment}
 %ÜBUNG
 \pause
-Functor-Instanz von Either:
+\texttt{Functor}-Instanz von Either:
 \begin{minted}{haskell}
 instance Functor Either where
     fmap f (Right a) = Right (f a)
@@ -322,15 +372,18 @@ instance Functor Either where
 \end{minted}
 \end{comment}
 \pause
-Functor-Instanz von Listen:
+\bigskip
+
+\texttt{Functor}-Instanz von Listen:
 \begin{minted}{haskell}
 instance Functor [] where
     fmap f (x:xs) = f x : (fmap f xs)
     fmap _ []     = []
 \end{minted}
+\pause
 \texttt{fmap} auf Listen ist einfach das bekannte \texttt{map}.\\
 \pause
-\texttt{fmap} hat auch eine infix-Schreibweise: \texttt{<\$>}.
+\texttt{fmap} hat auch eine infix-Schreibweise: \texttt{<\$>}
 \end{frame}
 
 
@@ -354,7 +407,7 @@ Beispiel:
 \end{frame}
 
 \begin{frame}[fragile]
-Funktoren sind mathematische Objekte mit Eigenschaften. Damit der Compiler auch die richtigen Optimierungen machen kann, muss jeder Funktor folgende Regeln erfüllen:\\
+Funktoren sind mathematische Objekte mit festen Eigenschaften. Damit der Compiler auch die richtigen Optimierungen machen kann, muss jeder Funktor folgende Regeln erfüllen:\\
 \pause
 \begin{minted}{haskell}
 -- Strukturerhaltung
@@ -406,7 +459,7 @@ fmap' f (Just a) = Just (f (f a))
 
 \subsection{Applicative}
 \begin{frame}[fragile]
-Applicative funktioniert ähnlich zu Funktor. Hierbei kann man auch mit Funktionen in einem Kontext arbeiten.\\
+\texttt{Applicative} funktioniert ähnlich zu \texttt{Functor}. Hierbei kann man auch mit Funktionen in einem Kontext arbeiten.\\
 \pause
 \begin{minted}{haskell}
 class Functor f => Applicative f where
@@ -414,12 +467,12 @@ class Functor f => Applicative f where
     (<*>) :: f (a -> b) -> f a -> f b
 \end{minted}
 \pause
-\texttt{pure} bringt etwas in den Standardkontext (z.B. Liste mit 1 Element, Just x, Right x, ..).\\
+\texttt{pure} bringt etwas in den Standardkontext (z.B. Liste mit 1 Element, \texttt{Just x}, \texttt{Right x}, ..).\\
 \texttt{<*>} ist fast ein \texttt{fmap}, nur dass die Funktion auch in demselben Kontext liegt.
 \end{frame}
 
 \begin{frame}[fragile]
-Applicative-Instanz von Maybe:
+\texttt{Applicative}-Instanz von \texttt{Maybe}:
 \begin{minted}{haskell}
 instance Applicative Maybe where
     pure                   = Just
@@ -438,7 +491,9 @@ instance Applicative Either where
 \end{minted}
 \end{comment}
 \pause
-Applicative-Instanz von Listen:
+\bigskip
+
+\texttt{Applicative}-Instanz von Listen:
 \begin{minted}{haskell}
 instance Applicative [] where
     pure a       = [a]
@@ -448,7 +503,9 @@ instance Applicative [] where
 \end{frame}
 
 \begin{frame}[fragile]
-Auch für Applicative gibt es Gesetze:
+Auch für \texttt{Applicative} gibt es Gesetze:
+\smallskip
+
 \begin{minted}{haskell}
 pure f   <*> x      = fmap f x
 pure id  <*> v      = v
@@ -456,6 +513,9 @@ pure f   <*> pure x = pure (f x)
      u   <*> pure y = pure ($ y) <*> u
 pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
 \end{minted}
+%$
+\bigskip
+
 Diese Gesetze regeln (abgesehen von der Verkettung) nur, dass sich Applicative konsistent zu Functor verhält.
 \end{frame}
 
@@ -486,12 +546,14 @@ Diese Gesetze regeln (abgesehen von der Verkettung) nur, dass sich Applicative k
 
 \subsection{Monoid}
 \begin{frame}[fragile]
-Ein Monoid ist ein Konzept, was häufiger mal auftaucht. Mathematisch gesehen ist ein Monoid eine Menge mit \textbf{assoziativer Operation} und \textbf{neutralem Element}.\\
+Ein Monoid ist ein Konzept, was uns häufiger begegnen wird. Mathematisch gesehen ist ein Monoid eine Menge mit \textit{assoziativer Operation} und \textit{neutralem Element}.\pause \bigskip
+
 Folglich lautet die Definition in Haskell:
 \begin{minted}{haskell}
 class Monoid a where
  mempty  :: a
  mappend :: a -> a -> a
+ 
  mconcat :: [a] -> a
  mconcat = foldr mappend mempty
 \end{minted}
@@ -510,17 +572,18 @@ Für \texttt{mappend} schreibt man auch \texttt{<>}.
 Wozu Monaden?
 \pause
 \begin{itemize}
- \item Man kann auch ohne funktional programmieren
+ \item Man kann auch ohne sie funktional programmieren.
  \pause
- \item Monaden verhalten sich wie ein Semikolon in anderen Sprachen
+ \item Monaden verhalten sich wie ein Semikolon in anderen Sprachen.
  \pause
- \item Monaden \glqq arbeiten\grqq \ im Hintergrund
+ \item Monaden \glqq arbeiten\grqq \ im Hintergrund.
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}[fragile]
-Beispiel
+Beispiel: \smallskip
+
 \begin{minted}{haskell}
 f            :: Maybe Header
 getInbox     :: Maybe Folder
@@ -528,6 +591,8 @@ getFirstMail :: Folder -> Maybe Mail
 getHeader    :: Mail -> Maybe Header
 \end{minted}
 \pause
+\bigskip
+
 Ohne Monaden:
 \begin{minted}{haskell}
 f = case getInbox of
@@ -542,13 +607,16 @@ f = case getInbox of
 \end{minted}
 \end{frame}
 \begin{frame}[fragile]
-Beispiel
+Beispiel: \smallskip
+
 \begin{minted}{haskell}
 f            :: Maybe Header
 getInbox     :: Maybe Folder
 getFirstMail :: Folder -> Maybe Mail
 getHeader    :: Mail -> Maybe Header
 \end{minted}
+\bigskip
+
 Mit Monaden:
 \begin{minted}{haskell}
 f = do
@@ -561,9 +629,10 @@ f = do
 \end{frame}
 
 \begin{frame}[fragile]
-Wie funktioniert diese Magie?\\
+Wie funktioniert diese Magie?\smallskip
+
 \pause
-Monaden benutzen die Funktion \glqq bind \grqq \ (\texttt{>>=}) um Berechnungen zu verketten und arbeit für uns im Hintergrund zu übernehmen.\\
+Monaden benutzen die Funktion \glqq bind \grqq \ (\texttt{>>=}) um Berechnungen zu verketten und Arbeit für uns im Hintergrund zu übernehmen.\\
 \pause
 \begin{minted}{haskell}
 class Applicative m => Monad m where
@@ -572,7 +641,7 @@ class Applicative m => Monad m where
 \end{minted}
 \pause
 \texttt{return} funktioniert analog zu \texttt{pure} und bringt ein Element in den Standardkontext.\\
-\texttt{>>=} enthält die ganze Magie. Prinzipiell \glqq packt\grqq \ es ein \texttt{m a} aus und wendet die mitgegegbene Funktion an.
+\texttt{(>>=)} enthält die ganze Magie. Prinzipiell \glqq packt\grqq \ es ein \texttt{m a} aus und wendet die mitgegegbene Funktion an.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -595,6 +664,8 @@ instance Monad Either where
 \end{minted}
 \end{comment}
 \pause
+\bigskip
+
 Monad-Instanz von Listen:
 \begin{minted}{haskell}
 instance Monad [] where
@@ -649,7 +720,7 @@ f = do
       return header
 \end{minted}
 \pause
-\texttt{<-} extrahiert hier den Wert \glqq aus der Monade\grqq :\\
+\texttt{<-} extrahiert hier den Wert \glqq aus der Monade\grqq :
 \mint{haskell}|getInbox :: Maybe Folder|
 \mint{haskell}|folder   :: Folder      |
 \pause
@@ -657,7 +728,7 @@ f = do
 \end{frame}
 
 \begin{frame}[fragile]
-In manchen Fällen können wir sogar auf die do-notation verzichten. Wenn jeder zurückgegebene Wert direkt von der nächsten Funktion gebraucht wird, dann sparen wir uns die lambda-Ausdrücke und verketten direkt:
+In manchen Fällen können wir sogar auf die do-notation verzichten. Wenn jeder zurückgegebene Wert direkt von der nächsten Funktion gebraucht wird, dann sparen wir uns die $\lambda$-Ausdrücke und die \texttt{do}-Notation und verketten direkt:
 \pause
 \begin{minted}{haskell}
 f = getInbox >>= getFirstMail >>= getHeader
@@ -677,7 +748,7 @@ Dieses Programm gibt einen String aus (mit dem Ergebnis \texttt{IO ()}) und wir 
 
 \subsection{Monad-Rules}
 \begin{frame}[fragile]
-Monaden haben ähnlich zu Functor und Applicative auch mathematische Regeln, die man erfüllen muss.\\
+Monaden haben ähnlich zu \texttt{Functor} und \texttt{Applicative} auch mathematische Regeln, die eine Implementation erfüllen muss:\\
 \begin{itemize}
  \item Linksidentität\\
        \mint{haskell}|return x >>= f == f x|
@@ -695,22 +766,25 @@ f <=< g = (\x -> g x >>= f)
 \end{frame}
 
 \begin{frame}[fragile]
-Somit gibt sich für die Regeln:
+Somit ergibt sich für die Regeln:\bigskip
+
 \begin{minted}{haskell}
 return <=< f    == f
 f <=< return    == f
 (f <=< g) <=< h == f <=< (g <=< h)
 \end{minted}
 \pause
-Diese Regeln sind relativ \glqq natürlich\grqq , da sie im prinzip nur Funktionskomposition \texttt{(.)} auf Monaden wohldefinieren.
+Diese Regeln sind relativ \glqq natürlich\grqq , da sie im Prinzip nur Funktionskomposition \texttt{(.)} auf Monaden wohldefinieren.
 \end{frame}
 
 \subsection{MonadPlus}
 \begin{frame}[fragile]
-Wir können jede Monade auch als Monoid auffassen (mit \texttt{return} als neutralem Element und \texttt{>>=} als Verknüpfung).\\
+Wir können jede Monade auch als Monoid auffassen (mit \texttt{return} als neutralem Element und \texttt{>>=} als Verknüpfung).\smallskip
+
 \pause
-Wenn wir \texttt{return} als 1 sehen und \texttt{>>=} als Multiplikation, dann haben manche Monaden auch eine \texttt{0} und eine Addition mit einem Distributivgesetz.\\
-Hierfür gibt es die Klasse \texttt{MonadPlus}:
+Wenn wir \texttt{return} als 1 sehen und \texttt{>>=} als Multiplikation, dann haben manche Monaden auch eine \texttt{0} und eine Addition mit einem Distributivgesetz.\smallskip
+
+Hierfür gibt es die Typklasse \texttt{MonadPlus}:
 \begin{minted}{haskell}
 class (Monad m) => MonadPlus m where
   mzero :: m a
@@ -726,7 +800,8 @@ instance MonadPlus [] where
   mplus = (++)
 \end{minted}
 \pause
-Genaugenommen gibt es 2 Möglichkeiten für ein Distributivgesetz: Analog zu einem Körper (wie bei \texttt{[]}) oder mittels \glqq Left Catch\grqq \ (z.B. bei Maybe, IO, STM, ...).\\
+Genaugenommen gibt es zwei Möglichkeiten für ein Distributivgesetz: Analog zu einem Körper (wie bei \texttt{[]}) oder mittels \glqq Left Catch\grqq \ (z.B. bei \texttt{Maybe}, \texttt{IO}, \texttt{STM}, ...).\bigskip
+
 \pause
 Unterschied:
 \begin{minted}{haskell}
@@ -748,7 +823,8 @@ mplus a b     = a
 \begin{frame}[fragile]
 Die do-notation hängt - wie wir eben gesehen haben - mit der Monade zusammen und ist über \texttt{>>=} definiert.\\
 \pause
-Damit verhält sich diese Notation \textbf{für jede Monade anders}.\\
+Damit verhält sich diese Notation \textbf{für jede Monade anders}.\bigskip
+
 \pause
 Vorher hatten wir nur \texttt{do} im Kontext von \texttt{IO}. Daher gehen wir nun auf andere Monaden ein und wie hier die do-notation genutzt wird.
 \end{frame}
@@ -779,7 +855,8 @@ guard False = mzero
 
 \subsection{State-Monade}
 \begin{frame}[fragile]
-Häufig hat man das Problem, dass man einen Zustand in einem Programm herumreichen möchte.\\
+Häufig hat man das Problem, dass man einen Zustand in einem Programm herumreichen möchte.\bigskip
+
 \pause
 Hierzu gibt es 2 Möglichkeiten:
 \begin{enumerate}
@@ -791,9 +868,10 @@ Letzteres hat den Vorteil, dass man auch Funktionen aufwerten kann, die den Zust
 \end{frame}
 
 \begin{frame}[fragile]
-Die State-Monade macht keine \glqq Magie\grqq \ im Hintergrund, sondern hält einfach nur einen Zustand fest und hat den Typen
+Die \texttt{State}-Monade macht keine \glqq Magie\grqq \ im Hintergrund, sondern hält einfach nur einen Zustand fest und hat den Typen
 \mint{haskell}|State s a|
-wobei \texttt{s} der interne Zustand und \texttt{a} der Rückgabewert ist.\\
+wobei \texttt{s} der interne Zustand und \texttt{a} der Rückgabewert ist.\bigskip
+
 \pause
 Um damit zu arbeiten gibt es u.A. folgende Hilfsfunktionen:
 \begin{minted}{haskell}
@@ -861,6 +939,7 @@ play :: String -> State CountState Int
 
 \begin{frame}[fragile]
 \begin{minted}{haskell}
+play :: String -> State CountState Int
 play []     = do
               (_, score) <- get
               return score
@@ -878,8 +957,5 @@ main = print $ runState (play "GACAACTCGAAT") startState
 -- -> (-3,(False,-3))
 \end{minted}
 \end{frame}
-
-
-
 
 \end{document}
