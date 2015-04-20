@@ -122,36 +122,173 @@ main = print $ runState (play "GACAACTCGAAT") startState
 
 \subsection{Definition}
 \begin{frame}[fragile]
-Die State-Monade \glqq packt\grqq \ einen State in jeden Funktionsaufruf:
+Definition von State:
 \begin{minted}{haskell}
 newtype State s a = State { runState :: s -> (a,s) }
-
-foo :: a -> State s b
-foo :: a -> (s -> (b,s))
-foo :: a -> s -> (b,s)
 \end{minted}
 \pause
-Wir sehen, dass eine Funktion, die in die State-Monade aufgewertet wurde einfach nur ein weiteres Funktionsargument (den State \texttt{s}) mitgegeben wird und wir statt dem Ergebnis \texttt{b} ein \texttt{(b,s)} bekommen, was den neuen Zustand enthält.
+Diese (Record-)Notation liefert uns 2 Funktionen:
+\begin{overprint}
+\onslide<2>
+\begin{minted}{haskell}
+State    :: (s -> (a,s)) -> State s a
+runState :: State s a    -> (s -> (a,s))
+\end{minted}
+\onslide<3->
+\begin{minted}{haskell}
+State    :: (s -> (a,s)) -> State s a
+runState :: State s a    ->  s -> (a,s)
+\end{minted}
+\end{overprint}
+\onslide<4->
+\texttt{runState} benötigt also 2 Argumente, damit es ein \texttt{(a,s)} liefert.\bigskip \\
+\onslide<5->
+Wenn wir State monadisch nutzen, benutzen wir Funktionen der Form:
+\begin{overprint}
+\onslide<6>
+\begin{minted}{haskell}
+foo :: a -> State s b
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+foo :: a -> (s -> (b,s))
+\end{minted}
+\onslide<8->
+\begin{minted}{haskell}
+foo :: a -> s -> (b,s)
+\end{minted}
+\end{overprint}
+\onslide<9->
+State in der monadischen Form fügt einfach nur einen Funktionsparameter \texttt{s} hinzu und versteckt das \texttt{(b,s)} und gibt lediglich das \texttt{b} in der do-Notation zurück.
 \end{frame}
 
 \subsection{Functor/Applicative/Monad}
 \begin{frame}[fragile]
-Man kann sich die State-Monade als Berechnung vorstellen, die noch nicht ausgeführt werden kann, weil der initiale State nicht gesetzt ist. Dies spiegelt sich auch in der Funktor-Instanz wieder:
+Hilfreich ist es, sich die State-Monade als Berechnung vorzustellen, die noch nicht ausgeführt werden kann, weil der \textbf{initiale} State noch nicht bekannt ist.\bigskip \\
 \pause
+Dies spiegelt sich auch in der Funktor-Instanz wieder:
+\begin{overprint}
+\onslide<3-4>
 \begin{minted}{haskell}
 instance Functor (State s) where
-  fmap f (State rs) = State $ \s -> 
-                      let (a,s') = rs s in (f a, s')
+  fmap f rs = _
+
 \end{minted}
-\pause
-Wir sehen, dass wir erst mit \texttt{rs s} den State, den wir bekommen \glqq ausführen\grqq \ müssen um ein \texttt{a} zu generieren, auf das wir die Funktion anwenden können.\\
-Anschließend verpacken wir in unserem Ergebnis den modifizierten State und die angewendete Funktion.\\
-\pause
-Wichtig ist hier, dass wir wieder eine Funktion in \texttt{State} verpackt zurückgeben müssen, die einen State nimmt:
+\onslide<5>
 \begin{minted}{haskell}
-newtype State s a = State { runState :: s -> (a,s) }
+instance Functor (State s) where
+  fmap f rs = State $ _
+
+\end{minted}
+\onslide<6-7>
+\begin{minted}{haskell}
+instance Functor (State s) where
+  fmap f rs = State $ \s -> _
+
+\end{minted}
+\onslide<8>
+\begin{minted}{haskell}
+instance Functor (State s) where
+  fmap f rs = State $ \s -> let (a,s') = runState rs s
+                            in _
+\end{minted}
+\onslide<9>
+\begin{minted}{haskell}
+instance Functor (State s) where
+  fmap f rs = State $ \s -> let (a,s') = runState rs s
+                            in (f a, _)
+\end{minted}
+\onslide<10>
+\begin{minted}{haskell}
+instance Functor (State s) where
+  fmap f rs = State $ \s -> let (a,s') = runState rs s
+                            in (f a, s')
+\end{minted}
+\end{overprint}
+\bigskip
+\tiny
+\begin{overprint}
+\onslide<3>
+\begin{verbatim}
+Found hole ‘_’ with type: State s b
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  s :: State s a
+  f :: a -> b
+  fmap :: (a -> b) -> State s a -> State s b
+\end{verbatim}
+
+\onslide<4>
+\begin{minted}{haskell}
+State :: (s -> (b,s)) -> State s b
+\end{minted}
+\onslide<5>
+\begin{verbatim}
+Found hole ‘_’ with type: s -> (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  s :: State s a
+  f :: a -> b
+  fmap :: (a -> b) -> State s a -> State s b
+\end{verbatim}
+\onslide<6>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  s :: s
+  rs :: State s a
+  f :: a -> b
+  fmap :: (a -> b) -> State s a -> State s b
+\end{verbatim}
+\onslide<7>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  s :: s
+  rs :: State s a
+  f :: a -> b
+  fmap :: (a -> b) -> State s a -> State s b
+\end{verbatim}
+\begin{minted}{haskell}
+runState :: State s a -> s -> (a,s)
 \end{minted}
 
+\onslide<8>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  s' :: s
+  s :: s
+  rs :: State s a
+  f :: a -> b
+  fmap :: (a -> b) -> State s a -> State s b
+\end{verbatim}
+\onslide<9>
+\begin{verbatim}
+Found hole ‘_’ with type: s
+Where: ‘s’ is a rigid type variable
+Relevant bindings include
+      a :: a
+      s' :: s
+      s :: s
+      rs :: State s a
+      f :: a -> b
+      fmap :: (a -> b) -> State s a -> State s b
+\end{verbatim}
+\end{overprint}
+\normalsize
+\bigskip
+\onslide<10>
+Danke, typed holes!
 \end{frame}
 
 \begin{frame}[fragile]
