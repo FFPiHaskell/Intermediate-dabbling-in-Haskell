@@ -166,39 +166,44 @@ State in der monadischen Form fügt einfach nur einen Funktionsparameter \texttt
 \begin{frame}[fragile]
 Hilfreich ist es, sich die State-Monade als Berechnung vorzustellen, die noch nicht ausgeführt werden kann, weil der \textbf{initiale} State noch nicht bekannt ist.\bigskip \\
 \pause
+Man \textbf{bekommt} also erst einen State, bearbeitet ihn ggf. und gibt dann den geänderten State weiter.\\
+\pause
 Dies spiegelt sich auch in der Funktor-Instanz wieder:
+\end{frame}
+
+\begin{frame}[fragile]
 \begin{overprint}
-\onslide<3-4>
+\onslide<1-2>
 \begin{minted}{haskell}
 instance Functor (State s) where
   fmap f rs = _
 
 \end{minted}
-\onslide<5>
+\onslide<3>
 \begin{minted}{haskell}
 instance Functor (State s) where
   fmap f rs = State $ _
 
 \end{minted}
-\onslide<6-7>
+\onslide<4-5>
 \begin{minted}{haskell}
 instance Functor (State s) where
   fmap f rs = State $ \s -> _
 
 \end{minted}
-\onslide<8>
+\onslide<6>
 \begin{minted}{haskell}
 instance Functor (State s) where
   fmap f rs = State $ \s -> let (a,s') = runState rs s
                             in _
 \end{minted}
-\onslide<9>
+\onslide<7>
 \begin{minted}{haskell}
 instance Functor (State s) where
   fmap f rs = State $ \s -> let (a,s') = runState rs s
                             in (f a, _)
 \end{minted}
-\onslide<10>
+\onslide<8>
 \begin{minted}{haskell}
 instance Functor (State s) where
   fmap f rs = State $ \s -> let (a,s') = runState rs s
@@ -206,34 +211,34 @@ instance Functor (State s) where
 \end{minted}
 \end{overprint}
 \bigskip
-\tiny
+\scriptsize
 \begin{overprint}
-\onslide<3>
+\onslide<1>
 \begin{verbatim}
 Found hole ‘_’ with type: State s b
 Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
-  s :: State s a
+  rs :: State s a
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
 \end{verbatim}
 
-\onslide<4>
+\onslide<2>
 \begin{minted}{haskell}
 State :: (s -> (b,s)) -> State s b
 \end{minted}
-\onslide<5>
+\onslide<3>
 \begin{verbatim}
 Found hole ‘_’ with type: s -> (b, s)
 Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
-  s :: State s a
+  rs :: State s a
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
 \end{verbatim}
-\onslide<6>
+\onslide<4>
 \begin{verbatim}
 Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
@@ -244,7 +249,7 @@ Relevant bindings include
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
 \end{verbatim}
-\onslide<7>
+\onslide<5>
 \begin{verbatim}
 Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
@@ -259,7 +264,7 @@ Relevant bindings include
 runState :: State s a -> s -> (a,s)
 \end{minted}
 
-\onslide<8>
+\onslide<6>
 \begin{verbatim}
 Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
@@ -272,48 +277,127 @@ Relevant bindings include
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
 \end{verbatim}
-\onslide<9>
+\onslide<7>
 \begin{verbatim}
 Found hole ‘_’ with type: s
 Where: ‘s’ is a rigid type variable
 Relevant bindings include
-      a :: a
-      s' :: s
-      s :: s
-      rs :: State s a
-      f :: a -> b
-      fmap :: (a -> b) -> State s a -> State s b
+  a :: a
+  s' :: s
+  s :: s
+  rs :: State s a
+  f :: a -> b
+  fmap :: (a -> b) -> State s a -> State s b
 \end{verbatim}
 \end{overprint}
 \normalsize
 \bigskip
-\onslide<10>
+\onslide<8>
 Danke, typed holes!
 \end{frame}
 
 \begin{frame}[fragile]
 Ganz analog funktioniert die Applicative-Instanz:
+\begin{overprint}
+\onslide<2>
 \begin{minted}{haskell}
 instance Applicative (State s) where
-    pure a = State $ \s -> (a,s)
-    (State rs) <*> (State rest) =
-                State $ \s ->
-                      let (f,s') = rs s
-                          (a,s'') = rest s'
-                      in
-                          (f a,s'')
+    pure a    = _
+    rf <*> rs = undefined
+
+    
+    
 \end{minted}
-\pause
-Hier müssen wir den State 2x ausführen. Einmal um an das f zu kommen und dann verketten wir dies mit der restlichen State-Berechnung um auch an unser a zu kommen. Zurück geben wir den doppelt bearbeiteten State und den bearbeiteten Wert.\\
-\pause
-Wichtig ist hier die Reihenfolge! Wir hätten es auch umdrehen können:
+\onslide<3>
 \begin{minted}{haskell}
-let (f,s'') = rs s'
-    (a,s') = rest s
-in
-    (f a,s'')
+instance Applicative (State s) where
+    pure a    = State $ \s -> _
+    rf <*> rs = undefined
+
+    
+    
 \end{minted}
-allerdings arbeitet \texttt{<*>} immer von links nach rechts!
+\onslide<4>
+\begin{minted}{haskell}
+instance Applicative (State s) where
+    pure a    = State $ \s -> (a,s)
+    rf <*> rs = State $ \s -> _
+
+    
+    
+\end{minted}
+\onslide<5-6>
+\begin{minted}{haskell}
+instance Applicative (State s) where
+    pure a    = State $ \s -> (a,s)
+    rf <*> rs = State $ \s ->
+                  let (f,s')  = runState rf s
+                      (a,s'') = runState rs s'
+                  in _
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+instance Applicative (State s) where
+    pure a    = State $ \s -> (a,s)
+    rf <*> rs = State $ \s ->
+                  let (f,s')  = runState rf s
+                      (a,s'') = runState rs s'
+                  in (f a, s'')
+\end{minted}
+\end{overprint}
+\bigskip
+\scriptsize
+\begin{overprint}
+\onslide<2>
+\begin{verbatim}
+Found hole ‘_’ with type: State s a
+Where: ‘s’ is a rigid type variable
+       ‘a’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  pure :: a -> State s a
+\end{verbatim}
+\onslide<3>
+\begin{verbatim}
+Found hole ‘_’ with type: (a, s)
+Where: ‘s’ is a rigid type variable
+       ‘a’ is a rigid type variable
+Relevant bindings include
+  s :: s
+  a :: a
+  pure :: a -> State s a
+\end{verbatim}
+\onslide<4>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  s :: s
+  rs :: State s a
+  rf :: State s (a -> b)
+  (<*>) :: State s (a -> b) -> State s a -> State s b
+\end{verbatim}
+\onslide<5>
+\normalsize
+Wichtig: Erst das \texttt{rf} ausführen, dann das \texttt{rs}, da \texttt{<*>} von rechts-nach-links arbeitet.
+\onslide<6>
+\scriptsize
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  s'' :: s
+  f :: a -> b
+  s' :: s
+  s :: s
+  rs :: State s a
+  rf :: State s (a -> b)
+  (<*>) :: State s (a -> b) -> State s a -> State s b
+\end{verbatim}
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
