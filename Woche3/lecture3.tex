@@ -402,18 +402,86 @@ Relevant bindings include
 
 \begin{frame}[fragile]
 Am wichtigsten ist die Monad-Instanz:
+\begin{overprint}
+\onslide<2>
 \begin{minted}{haskell}
 instance Monad (State s) where
-    return a = State $ \s -> (a,s)
-    (State rs) >>= f =
-                State $ \s ->
-                      let (a,s') = rs s
-                          (State rs') = f a
-                      in
-                          rs' s'
+    return   = pure
+    rs >>= f = State $ \s -> _
+
+    
+    
 \end{minted}
-\pause
-Wir müssen wieder zuerst den State ausführen um an unser \texttt{a} zu gelangen. Danach können wir unsere Funktion \texttt{f} ausführen um eine neue Funktion zu bekommen, die wir auch aus dem State auspacken. Eine kleine Anwendung des erhaltenen States hierauf gibt uns schlussendlich unser Ergebnis.
+\onslide<3>
+\begin{minted}{haskell}
+instance Monad (State s) where
+    return   = pure
+    rs >>= f = State $ \s ->
+                let (a,s') = runState rs s
+                in _
+    
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Monad (State s) where
+    return   = pure
+    rs >>= f = State $ \s ->
+                let (a,s') = runState rs s
+                    rs'    = f a
+                in _
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+instance Monad (State s) where
+    return   = pure
+    rs >>= f = State $ \s ->
+                let (a,s') = runState rs s
+                    rs'    = f a
+                in runState rs' s'
+\end{minted}
+\end{overprint}
+\bigskip
+\scriptsize
+\begin{overprint}
+\onslide<2>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  s :: s
+  f :: a -> State s b
+  rs :: State s a
+  (>>=) :: State s a -> (a -> State s b) -> State s b
+\end{verbatim}
+\onslide<3>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  s' :: s
+  s :: s
+  f :: a -> State s b
+  rs :: State s a
+  (>>=) :: State s a -> (a -> State s b) -> State s b
+\end{verbatim}
+\onslide<4>
+\begin{verbatim}
+Found hole ‘_’ with type: (b, s)
+Where: ‘s’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  rs' :: State s b
+  a :: a
+  s' :: s
+  s :: s
+  f :: a -> State s b
+  rs :: State s a
+  ...
+\end{verbatim}
+\end{overprint}
 \end{frame}
 
 \section{Monad-Transformer}
@@ -428,8 +496,9 @@ f = do
       header <- getHeader mail
       return header
 \end{minted}
+\pause
 Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine IO-Aktion ausführen.\\
-~\\
+\bigskip \pause
 Problem: \texttt{IO /= Maybe}\\
 \pause
 Als Konsequenz können wir die do-notation nicht verwenden - wir fallen also wieder zurück auf die hässliche Notation:
@@ -439,16 +508,16 @@ Als Konsequenz können wir die do-notation nicht verwenden - wir fallen also wie
 \begin{minted}{haskell}
 f :: IO (Maybe Header)
 f = case getInbox of
-      (Just folder) -> 
-          do
-            putStrLn "debug"
-            return $ case getFirstMail folder of
-              (Just mail) -> 
-                  case getHeader mail of
-                    (Just head) -> return head
-                    Nothing     -> Nothing
-              Nothing     -> Nothing
-      Nothing       -> return Nothing
+     (Just folder) -> 
+        do
+          putStrLn "debug"
+          case getFirstMail folder of
+            (Just mail) -> 
+               case getHeader mail of
+                 (Just head) -> return $ return head
+                 Nothing     -> return Nothing
+            Nothing     -> return Nothing
+     Nothing       -> return Nothing
 \end{minted}
 \end{frame}
 
@@ -457,7 +526,7 @@ Dieser Code ist ohne Frage hässlich. Stellt sich die Frage, ob wir nicht soetwa
 \pause
 Also kombinieren wir es (ähnlich zur State-Monade):
 \begin{minted}{haskell}
-data MaybeIO a = MaybeIO { runMaybeIO :: IO (Maybe a) }
+newtype MaybeIO a = MaybeIO { runMaybeIO :: IO (Maybe a) }
 \end{minted}
 \pause
 Dieses liefert uns 2 Funktionen:
@@ -471,24 +540,106 @@ Also eine Funktion, um in unsere neue Monade zu kommen und eine Funktion um dies
 \subsection{F/A/M}
 \begin{frame}[fragile]
 Fangen wir mit der Functor-Instanz an:
+\begin{overprint}
+\onslide<2>
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f input = _
+
+  
+  
+                 
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f input = _
+               where
+                 unwrapped = runMaybeIO input
+
+                 
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f input = _
+               where
+                 unwrapped = runMaybeIO input
+                 fmapped = fmap (fmap f) unwrapped
+
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f input = _
+               where
+                 unwrapped = runMaybeIO input
+                 fmapped = fmap (fmap f) unwrapped
+                 wrapped = MaybeIO fmapped
+\end{minted}
+\onslide<6-7>
 \begin{minted}{haskell}
 instance Functor MaybeIO where
   fmap f input = wrapped
                where
                  unwrapped = runMaybeIO input
-                 -- IO (Maybe a) auspacken
                  fmapped = fmap (fmap f) unwrapped
-                 -- erstes fmap mapped durch IO,
-                 -- zweites fmap durch Maybe
                  wrapped = MaybeIO fmapped
-                 -- einpacken in den richtigen Typen
 \end{minted}
-\pause
+\end{overprint}
+\bigskip
+\scriptsize
+\begin{overprint}
+\onslide<2>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO b
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  input :: MaybeIO a
+  f :: a -> b
+  fmap :: (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\onslide<3>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO b
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  unwrapped :: IO (Maybe a)
+  input :: MaybeIO a
+  f :: a -> b
+  fmap :: (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\onslide<4>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO b
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  fmapped :: IO (Maybe b)
+  unwrapped :: IO (Maybe a)
+  input :: MaybeIO a
+  f :: a -> b
+  fmap :: (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\onslide<5>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO b
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  wrapped :: MaybeIO b
+  fmapped :: IO (Maybe b)
+  unwrapped :: IO (Maybe a)
+  input :: MaybeIO a
+  f :: a -> b
+  fmap :: (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\normalsize
+\onslide<7>
 oder kurz:
 \begin{minted}{haskell}
 instance Functor MaybeIO where
   fmap f = MaybeIO . fmap (fmap f) . runMaybeIO
 \end{minted}
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
