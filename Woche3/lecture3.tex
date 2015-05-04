@@ -380,7 +380,7 @@ Relevant bindings include
 \end{verbatim}
 \onslide<5>
 \normalsize
-Wichtig: Erst das \texttt{rf} ausführen, dann das \texttt{rs}, da \texttt{<*>} von rechts-nach-links arbeitet.
+Wichtig: Erst das \texttt{rf} ausführen, dann das \texttt{rs}, da \texttt{<*>} von links-nach-rechts arbeitet.
 \onslide<6>
 \scriptsize
 \begin{verbatim}
@@ -632,8 +632,8 @@ Relevant bindings include
   f :: a -> b
   fmap :: (a -> b) -> MaybeIO a -> MaybeIO b
 \end{verbatim}
-\normalsize
 \onslide<7>
+\normalsize
 oder kurz:
 \begin{minted}{haskell}
 instance Functor MaybeIO where
@@ -644,34 +644,333 @@ instance Functor MaybeIO where
 
 \begin{frame}[fragile]
 Applicative:
+\begin{overprint}
+\onslide<2>
 \begin{minted}{haskell}
 instance Applicative MaybeIO where
-  pure    = MaybeIO . pure . Just
-            -- in Just packen, mit pure in IO heben
-            -- und den Typen mit MaybeIO aliasen
+  pure a  = _
+  f <*> x = undefined
+  
+                 
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure a  = MaybeIO $ _
+  f <*> x = undefined
+  
+                 
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure a  = MaybeIO $ pure $ _
+  f <*> x = undefined
+  
+                 
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure a  = MaybeIO $ pure $ pure $ _
+  f <*> x = undefined
+  
+                 
+\end{minted}
+\onslide<6>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure a  = MaybeIO $ pure $ pure $ a
+  f <*> x = undefined
+  
+                 
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure a  = MaybeIO . pure . pure $ a
+  f <*> x = undefined
+  
+                 
+\end{minted}
+\onslide<8>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure    = MaybeIO . pure . pure
+  f <*> x = _
+  
+                 
+\end{minted}
+\onslide<9>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure    = MaybeIO . pure . pure
+  f <*> x = MaybeIO $ _
+  
+                 
+\end{minted}
+\onslide<10>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure    = MaybeIO . pure . pure
+  f <*> x = MaybeIO $ _
+            where
+             f' = runMaybeIO f
+             x' = runMaybeIO x
+\end{minted}
+\onslide<11>
+\begin{minted}{haskell}
+instance Applicative MaybeIO where
+  pure    = MaybeIO . pure . pure
   f <*> x = MaybeIO $ (<*>) <$> f' <*> x'
             where
-              f' = runMaybeIO f -- IO (Maybe f)
-              x' = runMaybeIO x -- IO (Maybe x)
+             f' = runMaybeIO f
+             x' = runMaybeIO x
 \end{minted}
+\end{overprint}
+\bigskip
+\scriptsize
+\begin{overprint}
+\onslide<2>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO a
+Where: ‘a’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  pure :: a -> MaybeIO a
+\end{verbatim}
+\onslide<3>
+\begin{verbatim}
+Found hole ‘_’ with type: IO (Maybe a)
+Where: ‘a’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  pure :: a -> MaybeIO a
+\end{verbatim}
+\onslide<4>
+\begin{verbatim}
+Found hole ‘_’ with type: Maybe a
+Where: ‘a’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  pure :: a -> MaybeIO a
+\end{verbatim}
+\onslide<5>
+\begin{verbatim}
+Found hole ‘_’ with type: a
+Where: ‘a’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  pure :: a -> MaybeIO a
+\end{verbatim}
+\onslide<8>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO b
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  x :: MaybeIO a
+  f :: MaybeIO (a -> b)
+  (<*>) :: MaybeIO (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\onslide<9>
+\begin{verbatim}
+Found hole ‘_’ with type: IO (Maybe b)
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  x :: MaybeIO a
+  f :: MaybeIO (a -> b)
+  (<*>) :: MaybeIO (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\onslide<10>
+\begin{verbatim}
+Found hole ‘_’ with type: IO (Maybe b)
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  f' :: IO (Maybe (a -> b))
+  x' :: IO (Maybe a)
+  x :: MaybeIO a
+  f :: MaybeIO (a -> b)
+  (<*>) :: MaybeIO (a -> b) -> MaybeIO a -> MaybeIO b
+\end{verbatim}
+\onslide<11>
+\normalsize
 Das erste \texttt{(<*>)} ist Applicative auf Maybe und es wird in Applicative \texttt{<*>} von IO hineingemappt.
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
 Monad:
+\begin{overprint}
+\onslide<2>
 \begin{minted}{haskell}
 instance Monad MaybeIO where
-  return = pure
-  x >>= f = MaybeIO $ x''
+  return  = pure
+  x >>= f = MaybeIO $ _
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ _
             where
-              x' = runMaybeIO x
-              x'' = x' >>= runMaybeIO . mb . fmap f
+              x'  = runMaybeIO x
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= _
+            where
+              x'  = runMaybeIO x
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= _ . fmap f
+            where
+              x'  = runMaybeIO x
+\end{minted}
+\onslide<6>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= _ . mb . fmap f
+            where
+              x'  = runMaybeIO x
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb = undefined
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . mb . fmap f
+            where
+              x'  = runMaybeIO x
               mb :: Maybe (MaybeIO a) -> MaybeIO a
               mb (Just a) = a
-              mb Nothing = MaybeIO $ return Nothing
+              mb Nothing  = _
 \end{minted}
-Zuerst packen wir das MaybeIO aus. \texttt{fmap f} bringt uns ein Maybe (MaybeIO a), welches wir mittels der Hilfsfunktion \texttt{mb} auspacken oder einen leeren Wert konstruieren.\\
-Dieses jagen wir noch durch runMaybeIO um wieder ein \texttt{IO (Maybe a)} zu bekommen, auf das wir dann den \texttt{>==}-Operator von IO anwenden können. Das Ergebnis verpacken wir noch in \texttt{MaybeIO} und sind fertig.
+\onslide<8>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . mb . fmap f
+            where
+              x'  = runMaybeIO x
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb (Just a) = a
+              mb Nothing  = MaybeIO $ _
+\end{minted}
+\onslide<9>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . mb . fmap f
+            where
+              x'  = runMaybeIO x
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb (Just a) = a
+              mb Nothing  = MaybeIO $ return _
+\end{minted}
+\onslide<10>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . mb . fmap f
+            where
+              x'  = runMaybeIO x
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb (Just a) = a
+              mb Nothing  = MaybeIO $ return Nothing
+\end{minted}
+\end{overprint}
+\bigskip
+\scriptsize
+\begin{overprint}
+\onslide<2>
+\begin{verbatim}
+Found hole ‘_’ with type: IO (Maybe b)
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<3>
+\begin{verbatim}
+Found hole ‘_’ with type: IO (Maybe b)
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  x' :: IO (Maybe a)
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<4>
+\begin{verbatim}
+Found hole ‘_’ with type: Maybe a -> IO (Maybe b)
+Where: ‘a’ is a rigid type variable
+       ‘b’ is a rigid type variable
+Relevant bindings include
+  x' :: IO (Maybe a)
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<5>
+\begin{verbatim}
+Found hole ‘_’ with type: Maybe (MaybeIO b) -> IO (Maybe b)
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  x' :: IO (Maybe a)
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<6>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO b -> IO (Maybe b)
+Where: ‘b’ is a rigid type variable
+Relevant bindings include
+  x' :: IO (Maybe a)
+  mb :: forall a. Maybe (MaybeIO a) -> MaybeIO a
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<7>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO a1
+Where: ‘a1’ is a rigid type variable
+Relevant bindings include
+  mb :: Maybe (MaybeIO a1) -> MaybeIO a1
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<8>
+\begin{verbatim}
+Found hole ‘_’ with type: IO (Maybe a1)
+Where: ‘a1’ is a rigid type variable
+Relevant bindings include
+  mb :: Maybe (MaybeIO a1) -> MaybeIO a1
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<9>
+\begin{verbatim}
+Found hole ‘_’ with type: Maybe a1
+Where: ‘a1’ is a rigid type variable
+Relevant bindings include
+  mb :: Maybe (MaybeIO a1) -> MaybeIO a1
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\end{overprint}
 \end{frame}
 
 \subsection{Beispiel revisited}
@@ -783,7 +1082,7 @@ instance Functor MaybeIO where
 \pause
 \begin{minted}{haskell}
 instance Applicative MaybeIO where
-  pure    = MaybeIO . pure . Just
+  pure    = MaybeIO . pure . pure
   f <*> x = MaybeIO $ (<*>) <$> (runMaybeIO f)
                             <*> (runMaybeIO x)
 \end{minted}
@@ -810,26 +1109,50 @@ data MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 \end{frame}
 
 \begin{frame}[fragile]
-Und der Code von eben wird zu:
+\begin{overprint}
+\onslide<1>
+Und der Code von eben
+\onslide<2>
+wird zu:
+\end{overprint}
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+instance Functor MaybeIO where
+  fmap f = MaybeIO . fmap (fmap f) . runMaybeIO
+
+instance Applicative MaybeIO where
+  pure    = MaybeIO . pure . pure
+  f <*> x = MaybeIO $ (<*>) <$> (runMaybeIO f)
+                            <*> (runMaybeIO x)
+
+instance Monad MaybeIO where
+  return = pure
+  x >>= f = MaybeIO $ (runMaybeIO x)
+                      >>= runMaybeIO . mb . fmap f
+            where
+              mb (Just a) = a
+              mb Nothing = MaybeIO $ return Nothing
+\end{minted}
+\onslide<2>
 \begin{minted}{haskell}
 instance Functor m => Functor (MaybeT m) where
-  fmap f = MaybeT . fmap (fmap f) . runMaybeT
+  fmap f = MaybeT  . fmap (fmap f) . runMaybeT
 
 instance Applicative m => Applicative (MaybeT m) where
-  pure    = MaybeT . pure . Just
-  f <*> x = MaybeT $ (<*>) <$> (runMaybeT f)
-                           <*> (runMaybeT x)
+  pure    = MaybeT  . pure . pure
+  f <*> x = MaybeT  $ (<*>) <$> (runMaybeT  f)
+                            <*> (runMaybeT  x)
 
 instance Monad m => Monad (MaybeT m) where
   return = pure
-  x >>= f = MaybeT $ (runMaybeT x)
-                     >>= runMaybeT . mb . fmap f
+  x >>= f = MaybeT  $ (runMaybeT  x)
+                      >>= runMaybeT  . mb . fmap f
             where
               mb (Just a) = a
-              mb Nothing = MaybeT $ return Nothing
+              mb Nothing = MaybeT  $ return Nothing
 \end{minted}
-\pause
-Wir haben nur die Monade heraus faktorisiert.
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -840,23 +1163,19 @@ Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\\
 class Monad m => MonadIO m where
     liftIO :: IO a -> m a
 \end{minted}
-Wir verlangen einfach, dass IO irgendwie verarbeitet werden muss.
+Wir verlangen einfach, dass IO irgendwie verarbeitet werden muss.\par
 \pause
-\begin{important}
-IO ist ein Spezialfall, da IO als Monade nicht additiv ist. Es gibt somit keinen IOT.
-\end{important}
-\end{frame}
-
-\begin{frame}[fragile]
-Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\\
-Über Typklassen!
+Genereller:
 \begin{minted}{haskell}
 class MonadTrans t where
     lift :: (Monad m) => m a -> t m a
 \end{minted}
 \pause
 Dies ist die allgemeine Form für additive Monaden. Mit \texttt{lift} heben wir uns eine monadische Ebene höher.\\
-Doch was bedeutet das?
+\pause
+\begin{important}
+Wichtig: IO ist nicht additiv! Es gibt keinen IO-T!
+\end{important}
 \end{frame}
 
 \subsection{Beispiele}
@@ -865,23 +1184,28 @@ Doch was bedeutet das?
 Wir haben schon ein paar Monaden kennengelernt. Diese sind fast alle additiv. Wir können somit folgendes bauen:
 \pause
 \begin{minted}{haskell}
-data MyMonadStack a = StateT (EitherT (MaybeT (IO a)))
+data MyMonadStack a = StateT MyState 
+                            (EitherT String 
+                                     (MaybeT (IO a)))
 \end{minted}
 \pause
 Wie schreiben wir nun hierin Code?
 \begin{minted}{haskell}
 bsp :: MyMonadStack ()
 bsp = do
-    a <- fun                -- fun  :: MyMonadStack Int
-    b <- lift $ fun2        -- fun2 :: EitherT (MaybeT (IO Int))
-    c <- lift . lift $ fun3 -- fun3 :: MaybeT (IO Int))
+    a <- fun                
+    -- fun  :: StateT Mystate (EitherT String (MaybeT (IO Int)))
+    b <- lift $ fun2        
+    -- fun2 :: EitherT String (MaybeT (IO Int))
+    c <- lift . lift $ fun3 
+    -- fun3 :: MaybeT (IO Int))
     liftIO $ putStrLn "foo"
+    -- putStrLn :: IO ()
 \end{minted}
-
 \end{frame}
 
 \begin{frame}[fragile]
-Um auf spezielle Ebenen im Monad-Stack zuzugreifen gibt es für jeden Zweck eine Typklasse. Beispielsweise:
+Um auf spezielle Ebenen im Monad-Stack zuzugreifen gibt es (z.B. in der Bibliothek \texttt{mtl}) für jeden Zweck eine Typklasse. Beispielsweise:
 \pause
 \begin{minted}{haskell}
 instance (Monad m) => MonadState s (StateT s m) where
@@ -895,12 +1219,42 @@ bsp :: MyMonadStack ()
 bsp = do
     state <- get
     put $ manipulateState state
+    -- manipulateState :: MyState -> MyState
     liftIO $ putStrLn "foo"
 \end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Weitere Monaden, die hierbei häufig vorkommen, sind z.B.
+\begin{description}
+ \item[\texttt{ReaderT}] für ein read-only-Environment (z.B. Konfiguration)
+ \pause
+ \item[\texttt{WriterT}] für ein write-only-Environment (z.B. fürs Logging)
+ \pause
+ \item[\texttt{StateT}] für einen globalen State
+ \pause
+ \item[\texttt{EitherT}] für fehlschlagbare Operationen (mit Fehlermeldung)
+ \pause
+ \item[\texttt{MaybeT}] für fehlschlagbare Operationen (ohne Fehlermeldung)
+\end{description}
 \pause
-Analog gibt es dies auch für \texttt{ReaderT} (\texttt{env}), welches ein read-only-Environment bereitstellt (z.b. eine Konfiguration) oder für \texttt{WriterT} (\texttt{tell}), welches ein write-only-Environment zur Verfügung stellt (z.b. Logging). Häufig findet man daher einen Read-Write-State-Transformer, kurz \texttt{RWST}-Stack.\\
+Jenachdem, welche Möglichkeiten man haben möchte, kann man diese kombinieren.
+\end{frame}
+
+\begin{frame}[fragile]
+Auch kommt es auf die Reihenfolge an:
+\begin{minted}{haskell}
+StateT MyState (EitherT String (Identity a))
+\end{minted}
+kann fehlschlagen, aber man kommt nach dem Fehlschlag noch an den State heran\pause, wohingegen
+\begin{minted}{haskell}
+EitherT String (StateT MyState (Identity a))
+\end{minted}
+nur die Fehlermeldung liefert und den State schon entsorgt hat.\\\par
 \pause
-Echtweltprogramme sind meist durch eine \texttt{RWST IO} mit der Außenwelt verbunden.
+Häufig findet man einen Read-Write-State-Transformer, kurz \texttt{RWST}.\\
+\pause
+Echtweltprogramme sind oft durch einen \texttt{RWST IO} mit der Außenwelt verbunden.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -910,7 +1264,7 @@ data Env = Env { filename :: String }
 
 readInputs :: ReaderT Env IO String
 readInputs = do
-           e <- env
+           e <- ask
            f <- liftIO $ readFile (filename e)
            return f
 \end{minted}
@@ -923,15 +1277,17 @@ Noch ein Beispiel aus einem Spiel könnte sein:
 \begin{minted}{haskell}
 mainLoop :: RWST Env () State IO ()
 mainLoop = do
-         e <- env
+         e <- ask
          f <- liftIO $ getUserInput (keySettings e)
-         newWorld <- updateWorld f 
-                     --holt sich die Welt mittels 'get'
+         oldWorld <- get
+         newWorld <- updateWorld f oldWorld
          put newWorld
          unless (f == endKey e) mainLoop
 \end{minted}
 \pause
-Dies ist ein klassisches Game-Loop, bestehend aus Konfigurationen im Env (Key settings), IO (User-Input abfragen), Update des internen Zustands (updateWorld) und das schreiben des neuen Zustandes (put newWorld). Sofern dann das Spiel nicht beendet ist loopen wir.
+Dies ist ein klassisches Game-Loop, bestehend aus Konfigurationen im Env (Key settings), IO (User-Input abfragen), Update des internen Zustands (updateWorld) und das schreiben des neuen Zustandes (put newWorld).\par
+\pause
+Wichtig: \texttt{updateWorld} ist pure.
 \end{frame}
 
 
