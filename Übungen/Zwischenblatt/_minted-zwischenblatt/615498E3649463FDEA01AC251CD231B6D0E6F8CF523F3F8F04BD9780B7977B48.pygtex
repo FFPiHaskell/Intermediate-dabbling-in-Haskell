@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYGdefault{c+c1}{\PYGdefaultZhy{}\PYGdefaultZhy{} Für alle n soll gelten: (caesar (\PYGdefaultZhy{}n)) . (caesar n) = id}
+\PYGdefault{n+nf}{caesar} \PYGdefault{o+ow}{::} \PYGdefault{k+kt}{Int} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{k+kt}{String} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{k+kt}{String}
+\end{Verbatim}
