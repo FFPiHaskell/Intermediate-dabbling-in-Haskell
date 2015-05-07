@@ -65,7 +65,7 @@ Nehmen wir an, wir wollen den folgenden Produkttypen definieren:
 data V2 a = V2 a a
 \end{minted}
 \pause
-Nun wollen wir auch einzelne Elemente auslesen und setzen. Dafür müssen wir ein paar Hilfsfunktionen definieren
+Nun wollen wir auch einzelne Elemente auslesen und setzen. Dafür müssen wir ein paar Hilfsfunktionen definieren.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -81,6 +81,8 @@ y :: V2 a -> a
 y (V2 _ y') = y'
 \end{minted}
 \pause
+\bigskip
+
 Und setzen:
 \pause
 \begin{minted}{haskell}
@@ -97,9 +99,10 @@ sy y (V2 x _) = V2 x y
 \subsection{Definition}
 
 \begin{frame}[fragile]
-Nun sind diese Funktionen stupide zu schreiben. Also kann man das ganze automatisieren.\\\par
+Nun sind diese Funktionen stupide zu schreiben. Man kann diesen Vorgang allerdings auch automatisieren.\\\par
 \pause
-Dies nennt sich Record-Syntax:
+Dies nennt sich dann \emph{Record-Syntax}: \smallskip
+
 \pause
 \begin{minted}{haskell}
 data V2 a = V2 { x :: a
@@ -116,23 +119,26 @@ generiert.
 \end{frame}
 
 \begin{frame}[fragile]
-Auch werden setter generiert, die wie folgt zu verwenden sind:
+Es werden auch Setter generiert, die wie folgt zu verwenden sind: \bigskip
 \pause
 \begin{minted}{haskell}
-let a = V2 1 2
-let b = a { x = 0 }
--- b = V2 0 2
+let r = V2 1 2
+let r' = r { x = 0 }
+-- r' = V2 0 2
 \end{minted}
 \pause
-Wir geben also einfach die Struktur an (hier: \texttt{a}) und in den geschweiften Klammern alle Parameter, die wir ändern wollen.
+\bigskip
+
+Wir geben also einfach die Struktur an (hier: \texttt{r}) und in den geschweiften Klammern alle Parameter, die wir ändern wollen.
 \end{frame}
 
-\subsection{weiteres Beispiel}
+\subsection{Ein weiteres Beispiel}
 
 \begin{frame}[fragile]
-Nochmal ein komplizierteres Beispiel:\\\par
+Nochmal ein etwas komplizierteres Beispiel:\\\par
 \pause
-Welche Funktionen generiert folgender Code?
+Welche Funktionen generiert folgender Code? \smallskip
+
 \begin{minted}{haskell}
 data D a = K a (a -> a)
 \end{minted}
@@ -141,7 +147,7 @@ data D a = K a (a -> a)
 K :: a -> (a -> a) -> D a
 \end{minted}
 \pause
-Welche Funktionen generiert die Record-Syntax?
+Welche Funktionen generiert folgende Record-Syntax?
 \begin{minted}{haskell}
 data D a = K { x :: a, y :: (a -> a) }
 \end{minted}
@@ -152,9 +158,8 @@ x :: D a -> a
 y :: D a -> (a -> a)
 \end{minted}
 \pause
-Die Record-Syntax beschert uns also kostenlos Getter-Funktionen und bietet die Möglichkeit eines Setzens über die update-Notation \texttt{a \{ x = y \}}
+Die Record-Syntax beschert uns also kostenlos Getter-Funktionen und bietet die Möglichkeit eines Setzens über die Update-Notation \texttt{a \{ x = y \}}
 \end{frame}
-
 
 \section{State-Monad}
 
@@ -165,19 +170,18 @@ Heute wenden wir uns der Definition zu und werden herausfinden, wie man noch wei
 \end{frame}
 
 \begin{frame}[fragile]
-Beispiel:
+Beispiel:\bigskip
+
 \begin{minted}{haskell}
 countme :: a -> State Int a
-countme a = do
-              modify (+1)
-              return a
+countme a = do modify (+1)
+               return a
 
 example :: State Int Int
-example = do
-              x <- countme (2+2)
-              y <- return (x*x)
-              z <- countme (y-2)
-              return z
+example = do x <- countme (2+2)
+             y <- return (x*x)
+             z <- countme (y-2)
+             return z
 
 examplemain = runState example 0
 -- -> (14,2), 14 = wert von z, 2 = interner counter
@@ -185,10 +189,13 @@ examplemain = runState example 0
 \end{frame}
 
 \begin{frame}[fragile]
-Beispiel 2:
+Beispiel 2:\bigskip
+
 \begin{minted}{haskell}
 module Main where
+
 import Control.Monad.State
+
 type CountValue = Int
 type CountState = (Bool, Int)
  
@@ -203,9 +210,9 @@ play :: String -> State CountState CountValue
 
 \begin{frame}[fragile]
 \begin{minted}{haskell}
-play []     = do
-              (_, score) <- get
-              return score
+play :: String -> State CountState CountValue
+play []     = do (_, score) <- get
+                 return score
 play (x:xs) = do
  (on, score) <- get
  case x of
@@ -214,11 +221,13 @@ play (x:xs) = do
    'T' -> put (False, score)
    'G' -> put (True, score)
    _   -> put (on, score)
- playGame xs
+ play xs
 
+main :: IO ()
 main = print $ runState (play "GACAACTCGAAT") startState
 -- -> (-3,(False,-3))
 \end{minted}
+%$
 \end{frame}
 
 \subsection{Definition}
@@ -242,6 +251,8 @@ runState :: State s a    ->  s -> (a,s)
 \end{minted}
 \end{overprint}
 \onslide<4->
+\smallskip
+
 \texttt{runState} benötigt also 2 Argumente, damit es ein \texttt{(a,s)} liefert.\bigskip \\
 \onslide<5->
 Wenn wir State monadisch nutzen, benutzen wir Funktionen der Form:
@@ -260,16 +271,17 @@ foo :: a -> s -> (b,s)
 \end{minted}
 \end{overprint}
 \onslide<9->
-State in der monadischen Form fügt einfach nur einen Funktionsparameter \texttt{s} hinzu und versteckt das \texttt{(b,s)} und gibt lediglich das \texttt{b} in der do-Notation zurück.
+State in der monadischen Form fügt einfach nur einen Funktionsparameter \texttt{s} hinzu, versteckt das \texttt{(b,s)} und gibt lediglich das \texttt{b} in der do-Notation zurück.
 \end{frame}
 
 \subsection{Functor/Applicative/Monad}
 \begin{frame}[fragile]
-Hilfreich ist es, sich die State-Monade als Berechnung vorzustellen, die noch nicht ausgeführt werden kann, weil der \textbf{initiale} State noch nicht bekannt ist.\bigskip \\
+Hilfreich ist es, sich die State-Monade als Berechnung vorzustellen, die noch nicht ausgeführt werden kann, weil der \textbf{Anfangzustand} (initial State) noch nicht bekannt ist.\bigskip \\
 \pause
-Man \textbf{bekommt} also erst einen State, bearbeitet ihn ggf. und gibt dann den geänderten State weiter.\\
+Man \emph{bekommt} also erst später irgendwann einen State, bearbeitet ihn ggf. und gibt dann den geänderten State weiter.\bigskip
+
 \pause
-Dies spiegelt sich auch in der Funktor-Instanz wieder:
+Dies spiegelt sich auch in der \texttt{Functor}-Instanz wieder:
 \end{frame}
 
 \begin{frame}[fragile]
@@ -289,26 +301,26 @@ instance Functor (State s) where
 \onslide<4-5>
 \begin{minted}{haskell}
 instance Functor (State s) where
-  fmap f rs = State $ \s -> _
+  fmap f rs = State $ \st -> _
 
 \end{minted}
 \onslide<6>
 \begin{minted}{haskell}
 instance Functor (State s) where
-  fmap f rs = State $ \s -> let (a,s') = runState rs s
-                            in _
+  fmap f rs = State $ \st -> let (a,st') = runState rs st
+                             in _
 \end{minted}
 \onslide<7>
 \begin{minted}{haskell}
 instance Functor (State s) where
-  fmap f rs = State $ \s -> let (a,s') = runState rs s
-                            in (f a, _)
+  fmap f rs = State $ \st -> let (a,st') = runState rs st
+                             in (f a, _)
 \end{minted}
 \onslide<8>
 \begin{minted}{haskell}
 instance Functor (State s) where
-  fmap f rs = State $ \s -> let (a,s') = runState rs s
-                            in (f a, s')
+  fmap f rs = State $ \st -> let (a,st') = runState rs st
+                             in (f a, st')
 \end{minted}
 \end{overprint}
 \bigskip
@@ -345,7 +357,7 @@ Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
-  s :: s
+  st :: s
   rs :: State s a
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
@@ -356,7 +368,7 @@ Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
-  s :: s
+  st :: s
   rs :: State s a
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
@@ -372,8 +384,8 @@ Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
   a :: a
-  s' :: s
-  s :: s
+  st' :: s
+  st :: s
   rs :: State s a
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
@@ -384,8 +396,8 @@ Found hole ‘_’ with type: s
 Where: ‘s’ is a rigid type variable
 Relevant bindings include
   a :: a
-  s' :: s
-  s :: s
+  st' :: s
+  st :: s
   rs :: State s a
   f :: a -> b
   fmap :: (a -> b) -> State s a -> State s b
@@ -398,7 +410,7 @@ Danke, typed holes!
 \end{frame}
 
 \begin{frame}[fragile]
-Ganz analog funktioniert die Applicative-Instanz:
+Ganz analog funktioniert die \texttt{Applicative}-Instanz:
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -421,7 +433,7 @@ instance Applicative (State s) where
 \onslide<4>
 \begin{minted}{haskell}
 instance Applicative (State s) where
-    pure a    = State $ \s -> _
+    pure a    = State $ \st -> _
     rf <*> rs = undefined
 
     
@@ -430,8 +442,8 @@ instance Applicative (State s) where
 \onslide<5>
 \begin{minted}{haskell}
 instance Applicative (State s) where
-    pure a    = State $ \s -> (a,s)
-    rf <*> rs = State $ \s -> _
+    pure a    = State $ \st -> (a,st)
+    rf <*> rs = State $ \st -> _
 
     
     
@@ -439,20 +451,20 @@ instance Applicative (State s) where
 \onslide<6-7>
 \begin{minted}{haskell}
 instance Applicative (State s) where
-    pure a    = State $ \s -> (a,s)
-    rf <*> rs = State $ \s ->
-                  let (f,s')  = runState rf s
-                      (a,s'') = runState rs s'
+    pure a    = State $ \st -> (a,st)
+    rf <*> rs = State $ \st ->
+                  let (f,st')  = runState rf st
+                      (a,st'') = runState rs st'
                   in _
 \end{minted}
 \onslide<8>
 \begin{minted}{haskell}
 instance Applicative (State s) where
-    pure a    = State $ \s -> (a,s)
-    rf <*> rs = State $ \s ->
-                  let (f,s')  = runState rf s
-                      (a,s'') = runState rs s'
-                  in (f a, s'')
+    pure a    = State $ \st -> (a,st)
+    rf <*> rs = State $ \st ->
+                  let (f,st')  = runState rf st
+                      (a,st'') = runState rs st'
+                  in (f a, st'')
 \end{minted}
 \end{overprint}
 \bigskip
@@ -482,7 +494,7 @@ Found hole ‘_’ with type: (a, s)
 Where: ‘s’ is a rigid type variable
        ‘a’ is a rigid type variable
 Relevant bindings include
-  s :: s
+  st :: s
   a :: a
   pure :: a -> State s a
 \end{verbatim}
@@ -492,7 +504,7 @@ Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
-  s :: s
+  st :: s
   rs :: State s a
   rf :: State s (a -> b)
   (<*>) :: State s (a -> b) -> State s a -> State s b
@@ -508,10 +520,10 @@ Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
   a :: a
-  s'' :: s
+  st'' :: s
   f :: a -> b
-  s' :: s
-  s :: s
+  st' :: s
+  st :: s
   rs :: State s a
   rf :: State s (a -> b)
   (<*>) :: State s (a -> b) -> State s a -> State s b
@@ -520,13 +532,13 @@ Relevant bindings include
 \end{frame}
 
 \begin{frame}[fragile]
-Am wichtigsten ist die Monad-Instanz:
+Am wichtigsten ist die \texttt{Monad}-Instanz:
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
 instance Monad (State s) where
     return   = pure
-    rs >>= f = State $ \s -> _
+    rs >>= f = State $ \st -> _
 
     
     
@@ -535,8 +547,8 @@ instance Monad (State s) where
 \begin{minted}{haskell}
 instance Monad (State s) where
     return   = pure
-    rs >>= f = State $ \s ->
-                let (a,s') = runState rs s
+    rs >>= f = State $ \st ->
+                let (a,st') = runState rs st
                 in _
     
 \end{minted}
@@ -544,8 +556,8 @@ instance Monad (State s) where
 \begin{minted}{haskell}
 instance Monad (State s) where
     return   = pure
-    rs >>= f = State $ \s ->
-                let (a,s') = runState rs s
+    rs >>= f = State $ \st ->
+                let (a,st') = runState rs st
                     rs'    = f a
                 in _
 \end{minted}
@@ -553,10 +565,10 @@ instance Monad (State s) where
 \begin{minted}{haskell}
 instance Monad (State s) where
     return   = pure
-    rs >>= f = State $ \s ->
-                let (a,s') = runState rs s
+    rs >>= f = State $ \st ->
+                let (a,st') = runState rs st
                     rs'    = f a
-                in runState rs' s'
+                in runState rs' st'
 \end{minted}
 \end{overprint}
 \bigskip
@@ -568,7 +580,7 @@ Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
-  s :: s
+  st :: s
   f :: a -> State s b
   rs :: State s a
   (>>=) :: State s a -> (a -> State s b) -> State s b
@@ -580,8 +592,8 @@ Where: ‘s’ is a rigid type variable
        ‘b’ is a rigid type variable
 Relevant bindings include
   a :: a
-  s' :: s
-  s :: s
+  st' :: s
+  st :: s
   f :: a -> State s b
   rs :: State s a
   (>>=) :: State s a -> (a -> State s b) -> State s b
@@ -594,33 +606,36 @@ Where: ‘s’ is a rigid type variable
 Relevant bindings include
   rs' :: State s b
   a :: a
-  s' :: s
-  s :: s
+  st' :: s
+  st :: s
   f :: a -> State s b
   rs :: State s a
   ...
 \end{verbatim}
 \end{overprint}
+%$
 \end{frame}
 
 \section{Kombination von Monaden}
 
 \subsection{Beispiel}
 \begin{frame}[fragile]
-Wir hatten letzte Woche die Maybe-Monade mit dem folgenden Anwendugsfall:
+Wir hatten letzte Woche die \texttt{Maybe}-Monade mit dem folgenden Anwendugsfall: \bigskip
+
 \begin{minted}{haskell}
-f = do
-      folder <- getInbox
-      mail   <- getFirstMail folder
-      header <- getHeader mail
-      return header
+f = do folder <- getInbox
+       mail   <- getFirstMail folder
+       header <- getHeader mail
+       return header
 \end{minted}
 \pause
 Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine IO-Aktion ausführen.\\
 \bigskip \pause
-Problem: \texttt{IO /= Maybe}\\
+
+Problem: \texttt{IO /= Maybe}\bigskip
+
 \pause
-Als Konsequenz können wir die do-notation nicht verwenden - wir fallen also wieder zurück auf die hässliche Notation:
+Als Konsequenz können wir die \texttt{do}-Notation nicht verwenden - wir fallen also wieder zurück auf die hässliche Notation:
 \end{frame}
 
 \begin{frame}[fragile]
@@ -638,27 +653,33 @@ f = case getInbox of
             Nothing     -> return Nothing
      Nothing       -> return Nothing
 \end{minted}
+%$
 \end{frame}
 
 \begin{frame}[fragile]
-Dieser Code ist ohne Frage hässlich. Stellt sich die Frage, ob wir nicht soetwas, wie \texttt{MaybeIO} bauen können, sodass wir wieder do-notation verwenden können.\\
+Dieser Code ist ohne Frage umständlich und unschön. Stellt sich die Frage, ob wir nicht so etwas wie \texttt{MaybeIO} bauen können, sodass wir wieder \texttt{do}-Notation verwenden können.\bigskip
+
 \pause
-Also kombinieren wir es (ähnlich zur State-Monade):
+Also kombinieren wir es (ähnlich zur \texttt{State}-Monade):
+
 \begin{minted}{haskell}
 newtype MaybeIO a = MaybeIO { runMaybeIO :: IO (Maybe a) }
 \end{minted}
+
 \pause
 Dieses liefert uns 2 Funktionen:
+
 \begin{minted}{haskell}
 MaybeIO    :: IO (Maybe a) -> MaybeIO a
 runMaybeIO :: MaybeIO a -> IO (Maybe a)
 \end{minted}
-Also eine Funktion, um in unsere neue Monade zu kommen und eine Funktion um dieses wieder Rückgängig zu machen.
+
+Also eine Funktion, um einen Wert in unsere neue Monade zu bekommen und eine Funktion um dieses wieder Rückgängig zu machen.
 \end{frame}
 
 \subsection{F/A/M}
 \begin{frame}[fragile]
-Fangen wir mit der Functor-Instanz an:
+Fangen wir mit der \texttt{Functor}-Instanz an:
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -762,7 +783,7 @@ instance Functor MaybeIO where
 \end{frame}
 
 \begin{frame}[fragile]
-Applicative:
+\texttt{Applicative}:
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -913,12 +934,12 @@ Relevant bindings include
 \end{verbatim}
 \onslide<11>
 \normalsize
-Das erste \texttt{(<*>)} ist Applicative auf Maybe und es wird in Applicative \texttt{<*>} von IO hineingemappt.
+Das erste \texttt{(<*>)} ist \texttt{Applicative} auf \texttt{Maybe} und es wird in \texttt{Applicative} \texttt{<*>} von \texttt{IO} hineingemappt.
 \end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
-Monad:
+\texttt{Monad}:
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -1134,14 +1155,13 @@ Relevant bindings include
 
 \subsection{Beispiel revisited}
 \begin{frame}[fragile]
-Da wir nun eine Monade definiert haben, können wir ja wieder do nutzen:
+Da wir nun eine Monade definiert haben, können wir ja wieder \texttt{do} nutzen:
 \begin{minted}{haskell}
-f = do
-     i <- getInbox
-     putStrLn "debug"
-     m <- getFirstMail i
-     h <- getHeader m
-     return h
+f = do i <- getInbox
+       putStrLn "debug"
+       m <- getFirstMail i
+       h <- getHeader m
+       return h
 \end{minted}
 \end{frame}
 \begin{frame}[fragile]
@@ -1170,17 +1190,23 @@ Allerdings:
 \end{frame}
 
 \begin{frame}[fragile]
-Wir brauchen also Konverter:
+Wir brauchen also zwei Konverter:\smallskip
+
 \begin{itemize}
  \item \texttt{Maybe -> MaybeIO}
  \item \texttt{IO -> MaybeIO}
 \end{itemize}
+\smallskip
+
 \pause
-Aber wir haben schon alles, was wir brauchen, wenn wir uns nur klar machen:
+Aber wir haben schon alles, was wir brauchen, wenn wir uns nur Folgendes klar machen:\smallskip
+
 \begin{minted}{haskell}
 return  :: Maybe a -> IO (Maybe a) -- return von IO
 MaybeIO :: IO (Maybe a) -> MaybeIO a
 \end{minted}
+\smallskip
+
 \pause
 und
 \begin{minted}{haskell}
@@ -1190,23 +1216,26 @@ fmap Just :: IO a -> IO (Maybe a)
 \end{frame}
 
 \begin{frame}[fragile]
-Somit wird unser Code von oben:
+Somit wird unser Code von oben: \smallskip
+
 \begin{minted}{haskell}
-f = do
-     i <- MaybeIO (return (getInbox))
-     MaybeIO (fmap Just (putStrLn "debug"))
-     m <- MaybeIO (return (getFirstMail i))
-     h <- MaybeIO (return (getHeader m))
-     return h
+f = do i <- MaybeIO (return (getInbox))
+       MaybeIO (fmap Just (putStrLn "debug"))
+       m <- MaybeIO (return (getFirstMail i))
+       h <- MaybeIO (return (getHeader m))
+       return h
 \end{minted}
 \pause
-Zwar können wir nun do nutzen, aber das sieht doch eher hässlich aus. Außerdem ist so viel Code doppelt!
+\bigskip
+
+Zwar können wir nun \texttt{do} nutzen, aber das sieht doch eher hässlich aus. Außerdem ist so viel Code doppelt!
 \end{frame}
 
 \subsection{Finale Version}
 
 \begin{frame}[fragile]
-Wenn wir Muster finden, dann faktorisieren wir sie doch raus!
+Wenn wir Muster finden, dann faktorisieren wir sie doch raus!\bigskip
+
 \begin{minted}{haskell}
 liftMaybe :: Maybe a -> MaybeIO a
 liftMaybe x = MaybeIO (return x)
@@ -1215,15 +1244,18 @@ liftIO :: IO a -> MaybeIO a
 liftIO x = MaybeIO (fmap Just x)
 \end{minted}
 \pause
-und wir erhalten:
+\smallskip
+
+und wir erhalten:\smallskip
+
 \begin{minted}{haskell}
-f = do
-     i <- liftMaybe getInbox
-     liftIO $ putStrLn "debug"
-     m <- liftMaybe $ getFirstMail i
-     h <- liftMaybe $ getHeader m
-     return h
+f = do i <- liftMaybe getInbox
+       liftIO $ putStrLn "debug"
+       m <- liftMaybe $ getFirstMail i
+       h <- liftMaybe $ getHeader m
+       return h
 \end{minted}
+%$
 \end{frame}
 
 \section{Monad-Transformer}
@@ -1231,13 +1263,13 @@ f = do
 \subsection{Recap}
 
 \begin{frame}[fragile]
-Wenn wir uns nochmals ansehen, welche Eigenschaft der IO-Monade wir genutzt haben, dann fällt uns auf:
+Wenn wir uns nochmals ansehen, welche Eigenschaft der \texttt{IO}-Monade wir genutzt haben, dann fällt uns auf:
 \pause
 \begin{minted}{haskell}
 instance Functor MaybeIO where
   fmap f = MaybeIO . fmap (fmap f) . runMaybeIO
 \end{minted}
-\texttt{fmap} von IO als Funktor
+\texttt{fmap} von \texttt{IO} als \texttt{Functor}
 \pause
 \begin{minted}{haskell}
 instance Applicative MaybeIO where
@@ -1245,7 +1277,7 @@ instance Applicative MaybeIO where
   f <*> x = MaybeIO $ (<*>) <$> (runMaybeIO f)
                             <*> (runMaybeIO x)
 \end{minted}
-\texttt{pure} und \texttt{<*>} von IO als Applicative
+\texttt{pure} und \texttt{<*>} von \texttt{IO} als \texttt{Applicative}
 \pause
 \begin{minted}{haskell}
 instance Monad MaybeIO where
@@ -1256,12 +1288,14 @@ instance Monad MaybeIO where
               mb (Just a) = a
               mb Nothing = MaybeIO $ return Nothing
 \end{minted}
-\texttt{return} und \texttt{>>=} von IO
+\texttt{return} und \texttt{>>=} von \texttt{IO} als \texttt{Monad}
 \end{frame}
 
 \begin{frame}[fragile]
-Uns fällt auf: Wir verwenden gar keine intrisischen Eigenschaften von IO.\\
-Also können wir IO auch durch jede Monade ersetzten. Dies nennt man dann Monad Transformer.
+Uns fällt auf: Wir verwenden gar keine intrisischen Eigenschaften von \texttt{IO}.\bigskip
+
+Also können wir \texttt{IO} auch durch jede andere Monade ersetzten. Dies nennt man dann \emph{Monad Transformer}.\bigskip
+
 \begin{minted}{haskell}
 data MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 \end{minted}
@@ -1270,9 +1304,9 @@ data MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 \begin{frame}[fragile]
 \begin{overprint}
 \onslide<1>
-Und der Code von eben
+Und der Code von eben...
 \onslide<2>
-wird zu:
+...wird zu:
 \end{overprint}
 \begin{overprint}
 \onslide<1>
@@ -1315,32 +1349,38 @@ instance Monad m => Monad (MaybeT m) where
 \end{frame}
 
 \begin{frame}[fragile]
-Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\\
+Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\bigskip
+
 \pause
-Über Typklassen!
+Über Typklassen! Dafür sind sie schließlich da! \smallskip
 \begin{minted}{haskell}
 class Monad m => MonadIO m where
-    liftIO :: IO a -> m a
+    liftIO :: \texttt{IO} a -> m a
 \end{minted}
-Wir verlangen einfach, dass IO irgendwie verarbeitet werden muss.\par
+Wir verlangen einfach, dass \texttt{IO} irgendwie verarbeitet werden muss.\bigskip
+
 \pause
-Genereller:
+Genereller:\smallskip
+
 \begin{minted}{haskell}
 class MonadTrans t where
     lift :: (Monad m) => m a -> t m a
 \end{minted}
 \pause
-Dies ist die allgemeine Form für additive Monaden. Mit \texttt{lift} heben wir uns eine monadische Ebene höher.\\
+\smallskip
+
+Dies ist die allgemeine Form für \emph{additive} Monaden. Mit \texttt{lift} heben wir uns eine monadische Ebene höher.
 \pause
 \begin{important}
-Wichtig: IO ist nicht additiv! Es gibt keinen IO-T!
+Wichtig: \texttt{IO} ist nicht additiv! Es gibt keinen IO-T!
 \end{important}
 \end{frame}
 
 \subsection{Beispiele}
 
 \begin{frame}[fragile]
-Wir haben schon ein paar Monaden kennengelernt. Diese sind fast alle additiv. Wir können somit folgendes bauen:
+Wir haben schon ein paar Monaden kennengelernt. Diese sind \emph{fast} alle additiv. Wir können somit folgendes bauen:\bigskip
+
 \pause
 \begin{minted}{haskell}
 data MyMonadStack a = StateT MyState 
@@ -1348,7 +1388,7 @@ data MyMonadStack a = StateT MyState
                                      (MaybeT (IO a)))
 \end{minted}
 \pause
-Wie schreiben wir nun hierin Code?
+Wie schreiben wir nun Code dafür?
 \begin{minted}{haskell}
 bsp :: MyMonadStack ()
 bsp = do
@@ -1359,8 +1399,9 @@ bsp = do
     c <- lift . lift $ fun3 
     -- fun3 :: MaybeT (IO Int))
     liftIO $ putStrLn "foo"
-    -- putStrLn :: IO ()
+    -- putStrLn :: \texttt{IO} ()
 \end{minted}
+%$
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1368,7 +1409,7 @@ Weitere Monaden, die hierbei häufig vorkommen, sind z.B.
 \begin{description}
  \item[\texttt{ReaderT}] für ein read-only-Environment (z.B. Konfiguration)
  \pause
- \item[\texttt{WriterT}] für ein write-only-Environment (z.B. fürs Logging)
+ \item[\texttt{WriterT}] für ein write-only-Environment (z.B. für Logging)
  \pause
  \item[\texttt{StateT}] für einen globalen State
  \pause
@@ -1377,7 +1418,9 @@ Weitere Monaden, die hierbei häufig vorkommen, sind z.B.
  \item[\texttt{MaybeT}] für fehlschlagbare Operationen (ohne Fehlermeldung)
 \end{description}
 \pause
-Jenachdem, welche Möglichkeiten man haben möchte, kann man diese kombinieren.
+\bigskip
+
+Je nachdem, welche Möglichkeiten man haben möchte, kann man diese miteinander kombinieren.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1397,24 +1440,26 @@ Echtweltprogramme sind oft durch einen \texttt{RWST IO} mit der Außenwelt verbu
 \end{frame}
 
 \begin{frame}[fragile]
-Ein weiteres Echtwelt-Beispiel könnte etwa der folgende Aufruf sein:
+Ein weiteres Echtwelt-Beispiel könnte etwa der folgende Aufruf sein:\bigskip
+
 \begin{minted}{haskell}
 data Env = Env { filename :: String }
 
-readInputs :: ReaderT Env IO String
+readInputs :: ReaderT Env \texttt{IO} String
 readInputs = do
            e <- ask
            f <- liftIO $ readFile (filename e)
            return f
 \end{minted}
 \pause
-Dieser Aufruf liest einen Dateinamen aus einem Environment, kann per \texttt{liftIO} IO-Aktionen ausführen und das Ergebnis (den String mit dem Dateiinhalt) zurückliefern.
+Dieser Aufruf liest einen Dateinamen aus einem Environment, kann per \texttt{liftIO} \texttt{IO}-Aktionen ausführen und das Ergebnis (den String mit dem Dateiinhalt) zurückliefern.
 \end{frame}
 
 \begin{frame}[fragile]
-Noch ein Beispiel aus einem Spiel könnte sein:
+Noch ein Beispiel aus einem Spiel könnte sein:\smallskip
+
 \begin{minted}{haskell}
-mainLoop :: RWST Env () State IO ()
+mainLoop :: RWST Env () State \texttt{IO} ()
 mainLoop = do
          e <- ask
          f <- liftIO $ getUserInput (keySettings e)
@@ -1423,12 +1468,13 @@ mainLoop = do
          put newWorld
          unless (f == endKey e) mainLoop
 \end{minted}
+\bigskip
+
 \pause
-Dies ist ein klassisches Game-Loop, bestehend aus Konfigurationen im Env (Key settings), IO (User-Input abfragen), Update des internen Zustands (updateWorld) und das schreiben des neuen Zustandes (put newWorld).\par
+Dies ist eine klassische Game-Loop, bestehend aus Konfigurationen im \texttt{Env} (Key settings), \texttt{IO} (User-Input abfragen), Update des internen Zustands (\texttt{updateWorld}) und das schreiben des neuen Zustandes (\texttt{put newWorld}).\smallskip
+
 \pause
-Wichtig: \texttt{updateWorld} ist pure.
+Wichtig: \texttt{updateWorld} ist pure!
 \end{frame}
-
-
 
 \end{document}
