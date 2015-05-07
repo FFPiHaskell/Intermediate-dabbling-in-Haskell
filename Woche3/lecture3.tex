@@ -83,7 +83,7 @@ y (V2 _ y') = y'
 \pause
 \bigskip
 
-Und setzen:
+Und zum Setzen:
 \pause
 \begin{minted}{haskell}
 sx :: a -> V2 a -> V2 a
@@ -101,7 +101,7 @@ sy y (V2 x _) = V2 x y
 \begin{frame}[fragile]
 Nun sind diese Funktionen stupide zu schreiben. Man kann diesen Vorgang allerdings auch automatisieren.\\\par
 \pause
-Dies nennt sich dann \emph{Record-Syntax}: \smallskip
+Dies nennt sich dann \emph{Record-Syntax}:\smallskip
 
 \pause
 \begin{minted}{haskell}
@@ -110,7 +110,7 @@ data V2 a = V2 { x :: a
                }
 \end{minted}
 \pause
-welches uns automatisch die Funktionen
+welches automatisch die Funktionen
 \begin{minted}{haskell}
 x :: V2 a -> a
 y :: V2 a -> a
@@ -165,7 +165,7 @@ Die Record-Syntax beschert uns also kostenlos Getter-Funktionen und bietet die M
 
 \subsection{Beispiele}
 \begin{frame}[fragile]
-Wir hatten in der letzten Vorlesung die State-Monade kurz angesprochen.\\
+Wir hatten in der letzten Vorlesung die \texttt{State}-Monade kurz angesprochen.\\
 Heute wenden wir uns der Definition zu und werden herausfinden, wie man noch weiter abstrahieren kann.\\
 \end{frame}
 
@@ -184,7 +184,7 @@ example = do x <- countme (2+2)
              return z
 
 examplemain = runState example 0
--- -> (14,2), 14 = wert von z, 2 = interner counter
+-- -> (14,2), 14 ist der Wert von z, 2 ist der interner Counter
 \end{minted}
 \end{frame}
 
@@ -232,12 +232,12 @@ main = print $ runState (play "GACAACTCGAAT") startState
 
 \subsection{Definition}
 \begin{frame}[fragile]
-Definition von State:
+Definition von \texttt{State}:
 \begin{minted}{haskell}
 newtype State s a = State { runState :: s -> (a,s) }
 \end{minted}
 \pause
-Diese (Record-)Notation liefert uns 2 Funktionen:
+Diese (Record-)Notation liefert uns zwei Funktionen:
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -253,9 +253,9 @@ runState :: State s a    ->  s -> (a,s)
 \onslide<4->
 \smallskip
 
-\texttt{runState} benötigt also 2 Argumente, damit es ein \texttt{(a,s)} liefert.\bigskip \\
+\texttt{runState} benötigt also zwei Argumente, damit es ein \texttt{(a,s)} liefert.\bigskip \\
 \onslide<5->
-Wenn wir State monadisch nutzen, benutzen wir Funktionen der Form:
+Wenn wir State monadisch nutzen, benutzen wir Funktionen der folgenden Form:
 \begin{overprint}
 \onslide<6>
 \begin{minted}{haskell}
@@ -271,14 +271,15 @@ foo :: a -> s -> (b,s)
 \end{minted}
 \end{overprint}
 \onslide<9->
-State in der monadischen Form fügt einfach nur einen Funktionsparameter \texttt{s} hinzu, versteckt das \texttt{(b,s)} und gibt lediglich das \texttt{b} in der do-Notation zurück.
+State in der monadischen Form fügt einfach nur einen Funktionsparameter \texttt{s} hinzu, versteckt das \texttt{(b,s)} und gibt lediglich das \texttt{b} in der \texttt{do}-Notation zurück.
 \end{frame}
 
 \subsection{Functor/Applicative/Monad}
 \begin{frame}[fragile]
-Hilfreich ist es, sich die State-Monade als Berechnung vorzustellen, die noch nicht ausgeführt werden kann, weil der \textbf{Anfangzustand} (initial State) noch nicht bekannt ist.\bigskip \\
+Hilfreich ist es, sich die \texttt{State}-Monade als Berechnung vorzustellen, die noch nicht ausgeführt werden kann, weil der \textbf{Anfangzustand} (initial State) noch nicht bekannt ist.\bigskip
+
 \pause
-Man \emph{bekommt} also erst später irgendwann einen State, bearbeitet ihn ggf. und gibt dann den geänderten State weiter.\bigskip
+Man bekommt also erst \emph{später} irgendwann einen State, bearbeitet ihn ggf. und gibt dann den geänderten State weiter.\bigskip
 
 \pause
 Dies spiegelt sich auch in der \texttt{Functor}-Instanz wieder:
@@ -629,7 +630,7 @@ f = do folder <- getInbox
        return header
 \end{minted}
 \pause
-Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine IO-Aktion ausführen.\\
+Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine \texttt{IO}-Aktion ausführen.\\
 \bigskip \pause
 
 Problem: \texttt{IO /= Maybe}\bigskip
@@ -667,7 +668,7 @@ newtype MaybeIO a = MaybeIO { runMaybeIO :: IO (Maybe a) }
 \end{minted}
 
 \pause
-Dieses liefert uns 2 Funktionen:
+Dieses liefert uns zwei Funktionen:
 
 \begin{minted}{haskell}
 MaybeIO    :: IO (Maybe a) -> MaybeIO a
@@ -1234,7 +1235,7 @@ Zwar können wir nun \texttt{do} nutzen, aber das sieht doch eher hässlich aus.
 \subsection{Finale Version}
 
 \begin{frame}[fragile]
-Wenn wir Muster finden, dann faktorisieren wir sie doch raus!\bigskip
+Wenn wir Muster finden, dann lagern wir sie doch einfach in Funktionen aus!\bigskip
 
 \begin{minted}{haskell}
 liftMaybe :: Maybe a -> MaybeIO a
@@ -1297,7 +1298,7 @@ Uns fällt auf: Wir verwenden gar keine intrisischen Eigenschaften von \texttt{I
 Also können wir \texttt{IO} auch durch jede andere Monade ersetzten. Dies nennt man dann \emph{Monad Transformer}.\bigskip
 
 \begin{minted}{haskell}
-data MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 \end{minted}
 \end{frame}
 
@@ -1355,7 +1356,7 @@ Frage: Wie realisieren wir nun \texttt{liftIO} etc.?\bigskip
 Über Typklassen! Dafür sind sie schließlich da! \smallskip
 \begin{minted}{haskell}
 class Monad m => MonadIO m where
-    liftIO :: \texttt{IO} a -> m a
+    liftIO :: IO a -> m a
 \end{minted}
 Wir verlangen einfach, dass \texttt{IO} irgendwie verarbeitet werden muss.\bigskip
 
@@ -1372,7 +1373,7 @@ class MonadTrans t where
 Dies ist die allgemeine Form für \emph{additive} Monaden. Mit \texttt{lift} heben wir uns eine monadische Ebene höher.
 \pause
 \begin{important}
-Wichtig: \texttt{IO} ist nicht additiv! Es gibt keinen IO-T!
+Wichtig: \texttt{IO} ist nicht additiv! Es gibt keinen \texttt{IO-T}!
 \end{important}
 \end{frame}
 
@@ -1399,7 +1400,7 @@ bsp = do
     c <- lift . lift $ fun3 
     -- fun3 :: MaybeT (IO Int))
     liftIO $ putStrLn "foo"
-    -- putStrLn :: \texttt{IO} ()
+    -- putStrLn :: IO ()
 \end{minted}
 %$
 \end{frame}
@@ -1428,7 +1429,7 @@ Auch kommt es auf die Reihenfolge an:
 \begin{minted}{haskell}
 StateT MyState (EitherT String (Identity a))
 \end{minted}
-kann fehlschlagen, aber man kommt nach dem Fehlschlag noch an den State heran\pause, wohingegen
+kann fehlschlagen, aber man kommt nach dem Fehlschlag noch an den \texttt{State} dran,\pause wohingegen
 \begin{minted}{haskell}
 EitherT String (StateT MyState (Identity a))
 \end{minted}
@@ -1440,7 +1441,7 @@ Echtweltprogramme sind oft durch einen \texttt{RWST IO} mit der Außenwelt verbu
 \end{frame}
 
 \begin{frame}[fragile]
-Ein weiteres Echtwelt-Beispiel könnte etwa der folgende Aufruf sein:\bigskip
+Ein Echtwelt-Beispiel könnte etwa der folgende Aufruf sein:\bigskip
 
 \begin{minted}{haskell}
 data Env = Env { filename :: String }
@@ -1459,7 +1460,7 @@ Dieser Aufruf liest einen Dateinamen aus einem Environment, kann per \texttt{lif
 Noch ein Beispiel aus einem Spiel könnte sein:\smallskip
 
 \begin{minted}{haskell}
-mainLoop :: RWST Env () State \texttt{IO} ()
+mainLoop :: RWST Env () State IO ()
 mainLoop = do
          e <- ask
          f <- liftIO $ getUserInput (keySettings e)
