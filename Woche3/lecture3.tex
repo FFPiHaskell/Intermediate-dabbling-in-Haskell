@@ -43,7 +43,7 @@
 
   \begin{frame}
   \begin{center}
-    \Huge\textbf{Fortgeschrittene Funktionale Programmierung in Haskell}\\ \bigskip
+    \huge\textbf{Fortgeschrittene Funktionale Programmierung in Haskell}\\ \bigskip
     \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
     \large Jonas Betzendahl \& Stefan Dresselhaus
     \end{center}
@@ -94,6 +94,8 @@ sy y (V2 x _) = V2 x y
 \end{minted}
 \end{frame}
 
+\subsection{Definition}
+
 \begin{frame}[fragile]
 Nun sind diese Funktionen stupide zu schreiben. Also kann man das ganze automatisieren.\\\par
 \pause
@@ -124,6 +126,8 @@ let b = a { x = 0 }
 \pause
 Wir geben also einfach die Struktur an (hier: \texttt{a}) und in den geschweiften Klammern alle Parameter, die wir ändern wollen.
 \end{frame}
+
+\subsection{weiteres Beispiel}
 
 \begin{frame}[fragile]
 Nochmal ein komplizierteres Beispiel:\\\par
@@ -599,7 +603,7 @@ Relevant bindings include
 \end{overprint}
 \end{frame}
 
-\section{Monad-Transformer}
+\section{Kombination von Monaden}
 
 \subsection{Beispiel}
 \begin{frame}[fragile]
@@ -950,11 +954,9 @@ instance Monad MaybeIO where
 \begin{minted}{haskell}
 instance Monad MaybeIO where
   return  = pure
-  x >>= f = MaybeIO $ x' >>= _ . mb . fmap f
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . _ . fmap f
             where
               x'  = runMaybeIO x
-              mb :: Maybe (MaybeIO a) -> MaybeIO a
-              mb = undefined
 \end{minted}
 \onslide<7>
 \begin{minted}{haskell}
@@ -964,8 +966,7 @@ instance Monad MaybeIO where
             where
               x'  = runMaybeIO x
               mb :: Maybe (MaybeIO a) -> MaybeIO a
-              mb (Just a) = a
-              mb Nothing  = _
+              mb a = _
 \end{minted}
 \onslide<8>
 \begin{minted}{haskell}
@@ -975,8 +976,8 @@ instance Monad MaybeIO where
             where
               x'  = runMaybeIO x
               mb :: Maybe (MaybeIO a) -> MaybeIO a
-              mb (Just a) = a
-              mb Nothing  = MaybeIO $ _
+              mb (Just a) = _
+              mb Nothing  = undefined
 \end{minted}
 \onslide<9>
 \begin{minted}{haskell}
@@ -987,9 +988,31 @@ instance Monad MaybeIO where
               x'  = runMaybeIO x
               mb :: Maybe (MaybeIO a) -> MaybeIO a
               mb (Just a) = a
-              mb Nothing  = MaybeIO $ return _
+              mb Nothing  = _
 \end{minted}
 \onslide<10>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . mb . fmap f
+            where
+              x'  = runMaybeIO x
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb (Just a) = a
+              mb Nothing  = MaybeIO $ _
+\end{minted}
+\onslide<11>
+\begin{minted}{haskell}
+instance Monad MaybeIO where
+  return  = pure
+  x >>= f = MaybeIO $ x' >>= runMaybeIO . mb . fmap f
+            where
+              x'  = runMaybeIO x
+              mb :: Maybe (MaybeIO a) -> MaybeIO a
+              mb (Just a) = a
+              mb Nothing  = MaybeIO $ return _
+\end{minted}
+\onslide<12>
 \begin{minted}{haskell}
 instance Monad MaybeIO where
   return  = pure
@@ -1046,11 +1069,10 @@ Relevant bindings include
 \end{verbatim}
 \onslide<6>
 \begin{verbatim}
-Found hole ‘_’ with type: MaybeIO b -> IO (Maybe b)
+Found hole ‘_’ with type: Maybe (MaybeIO b) -> MaybeIO b
 Where: ‘b’ is a rigid type variable
 Relevant bindings include
   x' :: IO (Maybe a)
-  mb :: forall a. Maybe (MaybeIO a) -> MaybeIO a
   f :: a -> MaybeIO b
   x :: MaybeIO a
   (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
@@ -1060,12 +1082,34 @@ Relevant bindings include
 Found hole ‘_’ with type: MaybeIO a1
 Where: ‘a1’ is a rigid type variable
 Relevant bindings include
+  a :: Maybe (MaybeIO a1)
   mb :: Maybe (MaybeIO a1) -> MaybeIO a1
   f :: a -> MaybeIO b
   x :: MaybeIO a
   (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
 \end{verbatim}
 \onslide<8>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO a1
+Where: ‘a1’ is a rigid type variable
+Relevant bindings include
+  a :: MaybeIO a1
+  mb :: Maybe (MaybeIO a1) -> MaybeIO a1
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<9>
+\begin{verbatim}
+Found hole ‘_’ with type: MaybeIO a1
+Where: ‘a1’ is a rigid type variable
+Relevant bindings include
+  mb :: Maybe (MaybeIO a1) -> MaybeIO a1
+  f :: a -> MaybeIO b
+  x :: MaybeIO a
+  (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
+\end{verbatim}
+\onslide<10>
 \begin{verbatim}
 Found hole ‘_’ with type: IO (Maybe a1)
 Where: ‘a1’ is a rigid type variable
@@ -1075,7 +1119,7 @@ Relevant bindings include
   x :: MaybeIO a
   (>>=) :: MaybeIO a -> (a -> MaybeIO b) -> MaybeIO b
 \end{verbatim}
-\onslide<9>
+\onslide<11>
 \begin{verbatim}
 Found hole ‘_’ with type: Maybe a1
 Where: ‘a1’ is a rigid type variable
@@ -1182,7 +1226,7 @@ f = do
 \end{minted}
 \end{frame}
 
-\section{Monad-Transformer cont.}
+\section{Monad-Transformer}
 
 \subsection{Recap}
 
