@@ -33,7 +33,7 @@
 \beamertemplatenavigationsymbolsempty
 \usetheme{Warsaw}
 
-\title{Intermediate Dabbling in Haskell}
+\title{Fortgeschrittene Funktionale Programmierung in Haskell}
 
 \begin{document}
 
@@ -43,7 +43,7 @@
 
   \begin{frame}
   \begin{center}
-    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \Huge\textbf{Fortgeschrittene Funktionale Programmierung in Haskell}\\ \bigskip
     \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
     \large Jonas Betzendahl \& Stefan Dresselhaus
     \end{center}
@@ -311,7 +311,7 @@ instance Applicative (State s) where
 \onslide<3>
 \begin{minted}{haskell}
 instance Applicative (State s) where
-    pure a    = State $ \s -> _
+    pure a    = State $ _
     rf <*> rs = undefined
 
     
@@ -320,13 +320,22 @@ instance Applicative (State s) where
 \onslide<4>
 \begin{minted}{haskell}
 instance Applicative (State s) where
+    pure a    = State $ \s -> _
+    rf <*> rs = undefined
+
+    
+    
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+instance Applicative (State s) where
     pure a    = State $ \s -> (a,s)
     rf <*> rs = State $ \s -> _
 
     
     
 \end{minted}
-\onslide<5-6>
+\onslide<6-7>
 \begin{minted}{haskell}
 instance Applicative (State s) where
     pure a    = State $ \s -> (a,s)
@@ -335,7 +344,7 @@ instance Applicative (State s) where
                       (a,s'') = runState rs s'
                   in _
 \end{minted}
-\onslide<7>
+\onslide<8>
 \begin{minted}{haskell}
 instance Applicative (State s) where
     pure a    = State $ \s -> (a,s)
@@ -359,6 +368,15 @@ Relevant bindings include
 \end{verbatim}
 \onslide<3>
 \begin{verbatim}
+Found hole ‘_’ with type: s -> (a, s)
+Where: ‘s’ is a rigid type variable
+       ‘a’ is a rigid type variable
+Relevant bindings include
+  a :: a
+  pure :: a -> State s a
+\end{verbatim}
+\onslide<4>
+\begin{verbatim}
 Found hole ‘_’ with type: (a, s)
 Where: ‘s’ is a rigid type variable
        ‘a’ is a rigid type variable
@@ -367,7 +385,7 @@ Relevant bindings include
   a :: a
   pure :: a -> State s a
 \end{verbatim}
-\onslide<4>
+\onslide<5>
 \begin{verbatim}
 Found hole ‘_’ with type: (b, s)
 Where: ‘s’ is a rigid type variable
@@ -378,10 +396,10 @@ Relevant bindings include
   rf :: State s (a -> b)
   (<*>) :: State s (a -> b) -> State s a -> State s b
 \end{verbatim}
-\onslide<5>
+\onslide<6>
 \normalsize
 Wichtig: Erst das \texttt{rf} ausführen, dann das \texttt{rs}, da \texttt{<*>} von links-nach-rechts arbeitet.
-\onslide<6>
+\onslide<7>
 \scriptsize
 \begin{verbatim}
 Found hole ‘_’ with type: (b, s)
@@ -1201,26 +1219,6 @@ bsp = do
     -- fun3 :: MaybeT (IO Int))
     liftIO $ putStrLn "foo"
     -- putStrLn :: IO ()
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-Um auf spezielle Ebenen im Monad-Stack zuzugreifen gibt es (z.B. in der Bibliothek \texttt{mtl}) für jeden Zweck eine Typklasse. Beispielsweise:
-\pause
-\begin{minted}{haskell}
-instance (Monad m) => MonadState s (StateT s m) where
-  get   = StateT $ \s -> return (s,s)
-  put s = StateT $ \_ -> return ((),s)
-\end{minted}
-\pause
-Nun können wir einfach
-\begin{minted}{haskell}
-bsp :: MyMonadStack ()
-bsp = do
-    state <- get
-    put $ manipulateState state
-    -- manipulateState :: MyState -> MyState
-    liftIO $ putStrLn "foo"
 \end{minted}
 \end{frame}
 
