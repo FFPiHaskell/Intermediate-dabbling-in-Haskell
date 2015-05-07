@@ -65,7 +65,9 @@ Nehmen wir an, wir wollen den folgenden Produkttypen definieren:
 data V2 a = V2 a a
 \end{minted}
 \pause
-Nun wollen wir auch einzelne Elemente auslesen und setzen. Dafür müssen wir ein paar Hilfsfunktionen definieren.
+Nun wollen wir auch einzelne Elemente auslesen und setzen (sprich: Eine neue Datenstruktur, identisch zur alten, mit dem \glqq gesetzten\grqq\ Wert als einzigem Unterschied). \smallskip
+
+Dafür müssen wir ein paar Hilfsfunktionen definieren.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -99,7 +101,7 @@ sy y (V2 x _) = V2 x y
 \subsection{Definition}
 
 \begin{frame}[fragile]
-Nun sind diese Funktionen stupide zu schreiben. Man kann diesen Vorgang allerdings auch automatisieren.\\\par
+Nun sind diese Funktionen stupide zu schreiben. Man kann diesen Vorgang allerdings auch direkt bei der Deklaration des Typen automatisieren.\\\par
 \pause
 Dies nennt sich dann \emph{Record-Syntax}:\smallskip
 
@@ -630,7 +632,7 @@ f = do folder <- getInbox
        return header
 \end{minted}
 \pause
-Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine \texttt{IO}-Aktion ausführen.\\
+Nun möchten wir aus irgendeinem Grund (Logging, Netzwerk, ..) zwischen dem \texttt{getInbox} und dem \texttt{getFirstMail} eine \texttt{IO}-Aktion ausführen.
 \bigskip \pause
 
 Problem: \texttt{IO /= Maybe}\bigskip
