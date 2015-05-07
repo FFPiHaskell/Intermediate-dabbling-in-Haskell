@@ -1446,7 +1446,7 @@ Ein Echtwelt-Beispiel könnte etwa der folgende Aufruf sein:\bigskip
 \begin{minted}{haskell}
 data Env = Env { filename :: String }
 
-readInputs :: ReaderT Env \texttt{IO} String
+readInputs :: ReaderT Env IO String
 readInputs = do
            e <- ask
            f <- liftIO $ readFile (filename e)
