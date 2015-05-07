@@ -55,6 +55,103 @@
 \tableofcontents[hideallsubsections]
 \end{frame}
 
+\section{Record-Syntax}
+
+\subsection{Beispiel}
+
+\begin{frame}[fragile]
+Nehmen wir an, wir wollen den folgenden Produkttypen definieren:
+\begin{minted}{haskell}
+data V2 a = V2 a a
+\end{minted}
+\pause
+Nun wollen wir auch einzelne Elemente auslesen und setzen. Dafür müssen wir ein paar Hilfsfunktionen definieren
+\end{frame}
+
+\begin{frame}[fragile]
+Zum Auslesen:
+\pause
+\begin{minted}{haskell}
+x :: V2 a -> a
+x (V2 x' _) = x'
+\end{minted}
+\pause
+\begin{minted}{haskell}
+y :: V2 a -> a
+y (V2 _ y') = y'
+\end{minted}
+\pause
+Und setzen:
+\pause
+\begin{minted}{haskell}
+sx :: a -> V2 a -> V2 a
+sx x (V2 _ y) = V2 x y
+\end{minted}
+\pause
+\begin{minted}{haskell}
+sy :: a -> V2 a -> V2 a
+sy y (V2 x _) = V2 x y
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Nun sind diese Funktionen stupide zu schreiben. Also kann man das ganze automatisieren.\\\par
+\pause
+Dies nennt sich Record-Syntax:
+\pause
+\begin{minted}{haskell}
+data V2 a = V2 { x :: a
+               , y :: a
+               }
+\end{minted}
+\pause
+welches uns automatisch die Funktionen
+\begin{minted}{haskell}
+x :: V2 a -> a
+y :: V2 a -> a
+\end{minted}
+generiert.
+\end{frame}
+
+\begin{frame}[fragile]
+Auch werden setter generiert, die wie folgt zu verwenden sind:
+\pause
+\begin{minted}{haskell}
+let a = V2 1 2
+let b = a { x = 0 }
+-- b = V2 0 2
+\end{minted}
+\pause
+Wir geben also einfach die Struktur an (hier: \texttt{a}) und in den geschweiften Klammern alle Parameter, die wir ändern wollen.
+\end{frame}
+
+\begin{frame}[fragile]
+Nochmal ein komplizierteres Beispiel:\\\par
+\pause
+Welche Funktionen generiert folgender Code?
+\begin{minted}{haskell}
+data D a = K a (a -> a)
+\end{minted}
+\pause
+\begin{minted}{haskell}
+K :: a -> (a -> a) -> D a
+\end{minted}
+\pause
+Welche Funktionen generiert die Record-Syntax?
+\begin{minted}{haskell}
+data D a = K { x :: a, y :: (a -> a) }
+\end{minted}
+\pause
+\begin{minted}{haskell}
+K :: a -> (a -> a) -> D a
+x :: D a -> a
+y :: D a -> (a -> a)
+\end{minted}
+\pause
+Die Record-Syntax beschert uns also kostenlos Getter-Funktionen und bietet die Möglichkeit eines Setzens über die update-Notation \texttt{a \{ x = y \}}
+\end{frame}
+
+
 \section{State-Monad}
 
 \subsection{Beispiele}
