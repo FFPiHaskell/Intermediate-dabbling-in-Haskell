@@ -1467,7 +1467,7 @@ mainLoop = do
          e <- ask
          f <- liftIO $ getUserInput (keySettings e)
          oldWorld <- get
-         newWorld <- updateWorld f oldWorld
+         newWorld <- return $ updateWorld f oldWorld
          put newWorld
          unless (f == endKey e) mainLoop
 \end{minted}
