@@ -10,7 +10,7 @@
 \geometry{a4paper,left=30mm,right=30mm, top=3cm, bottom=2cm} 
 
 \newcommand{\underfat}[1]{\underline{\textbf{#1}}}
-\newcommand{\theuebungszettel}{3}
+\newcommand{\theuebungszettel}{5}
 
 \parindent0pt
 
@@ -51,9 +51,31 @@ Erstellen sie hierzu die Instanzen für
       (>>=)  :: (EitherT m) a -> (a -> (EitherT m) b) -> (EitherT m) b
        \end{minted}
 \end{itemize}
+Beispielcode mit Definitionen und Testfällen finden sie in der Datei \texttt{eitherT.hs}. Nutzen sie dies als Ausgangsbasis.
+
 \section*{Aufgabe \theuebungszettel.2:}
+Für die folgenden Aufgaben benötigen sie die externe \texttt{mtl}\footnote{https://hackage.haskell.org/package/mtl} in der der RWST-Stack bereits implemntiert ist.\\\par
+Richten sie sich hierzu ein einem Verzeichnis eine lokale Arbeitsumgebung (sandbox) ein, indem sie folgende Befehle verstehen und anschließend ausführen:
+\begin{minted}{bash}
+$ git init                            #git initialisieren - falls gewuenscht.
+                                      #alternativ: mit git clone ein bestehendes
+                                      #repository klonen. Wir helfen dabei.
+$ cabal init                          #erstellen eines paketes
+$ cabal sandbox init                  #initialisieren der sandbox
+$ nano <projektname>.cabal            #hinzufuegen von mtl > 2.2.0 && < 2.3
+                                      #als dependency
+                                      #einstellen der Main durch aendern von
+                                      #     main-is: game.hs
+$ cabal install --only-dependencies   #installieren aller dependencies
+$ cabal build                         #projekt bauen
+$ cabal run                           #projekt ausfuehren
+$ cabal repl                          #einen ghci laden, in dem alle dependencies
+                                      #schon geladen wurden
+\end{minted}
+
+\section*{Aufgabe \theuebungszettel.3:}
 In dieser Aufgabe geht es um die Verwendung eines Monad-Stacks. Hierzu schreiben sie ein (sehr!) simples Spiel:\\
-Durch drücken von \texttt{u} (up) bzw. \texttt{d} (down) wird ein interner Counter hoch- bzw. runtergezählt. Arbeiten sie sich in den gegebenen Code ein und erstellen sie das Game-Loop
+Durch drücken von \texttt{u} (up) bzw. \texttt{d} (down) wird ein interner Counter hoch- bzw. runtergezählt. Arbeiten sie sich in den gegebenen Code (\texttt{game.hs}) ein und erstellen sie das Game-Loop
 \begin{minted}{haskell}
 mainLoop :: RWST Env () State IO ()
 \end{minted}
@@ -65,5 +87,6 @@ Benutzen sie hierzu die gegebene pure Hilfsfunktion
 \begin{minted}{haskell}
 getInputfromEnv :: Char -> Env -> Input
 \end{minted}
-
+\section*{Aufgabe \theuebungszettel.4:}
+Erweitern sie ihr Spiel durch einen weiteren Zähler, der durch die Tasten \texttt{r} und \texttt{l} für rechts und links erhöht bzw. ernidriegt wird.
 \end{document}
