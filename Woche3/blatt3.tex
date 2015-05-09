@@ -18,7 +18,7 @@
 
 \begin{center}
   \begin{huge}
-    \underfat{Fortgeschrittene funktionale}\\
+    \underfat{Fortgeschrittene Funktionale}\\
     \underfat{Programmierung in Haskell}\\
   \end{huge}
 \begin{LARGE}
@@ -26,56 +26,62 @@
 \end{LARGE}
 \end{center}
 \section*{Aufgabe \theuebungszettel.1:}
-In der Vorlesung wurde MaybeT explizit vorgestellt. Erstellen sie einen Monad-Transformer EitherT für Either. Zur Erinnerung: Either ist definiert als:
+In der Vorlesung wurde \texttt{MaybeT} (basierend auf der \texttt{Maybe}-Monade) explizit vorgestellt. Erstellen Sie analog einen Monadentransformer \texttt{EitherT}, basierend auf der \texttt{Either}-Monade.\smallskip
+
+Zur Erinnerung: \texttt{Either} ist definiert als:
 \begin{minted}{haskell}
-data Either a b = Left a
-                | Right b
+data Either a b = Left a  -- "Fehler"
+                | Right b -- "Erfolg"
 \end{minted}
-Erstellen sie hierzu die Instanzen für
+Erstellen Sie hierzu folgende Instanzen:
 \begin{itemize}
- \item Functor
+ \item \texttt{Functor}
        \begin{minted}{haskell}
   instance Functor f => Functor (EitherT f) where
       fmap :: (a -> b) -> (EitherT f) a -> (EitherT f) b
        \end{minted}
- \item Applicative
+ \item \texttt{Applicative}
        \begin{minted}{haskell}
   instance Applicative f => Applicative (EitherT f) where
       pure  :: a -> f a
       (<*>) :: f (a -> b) -> f a -> f b
        \end{minted}
- \item Monad
+ \item \texttt{Monad}
        \begin{minted}{haskell}
   instance Monad m => Monad (EitherT m) where
       return :: a -> (EitherT m) a
       (>>=)  :: (EitherT m) a -> (a -> (EitherT m) b) -> (EitherT m) b
        \end{minted}
 \end{itemize}
-Beispielcode mit Definitionen und Testfällen finden sie in der Datei \texttt{eitherT.hs}. Nutzen sie dies als Ausgangsbasis.
+Beispielcode mit Definitionen und Testfällen finden Sie in der Datei \texttt{eitherT.hs}. Nutzen Sie diese als Ausgangsbasis.
 
 \section*{Aufgabe \theuebungszettel.2:}
-Für die folgenden Aufgaben benötigen sie die externe \texttt{mtl}\footnote{https://hackage.haskell.org/package/mtl} in der der RWST-Stack bereits implemntiert ist.\\\par
-Richten sie sich hierzu ein einem Verzeichnis eine lokale Arbeitsumgebung (sandbox) ein, indem sie folgende Befehle verstehen und anschließend ausführen:
+
+Für die folgenden Aufgaben benötigen Sie die externe Bibliothek \texttt{mtl}\footnote{https://hackage.haskell.org/package/mtl}, in der der \texttt{RWST}-Stack (Read-Write-State-Transformer, siehe Vorlesung) bereits implementiert ist.\bigskip
+
+Richten Sie sich hierzu mit dem Programm \texttt{cabal} in einem Verzeichnis eine lokale Arbeitsumgebung (genannt \emph{sandbox}) ein, indem Sie folgende Befehle verstehen und anschließend ausführen:
 \begin{minted}{bash}
-$ git init                            #git initialisieren - falls gewuenscht.
-                                      #alternativ: mit git clone ein bestehendes
-                                      #repository klonen. Wir helfen dabei.
-$ cabal init                          #erstellen eines paketes
-$ cabal sandbox init                  #initialisieren der sandbox
-$ nano <projektname>.cabal            #hinzufuegen von mtl > 2.2.0 && < 2.3
-                                      #als dependency
-                                      #einstellen der Main durch aendern von
-                                      #     main-is: game.hs
-$ cabal install --only-dependencies   #installieren aller dependencies
-$ cabal build                         #projekt bauen
-$ cabal run                           #projekt ausfuehren
-$ cabal repl                          #einen ghci laden, in dem alle dependencies
-                                      #schon geladen wurden
+$ git init                            # git initialisieren - falls gewuenscht.
+                                      # alternativ: mit "git clone" ein bestehendes
+                                      # Repository klonen. Wir helfen gerne dabei.
+$ cabal update                        # Paketliste aktualisieren
+$ cabal init                          # Erstellen eines Paketes
+$ cabal sandbox init                  # Initialisieren der Sandbox
+$ nano <projektname>.cabal            # Hinzufügen von mtl > 2.2.0 && < 2.3
+                                      # als Dependency
+                                      # Einstellen der Main durch ändern von
+                                      #      main-is: game.hs
+$ cabal install --only-dependencies   # Installieren aller Dependencies
+$ cabal build                         # Projekt bauen
+$ cabal run                           # Projekt ausführen
+$ cabal repl                          # Einen ghci laden, in dem alle Dependencies
+                                      # bereits geladen wurden
 \end{minted}
+%$
 
 \section*{Aufgabe \theuebungszettel.3:}
-In dieser Aufgabe geht es um die Verwendung eines Monad-Stacks. Hierzu schreiben sie ein (sehr!) simples Spiel:\\
-Durch drücken von \texttt{u} (up) bzw. \texttt{d} (down) wird ein interner Counter hoch- bzw. runtergezählt. Arbeiten sie sich in den gegebenen Code (\texttt{game.hs}) ein und erstellen sie das Game-Loop
+In dieser Aufgabe geht es um die Verwendung eines \texttt{Monad}-Stacks. Hierzu schreiben Sie ein (sehr!) simples Spiel:\\
+Durch drücken von \texttt{u} (up) bzw. \texttt{d} (down) wird ein interner Counter hoch- bzw. runtergezählt. Arbeiten Sie sich in den gegebenen Code (\texttt{game.hs}) ein und erstellen Sie die Game-Loop
 \begin{minted}{haskell}
 mainLoop :: RWST Env () State IO ()
 \end{minted}
@@ -83,10 +89,10 @@ und die Tasteneingabe
 \begin{minted}{haskell}
 getInput :: RWST Env () State IO Input
 \end{minted}
-Benutzen sie hierzu die gegebene pure Hilfsfunktion
+Benutzen Sie hierzu die gegebene \emph{pure} Hilfsfunktion
 \begin{minted}{haskell}
 getInputfromEnv :: Char -> Env -> Input
 \end{minted}
 \section*{Aufgabe \theuebungszettel.4:}
-Erweitern sie ihr Spiel durch einen weiteren Zähler, der durch die Tasten \texttt{r} und \texttt{l} für rechts und links erhöht bzw. ernidriegt wird.
+Erweitern Sie Ihr Spiel sinnvoll durch einen weiteren Zähler, der durch die Tasten \texttt{r} und \texttt{l} für rechts und links erhöht bzw. ernidriegt wird.
 \end{document}
