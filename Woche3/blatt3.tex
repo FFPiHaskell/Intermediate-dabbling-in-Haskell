@@ -37,20 +37,20 @@ Erstellen Sie hierzu folgende Instanzen:
 \begin{itemize}
  \item \texttt{Functor}
        \begin{minted}{haskell}
-  instance Functor f => Functor (EitherT f) where
-      fmap :: (a -> b) -> (EitherT f) a -> (EitherT f) b
+  instance Functor f => Functor (EitherT l f) where
+      fmap :: (a -> b) -> (EitherT l f) a -> (EitherT l f) b
        \end{minted}
  \item \texttt{Applicative}
        \begin{minted}{haskell}
-  instance Applicative f => Applicative (EitherT f) where
+  instance Applicative f => Applicative (EitherT l f) where
       pure  :: a -> f a
-      (<*>) :: f (a -> b) -> f a -> f b
+      (<*>) :: Either l f (a -> b) -> Either l f a -> Either l f b
        \end{minted}
  \item \texttt{Monad}
        \begin{minted}{haskell}
-  instance Monad m => Monad (EitherT m) where
-      return :: a -> (EitherT m) a
-      (>>=)  :: (EitherT m) a -> (a -> (EitherT m) b) -> (EitherT m) b
+  instance Monad m => Monad (EitherT l m) where
+      return :: a -> (EitherT l m) a
+      (>>=)  :: (EitherT l m) a -> (a -> (EitherT l m) b) -> (EitherT l m) b
        \end{minted}
 \end{itemize}
 Beispielcode mit Definitionen und Testfällen finden Sie in der Datei \texttt{eitherT.hs}. Nutzen Sie diese als Ausgangsbasis.
@@ -67,13 +67,14 @@ $ git init                            # git initialisieren - falls gewuenscht.
 $ cabal update                        # Paketliste aktualisieren
 $ cabal init                          # Erstellen eines Paketes
 $ cabal sandbox init                  # Initialisieren der Sandbox
-$ nano <projektname>.cabal            # Hinzufügen von mtl > 2.2.0 && < 2.3
+$ nano <projektname>.cabal            # Hinzufuegen von mtl > 2.2.0 && < 2.3
+                                      # und transformers >= 4.3.0 && < 4.4
                                       # als Dependency
-                                      # Einstellen der Main durch ändern von
+                                      # Einstellen der Main durch aendern von
                                       #      main-is: game.hs
 $ cabal install --only-dependencies   # Installieren aller Dependencies
 $ cabal build                         # Projekt bauen
-$ cabal run                           # Projekt ausführen
+$ cabal run                           # Projekt ausfuehren
 $ cabal repl                          # Einen ghci laden, in dem alle Dependencies
                                       # bereits geladen wurden
 \end{minted}
