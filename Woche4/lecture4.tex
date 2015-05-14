@@ -566,6 +566,53 @@ Also wäre es besser, wenn unser \texttt{V3} in dieser generischen Klasse sitzt,
 \end{frame}
 
 \begin{frame}[fragile]
+Was heisst dieses \texttt{foldr} nochmal?\\\par
+\pause
+Sehen wir uns ein Beispiel an:
+\begin{overprint}
+\onslide<2>
+\begin{minted}{haskell}
+foldr (+) 0     [1,2,3,4]
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+foldr (+) (4+0) [1,2,3]
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+foldr (+) 4     [1,2,3]
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+foldr (+) (4+3) [1,2]
+\end{minted}
+\onslide<6>
+\begin{minted}{haskell}
+foldr (+) 7     [1,2]
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+foldr (+) (7+2) [1]
+\end{minted}
+\onslide<8>
+\begin{minted}{haskell}
+foldr (+) 9     [1]
+\end{minted}
+\onslide<9>
+\begin{minted}{haskell}
+foldr (+) (9+1) []
+\end{minted}
+\onslide<10->
+\begin{minted}{haskell}
+foldr (+) 10    []
+=> 10
+\end{minted}
+\end{overprint}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
 Die Klasse hierzu heisst \texttt{Foldable}:
 \begin{minted}{haskell}
 class Foldable f where
@@ -1267,6 +1314,8 @@ Schlägt der Parser hier fehl, dann wird der bereits benutzte Input wiederherges
 \end{overprint}
 \end{frame}
 
+\subsection{Verwendung}
+
 \begin{frame}[fragile]
 Nun können wir ein paar Simple Dinge parsen:
 \begin{minted}{haskell}
@@ -1281,7 +1330,7 @@ parse0 = Parser $ \inp -> case inp of
                     x        -> (Left "no 0", x)
 \end{minted}
 \pause
-Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq nicht möglich sind.\\
+Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq \ nicht möglich sind.\\
 \pause
 Man versteckt die Funktion \texttt{Parser}, damit niemand anderes solche \glqq intrinsics\grqq \ definieren kann. Damit wird eine manipulation des Inputs bzw. ein fehlerhaftes Anwenden unmöglich.
 \end{frame}
@@ -1318,7 +1367,7 @@ main = print $ runParser testParser "101001"
 \end{frame}
 
 \begin{frame}[fragile]
-In allen gängigen Parsing-Bibliotheken benutzt man ähnlich. Die Bibliotheken stellen minimalste Intrinsics zur verfügung um z.B.
+Alle gängigen Parsing-Bibliotheken benutzt man ähnlich. Die Bibliotheken stellen minimalste Intrinsics zur verfügung um z.B.
 \pause
 \begin{itemize}
  \item Zeichen zu parsen
@@ -1332,7 +1381,7 @@ In allen gängigen Parsing-Bibliotheken benutzt man ähnlich. Die Bibliotheken s
  \item etc.
 \end{itemize}
 \pause
-Aus diesen kleinstbausteinen Konstruiert man dann Parser für größere Datenstrukturen.\\\par
+Aus diesen Kleinstbausteinen konstruiert man dann Parser für größere Datenstrukturen.\\\par
 \pause
 So haben wir in unserem Log-Beispiel zunächst nur Teil-Parser definiert (Datum, IP, Gerät) und diese dann einfach kombiniert.
 \end{frame}
