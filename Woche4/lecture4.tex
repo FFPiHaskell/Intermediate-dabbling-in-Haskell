@@ -618,7 +618,7 @@ foldr (+) 4     [1,2,3]
 \end{minted}
 \onslide<5>
 \begin{minted}{haskell}
-foldr (+) (4+3) [1,2]
+foldr (+) (3+4) [1,2]
 \end{minted}
 \onslide<6>
 \begin{minted}{haskell}
@@ -626,7 +626,7 @@ foldr (+) 7     [1,2]
 \end{minted}
 \onslide<7>
 \begin{minted}{haskell}
-foldr (+) (7+2) [1]
+foldr (+) (2+7) [1]
 \end{minted}
 \onslide<8>
 \begin{minted}{haskell}
@@ -634,7 +634,7 @@ foldr (+) 9     [1]
 \end{minted}
 \onslide<9>
 \begin{minted}{haskell}
-foldr (+) (9+1) []
+foldr (+) (1+9) []
 \end{minted}
 \onslide<10->
 \begin{minted}{haskell}
@@ -1038,7 +1038,7 @@ geraetParser =
 \end{minted}
 \normalsize
 \pause
-\texttt{<|>} ist der alternativ-Operator, der das Linke ausfürht und bei einem Fehler das Rechte zurückgibt.\\
+\texttt{<|>} ist der alternativ-Operator, der das Linke ausführt und bei einem Fehler das Rechte zurückgibt.\\
 \pause
 Wir matchen hier jeweils auf den String, schmeissen ihn weg und liefern unseren Datentyp zurück.
 \end{frame}
@@ -1382,7 +1382,7 @@ parse0 = Parser $ \inp -> case inp of
 \pause
 Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq \ nicht möglich sind.\pause
 
-Man versteckt die Funktion \texttt{Parser}, damit niemand anderes solche \glqq intrinsics\grqq \ definieren kann. Damit wird eine manipulation des Inputs bzw. ein fehlerhaftes Anwenden unmöglich.
+Man versteckt die Funktion \texttt{Parser}, damit niemand anderes solche \glqq intrinsics\grqq \ definieren kann. Damit wird eine Manipulation des Inputs bzw. ein fehlerhaftes Anwenden unmöglich.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1418,7 +1418,7 @@ main = print $ runParser testParser "101001"
 \end{frame}
 
 \begin{frame}[fragile]
-Alle gängigen Parsing-Bibliotheken benutzt man ähnlich. Die Bibliotheken stellen minimalste Intrinsics zur verfügung um z.B.
+Alle gängigen Parsing-Bibliotheken benutzt man ähnlich. Die Bibliotheken stellen minimalste Intrinsics zur Verfügung um z.B.
 \pause
 \begin{itemize}
  \item Zeichen zu parsen
