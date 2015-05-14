@@ -681,21 +681,23 @@ vnorm' x y = sqrt . fromIntegral $ vdot x y
 \begin{frame}[fragile]
 Interessant wird es, wenn wir uns die Typen von unseren Funktionen geben lassen:
 \begin{minted}{haskell}
-vmul :: (Num b, Functor f) => b -> f b -> f b
-vadd :: (Applicative f, Num b) => f b -> f b -> f b
-vdot :: (Foldable t, Applicative t, Num a) => t a -> t a -> a
-vnorm :: (Foldable t, Applicative t, Floating s) => t s -> t s -> s
-vnorm':: (Foldable t, Applicative t, Integral s, Floating c) =>
-         t s -> t s -> c
+vmul  :: (Num b, Functor f)
+         => b -> f b -> f b
+vadd  :: (Applicative f, Num b)
+         => f b -> f b -> f b
+vdot  :: (Foldable t, Applicative t, Num a)
+         => t a -> t a -> a
+vnorm :: (Foldable t, Applicative t, Floating s)
+         => t s -> t s -> s
+vnorm':: (Foldable t, Applicative t, Integral s, Floating c)
+         => t s -> t s -> c
 \end{minted}
 \pause
 Hier ist gar nicht mehr die Rede von \texttt{V3}.\\\par
 \pause
-Somit können wir dieselben Funktionen auch für \texttt{V2}, \texttt{V4} etc. benutzen, wenn wir diese entsprechend definieren.\\\par
+Somit können wir dieselben Funktionen auch für \texttt{V2}, \texttt{V4} etc. benutzen, wenn wir \texttt{Functor}, \texttt{Applicative} und \texttt{Foldable} definieren.\\\par
 \pause
-Wir brauchen hier nur Instanzen für \texttt{Functor, Applicative, Foldable} und schon sind wir fertig.\\\par
-\pause
-Damit läuft das \glqq programmieren\grqq \ nicht mehr auf das erneute Implementieren, sondern nur auf das Instanzieren von Bekanntem hinaus.
+Damit läuft das \glqq programmieren\grqq \ nicht mehr auf das erneute Implementieren, sondern nur auf das Instanzieren hinaus.
 \end{frame}
 
 
