@@ -60,21 +60,27 @@
 \subsection{Definitionen}
 
 \begin{frame}[fragile]
-Die zentrale Struktur mit der wir uns im Folgenden beschäftigen ist
+Die zentrale Struktur mit der wir uns im Folgenden beschäftigen ist\smallskip
+
 \pause
 \begin{minted}{haskell}
 data V3 a = V3 a a a
 \end{minted}
-ein 3-dimensionaler Vektor.\\ \par
+\smallskip
+
+ein dreidimensionaler Vektor.\smallskip
+
 \pause
 Wieso?
 \pause
+\smallskip
+
 \begin{itemize}
- \item Sehr viele Algorithmen in der Informatik basieren auf vektoriellen Daten
+ \item Sehr viele Algorithmen in der Informatik basieren auf vektoriellen Daten.
  \pause
- \item Die Operationen für den 3D-Fall unterscheiden sich nur unwesentlich vom n-D-Fall
+ \item Die Operationen für den 3D-Fall unterscheiden sich nur unwesentlich vom $n$D-Fall.
  \pause
- \item Die Konzepte sollten alle bereits bekannt sein, daher geht es nur um die Umsetzung
+ \item Die Konzepte sind einigen von euch wahrscheinlich bereits bekannt, hier geht es erstmal so oder so nur um die Umsetzung.
 \end{itemize}
 \end{frame}
 
@@ -104,7 +110,7 @@ Was für Operationen soll so ein Vektor unterstützen?
  \item Skalarprodukt
 \end{itemize}
 \begin{minted}{haskell}
-mul :: Num a => a -> V3 a -> V3 a
+mul  :: Num a => a -> V3 a -> V3 a
 \end{minted}
 \onslide<6>
 \begin{itemize}
@@ -113,7 +119,7 @@ mul :: Num a => a -> V3 a -> V3 a
  \item Skalarprodukt
 \end{itemize}
 \begin{minted}{haskell}
-mul :: Num a => a -> V3 a -> V3 a
+mul  :: Num a => a -> V3 a -> V3 a
 (*2) :: Num a => a -> a
 \end{minted}
 \onslide<7>
@@ -153,64 +159,64 @@ vadd :: Num a => V3 a -> V3 a -> V3 a
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
 vadd :: Num a => V3 a -> V3 a -> V3 a
-(+) :: Num a => a -> a -> a
+(+)  :: Num a => a -> a -> a
 \end{minted}
 \onslide<11>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Anwendung einer Funktion mit zwei Argumenten auf zwei Vektoren
  \item Skalarprodukt
 \end{itemize}
 \begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
+vmap   :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> a -> a) -> V3 a -> V3 a -> V3 a
-(+) :: Num a => a -> a -> a
+(+)    :: Num a => a -> a -> a
 \end{minted}
 \onslide<12>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Anwendung einer Funktion mit zwei Argumenten auf zwei Vektoren
  \item Skalarprodukt
 \end{itemize}
 \begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
+vmap   :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
-(+) :: Num a => a -> a -> a
+(+)    :: Num a => a -> a -> a
 \end{minted}
 \onslide<13>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Anwendung einer Funktion mit zwei Argumenten auf zwei Vektoren
  \item Skalarprodukt
 \end{itemize}
 \begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
+vmap   :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
-vdot :: Num a => V3 a -> V3 a -> a
+vdot   :: Num a => V3 a -> V3 a -> a
 \end{minted}
 \onslide<14>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Anwendung einer Funktion mit zwei Argumenten auf zwei Vektoren
  \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
 \end{itemize}
 \begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
+vmap   :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
-vdot :: Num a => V3 a -> V3 a -> a
+vdot   :: Num a => V3 a -> V3 a -> a
 vcompress :: V3 a -> a
 \end{minted}
 \onslide<15>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Anwendung einer Funktion mit zwei Argumenten auf zwei Vektoren
  \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
 \end{itemize}
 \begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
+vmap   :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
-vdot :: Num a => V3 a -> V3 a -> a
-vfold :: (a -> a -> a) -> V3 a -> a
+vdot   :: Num a => V3 a -> V3 a -> a
+vfold  :: (a -> a -> a) -> V3 a -> a
 \end{minted}
 \end{overprint}
 \end{frame}
@@ -237,9 +243,11 @@ vmap f (V3 x y z) = V3 (f x) (f y) (f z)
 \pause
 \pause
 \pause
+\bigskip
+
 Dieses Muster haben wir schon häufiger gesehen.\\\par
 \pause
-Es ist ein \texttt{Functor}.
+Das ist ein \texttt{Functor}.
 \begin{minted}{haskell}
 class Functor f where
   fmap :: (a -> b) -> f a -> f b
@@ -273,9 +281,14 @@ vapply f (V3 x y z) (V3 a b c) = V3 (f x a) (f y b) (f z c)
 \pause
 \pause
 \pause
-Wenn wir schon generisch sind: Was machen wir bei einer Funktion mit 3 Argumenten? \pause
- Was bei 4 Argumenten? \pause Was bei n Argumenten?\pause \\\bigskip
-Funktionen sind gecurried. Wir brauchen immer nur \glqq ein Argument mehr\grqq \ verarbeiten.
+\bigskip
+
+Wenn wir schon generisch sind:
+Was machen wir bei einer Funktion mit drei Argumenten? \pause
+Was bei vier Argumenten? \pause
+Was bei $n$ Argumenten? \pause\bigskip
+ 
+Funktionen sind \emph{gecurried}. Wir brauchen immer nur \glqq ein Argument mehr\grqq \ verarbeiten.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -283,23 +296,23 @@ Gehen wir das mal an einem Beispiel durch:
 \begin{overprint}
 \onslide<1>
 \begin{minted}{haskell}
-vapply (*) (V3 1 2 3)          (V3 4 5 6)
+vapply (*) (V3 1 2 3)             (V3 4 5 6)
 \end{minted}
 \onslide<2>
 \begin{minted}{haskell}
-vapply (*) (V3 1 2 3)          (V3 4 5 6)
-           (V3 (1*) (2*) (3*)) (V3 4 5 6)
+vapply (*) (V3 1 2 3)             (V3 4 5 6)
+           (V3 (1*) (2*) (3*))    (V3 4 5 6)
 \end{minted}
 \onslide<3>
 \begin{minted}{haskell}
-vapply (*) (V3 1 2 3)          (V3 4 5 6)
-           (V3 (1*) (2*) (3*)) (V3 4 5 6)
+vapply (*) (V3 1 2 3)             (V3 4 5 6)
+           (V3 (1*) (2*) (3*))    (V3 4 5 6)
            (V3 (1*4) (2*5) (3*6))
 \end{minted}
 \onslide<4->
 \begin{minted}{haskell}
-vapply (*) (V3 1 2 3)          (V3 4 5 6)
-           (V3 (1*) (2*) (3*)) (V3 4 5 6)
+vapply (*) (V3 1 2 3)             (V3 4 5 6)
+           (V3 (1*) (2*) (3*))    (V3 4 5 6)
            (V3 (1*4) (2*5) (3*6))
            (V3   4    10    18)
 \end{minted}
@@ -308,6 +321,8 @@ vapply (*) (V3 1 2 3)          (V3 4 5 6)
 \pause
 \pause
 \pause
+\bigskip
+
 Wie können wir nun dieses \texttt{V3 (1*) (2*) (3*)} erzeugen?
 \pause
 \begin{overprint}
@@ -386,8 +401,14 @@ apply :: V3 (a -> b) -> V3 a -> V3 b
 \pause
 \pause
 \pause
-Dies sollte uns auch bekannt vorkommen. \pause Es ist ein \texttt{Applicative}.\pause \\\bigskip
-Applicative greift in unserem Beispiel auf \texttt{fmap} zurück um die Funktion in den Kontext zu bekommen und sofort anzuwenden.\\\pause
+\bigskip
+
+Dies sollte uns auch bekannt vorkommen. \pause
+Es ist ein \texttt{Applicative}.\pause
+\bigskip
+
+\texttt{Applicative} greift in unserem Beispiel auf \texttt{fmap} zurück um die Funktion in den Kontext zu bekommen und sofort anzuwenden.\pause
+
 Aber eigentlich könnten wir auch mit
 \begin{minted}{haskell}
 V3 ((*) (*) (*)) :: V3 (a -> a -> a)
@@ -409,11 +430,12 @@ ins :: b             -> V3 b
 \end{frame}
 
 \begin{frame}[fragile]
-Somit haben wir alles für unser \texttt{Applicative} beisammen:
+Somit haben wir alles für unser \texttt{Applicative} beisammen:\smallskip
+
 \begin{minted}{haskell}
 class Applicative f where
   pure :: a -> f a
-  <*> :: f (a -> b) -> f a -> f b
+  <*>  :: f (a -> b) -> f a -> f b
 \end{minted}
 \pause
 Die Instanz für unser \texttt{V3} ist auch schnell geschrieben:
@@ -421,25 +443,25 @@ Die Instanz für unser \texttt{V3} ist auch schnell geschrieben:
 \onslide<2>
 \begin{minted}{haskell}
 instance Applicative V3 where
-  pure f = undefined
+  pure f    = undefined
   vf <*> vx = undefined
 \end{minted}
 \onslide<3>
 \begin{minted}{haskell}
 instance Applicative V3 where
-  pure f = V3 f f f
+  pure f    = V3 f f f
   vf <*> vx = undefined
 \end{minted}
 \onslide<4>
 \begin{minted}{haskell}
 instance Applicative V3 where
-  pure f = V3 f f f
+  pure f                    = V3 f f f
   (V3 f g h) <*> (V3 x y z) = undefined
 \end{minted}
 \onslide<5->
 \begin{minted}{haskell}
 instance Applicative V3 where
-  pure f = V3 f f f
+  pure f                    = V3 f f f
   (V3 f g h) <*> (V3 x y z) = V3 (f x) (g y) (h z)
 \end{minted}
 \end{overprint}
@@ -447,7 +469,9 @@ instance Applicative V3 where
 \pause
 \pause
 \pause
-Somit fällt unsere Vektoraddition zusammen auf:
+\bigskip
+
+Somit fällt unsere Vektoraddition zusammen, und zwar auf:
 \begin{overprint}
 \onslide<6>
 \begin{minted}{haskell}
@@ -462,26 +486,27 @@ vadd x y = (fmap (+)     x) <*> y
 vadd x y =       (+) <$> x  <*> y
 \end{minted}
 \end{overprint}
+%$
 \end{frame}
 
 
 \begin{frame}[fragile]
-Wozu braucht man Applicative noch?\\\par \pause
+Wozu braucht man \texttt{Applicative} noch?\\\par \pause
 Nehmen wir an wir hätten
 \begin{minted}{haskell}
 data Person = Person { name :: String
-                     , age :: Int
-                     , zip :: Int
-                     , gen :: Gender
+                     , age  :: Int
+                     , zip  :: Int
+                     , gen  :: Gender
                      }
 \end{minted}
 \pause
 und
 \begin{minted}{haskell}
 let names = V3 "Alice" "Bob" "Charlie"
-let ages = V3 20 30 40
-let zips = V3 33333 44444 55555
-let gens = V3 Female Male Undecided
+let ages  = V3 20 30 40
+let zips  = V3 33333 44444 55555
+let gens  = V3 Female Male Other
 \end{minted}
 \end{frame}
 
@@ -497,7 +522,7 @@ machen \pause und erhalten:
 \begin{minted}{haskell}
 all = V3 (Person "Alice"   20 33333 Female)
          (Person "Bob"     30 44444 Male)
-         (Person "Charlie" 40 55555 Undecided)
+         (Person "Charlie" 40 55555 Other)
 \end{minted}
 
 \end{frame}
@@ -512,12 +537,12 @@ personForm :: Html -> MForm Handler (FormResult Person, Widget)
 personForm = renderDivs $ Person
     <$> areq textField "Name" Nothing
     <*> areq (jqueryDayField def
-        { jdsChangeYear = True -- give a year dropdown
+        { jdsChangeYear = True     -- give a year dropdown
         , jdsYearRange = "1900:-5" -- 1900 till five years ago
         }) "Birthday" Nothing
-    <*> aopt textField "Favorite color" Nothing
-    <*> areq emailField "Email address" Nothing
-    <*> aopt urlField "Website" Nothing
+    <*> aopt textField  "Favorite color" Nothing
+    <*> areq emailField "Email address"  Nothing
+    <*> aopt urlField   "Website"        Nothing
 \end{minted}
 \end{frame}
 
@@ -537,7 +562,11 @@ vdot x y = compress (+) ((*) <$> x <*> y)
 \end{minted}
 \end{overprint}
 \pause
+\smallskip
+
 Wir brauchen noch eine Funktion
+\smallskip
+
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -558,10 +587,15 @@ compress f (V3 x y z) = f (f x y) z
 \pause
 \pause
 \pause
-Dies ist ein Spezialfall des generischen Faltens von Datestrukturen.\\\par
+\bigskip
+
+Dies ist ein Spezialfall des generischen \glqq Faltens\grqq\ von Datestrukturen.\par
+
 \pause
-Man kann sich einen Vektor auch als Liste mit 3 Elementen vorstellen und auf Listen kennen wir bereits \texttt{foldl}, \texttt{foldr}, \dots
-\\\par \pause
+Man kann sich einen Vektor auch als Liste mit drei Elementen vorstellen und auf Listen kennen einige von euch vielleicht bereits \texttt{foldl}, \texttt{foldr}, \dots
+\par
+\pause
+
 Also wäre es besser, wenn unser \texttt{V3} in dieser generischen Klasse sitzt, als wenn jeder Nutzer nachsehen muss, was nun \texttt{compress} genau tut.
 \end{frame}
 
@@ -613,7 +647,7 @@ foldr (+) 10    []
 
 
 \begin{frame}[fragile]
-Die Klasse hierzu heisst \texttt{Foldable}:
+Die Typklasse hierzu heisst \texttt{Foldable}:
 \begin{minted}{haskell}
 class Foldable f where
   foldr :: (a -> b -> b) -> b -> f a -> b
@@ -621,7 +655,10 @@ oder
   foldMap :: Monoid m => (a -> m) -> f a -> m
 \end{minted}
 \pause
-Beide Definitionen sind gleichwertig.
+\smallskip
+
+Beide Definitionen sind gleichwertig.\smallskip
+
 \pause
 \begin{minted}{haskell}
 instance Foldable V3 where
@@ -634,7 +671,7 @@ instance Foldable V3 where
   foldMap f (V3 x y z) = f x `mappend` f y `mappend` f z
 \end{minted}
 \pause
-Diese Klasse definiert dann zahlreiche weitere Funktionen. Unter anderem auch
+Diese Typklasse definiert dann zahlreiche weitere Funktionen. Unter anderem auch
 \begin{minted}{haskell}
 foldr1 :: (a -> a -> a) -> f a -> a
 \end{minted}
@@ -708,11 +745,13 @@ vnorm':: (Foldable t, Applicative t, Integral s, Floating c)
          => t s -> t s -> c
 \end{minted}
 \pause
-Hier ist gar nicht mehr die Rede von \texttt{V3}.\\\par
+Hier ist gar nicht mehr die Rede von \texttt{V3}.\par
 \pause
-Somit können wir dieselben Funktionen auch für \texttt{V2}, \texttt{V4} etc. benutzen, wenn wir \texttt{Functor}, \texttt{Applicative} und \texttt{Foldable} definieren.\\\par
+
+Somit können wir dieselben Funktionen auch für \texttt{V2}, \texttt{V4} etc. benutzen, wenn wir \texttt{Functor}, \texttt{Applicative} und \texttt{Foldable} definieren.\par
 \pause
-Damit läuft das \glqq programmieren\grqq \ nicht mehr auf das erneute Implementieren, sondern nur auf das Instanzieren hinaus.
+
+Damit läuft das \glqq Programmieren\grqq \ nicht mehr auf das erneute Implementieren, sondern nur auf das Instanzieren hinaus.
 \end{frame}
 
 
@@ -734,19 +773,21 @@ Diese wollen wir nun in Haskell nutzbar machen, um sie aufzubereiten, zu filtern
 \end{frame}
 
 \begin{frame}[fragile]
-\large Wie gehen wir das ganze an?\\
-\normalsize Naiv: Textvergleiche, Patterns und reguläre Ausdrücke.\\
+\large Wie gehen wir das Ganze an?\smallskip
+
+\normalsize Naiv: Textvergleiche, Patterns und reguläre Ausdrücke.
 \bigskip
+
 \pause
-This is not the Haskell-way to do that.\\
-\bigskip
+\emph{This is not the Haskell way to do that!}\bigskip
+
 \pause
-In Haskell möchten wir gerne \textbf{kleine Teilprobleme lösen} (wie z.b. das Lesen eines Zeichens oder einer Zahl) und diese dann zu größeren Lösungen \textbf{kombinieren}.
+In Haskell möchten wir gerne \textbf{kleine Teilprobleme lösen} (wie z.B. das Lesen eines Zeichens oder einer Zahl) und diese dann zu größeren Lösungen \textbf{kombinieren}.
 \end{frame}
 
 \subsection{Theorie}
 \begin{frame}[fragile]
-Kernstück für das stückweise Parsen bildet die Applicative-Typklasse mit ihrer Erweiterung \glqq Alternative\grqq .\\
+Kernstück für das stückweise Parsen bildet die Typklasse \texttt{Applicative} mit ihrer Erweiterung \glqq Alternative\grqq .\\
 \pause
 \bigskip
 Was heisst das genau?\\
@@ -789,13 +830,16 @@ Sie besteht aus
 
 \subsection{Definition der Datenstrukturen}
 \begin{frame}[fragile]
-Für alles definieren wir nun unsere Wunsch-Datenstrukturen:\\\pause
+Für alles definieren wir nun unsere Wunsch-Datenstrukturen:\pause
 \bigskip
+
 Eine Zeile lässt sich darstellen als
 \begin{minted}{haskell}
 data LogZeile = LogZeile Datum IP Geraet
 \end{minted}
-und das gesamte Log als viele Zeilen:
+\bigskip
+
+Und das gesamte Log als viele Zeilen:
 \begin{minted}{haskell}
 data Log = Log [LogZeile]
 \end{minted}
@@ -829,7 +873,7 @@ IP 13 37 13 37
 \end{minted}
 mit Word8 als unsigned 8-Bit-Integer.\\
 \pause
-Wenn falsche Werte nicht darstellbar sind, dann haben wir sie auch nicht in unserem Programm als Problem.
+Wenn \glqq inkorrekte\grqq\ Werte nicht darstellbar sind, dann haben wir sie auch nicht in unserem Programm als Problem.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -841,6 +885,8 @@ data Geraet = Mouse
             | Speakers 
             deriving (Show,Eq)
 \end{minted}
+\bigskip
+
 \pause
 Hier können wir nachher bei Bedarf auch schnell welche hinzufügen und der Compiler meckert dann an allen stellen herum, wo wir nicht mehr alle Fälle abfangen.
 \end{frame}
@@ -852,7 +898,8 @@ Hier können wir nachher bei Bedarf auch schnell welche hinzufügen und der Comp
 Datum {tag = 2014-01-02, zeit = 13:37:00}
 \end{minted}
 \pause
-Mit attoparsec liest sich der Code fast von allein:
+Mit der Bibliothek \texttt{attoparsec} liest sich der Code fast von allein:\bigskip
+
 \begin{overprint}
 \onslide<2>
 \begin{minted}{haskell}
@@ -1013,13 +1060,15 @@ zeilenParser = do
 \end{frame}
 
 \begin{frame}[fragile]
-Für das Log nehmen wir die many-Funktion aus \glqq Alternative\grqq :
+Für das Log nehmen wir die \texttt{many}-Funktion aus \glqq Alternative\grqq :
+\bigskip
+
 \begin{minted}{haskell}
 logParser :: Parser Log
 logParser = many $ zeilenParser <* endOfLine
 \end{minted}
 \pause
-\texttt{<*} (aus Applicative) fungiert hier als ein Parser-Kombinator, der erst links matched, dann rechts matched und dann das Ergebnis des Linken zurückliefert.\\
+\texttt{<*} (aus \texttt{Applicative}) fungiert hier als ein Parser-Kombinator, der erst links matched, dann rechts matched und dann das Ergebnis des Linken zurückliefert.\\
 \pause
 Hier verwenden wir diesen um das Zeilenende hinter jeder Zeile loszuwerden.
 \end{frame}
@@ -1048,8 +1097,8 @@ Right [LogZeile (Datum {tag = 2013-06-29, zeit = 11:16:23}) (IP 124 67 34 60) Ke
 
 \section{Parser-Funktionsweise}
 \begin{frame}[fragile]
-Wie funktioniert so ein Parser nun intern genau?\\
-\bigskip
+Wie funktioniert so ein Parser nun intern genau?\bigskip
+
 \pause
 Wir werden im folgenden \texttt{attoparsec} nicht im Detail erklären, sondern eher die Idee, die dahinter steht.
 \end{frame}
@@ -1082,7 +1131,7 @@ parse :: String -> (Either String a, String)
 \end{overprint}
 \begin{overprint}
 \onslide<2>
-aber was machen wir, wenn etwas von dem String überbleibt, damit wir später weitere dinge parsen können?
+Aber was machen wir, wenn etwas von dem String überbleibt, damit wir später weitere Dinge parsen können?
 \onslide<4>
 Aber das Parsen kann auch Fehlschlagen.
 \onslide<5>
@@ -1103,7 +1152,7 @@ data Parser a =
      }
 \end{minted}
 \pause
-Dies gibt uns (wie schon beim State) 2 Funktionen:
+Dies gibt uns (wie schon neulich bei \texttt{State}) zwei Funktionen:
 \begin{minted}{haskell}
 Parser    :: (String -> (Either String a, String)) -> Parser a
 runParser :: Parser a -> String -> (Either String a, String)
@@ -1266,7 +1315,7 @@ Was fehlt uns noch?\\
  \item Implementation einer Standardfehlerbehandlung
 \end{itemize}
 \pause
-Wir kümmern uns zunächst um das letzgenannte, indem wir \texttt{Alternative} implementieren.
+Wir kümmern uns zunächst um das Letzgenannte, indem wir \texttt{Alternative} implementieren.
 \end{frame}
 
 \subsection{Alternative}
@@ -1310,14 +1359,15 @@ instance Alternative Parser where
                     Right _ -> (ra, rem1)
                     _       -> runParser pb input
 \end{minted}
-Schlägt der Parser hier fehl, dann wird der bereits benutzte Input wiederhergestellt und ein weiterer Parser probiert.
+Schlägt der Parser hier fehl, dann wird der bereits benutzte Input wiederhergestellt und ein weiterer Parser ausprobiert.
 \end{overprint}
 \end{frame}
 
 \subsection{Verwendung}
 
 \begin{frame}[fragile]
-Nun können wir ein paar Simple Dinge parsen:
+Nun können wir ein paar Simple Dinge parsen:\bigskip
+
 \begin{minted}{haskell}
 parse1 :: Parser Int
 parse1 = Parser $ \inp -> case inp of
@@ -1330,13 +1380,14 @@ parse0 = Parser $ \inp -> case inp of
                     x        -> (Left "no 0", x)
 \end{minted}
 \pause
-Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq \ nicht möglich sind.\\
-\pause
+Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq \ nicht möglich sind.\pause
+
 Man versteckt die Funktion \texttt{Parser}, damit niemand anderes solche \glqq intrinsics\grqq \ definieren kann. Damit wird eine manipulation des Inputs bzw. ein fehlerhaftes Anwenden unmöglich.
 \end{frame}
 
 \begin{frame}[fragile]
-Binärzahlen können wir dann wie folgt parsen:
+Binärzahlen können wir dann wie folgt parsen:\bigskip
+
 \begin{overprint}
 \onslide<1>
 \begin{minted}{haskell}
