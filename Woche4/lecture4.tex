@@ -33,7 +33,7 @@
 \beamertemplatenavigationsymbolsempty
 \usetheme{Warsaw}
 
-\title{Intermediate Dabbling in Haskell}
+\title{Fortgeschrittene Funktionale Programmierung in Haskell}
 
 \begin{document}
 
@@ -43,7 +43,7 @@
 
   \begin{frame}
   \begin{center}
-    \Huge\textbf{Intermediate Functional Programming in Haskell}\\ \bigskip
+    \huge\textbf{Fortgeschrittene Funktionale Programmierung in Haskell}\\ \bigskip
     \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
     \large Jonas Betzendahl \& Stefan Dresselhaus
     \end{center}
@@ -54,6 +54,650 @@
 \frametitle{Übersicht}
 \tableofcontents[hideallsubsections]
 \end{frame}
+
+\section{Wiederholung und Beispiele}
+
+\subsection{Definitionen}
+
+\begin{frame}[fragile]
+Die zentrale Struktur mit der wir uns im Folgenden beschäftigen ist
+\pause
+\begin{minted}{haskell}
+data V3 a = V3 a a a
+\end{minted}
+ein 3-dimensionaler Vektor.\\ \par
+\pause
+Wieso?
+\pause
+\begin{itemize}
+ \item Sehr viele Algorithmen in der Informatik basieren auf vektoriellen Daten
+ \pause
+ \item Die Operationen für den 3D-Fall unterscheiden sich nur unwesentlich vom n-D-Fall
+ \pause
+ \item Die Konzepte sollten alle bereits bekannt sein, daher geht es nur um die Umsetzung
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+Was für Operationen soll so ein Vektor unterstützen?
+\pause
+\begin{overprint}
+\onslide<2>
+\begin{itemize}
+ \item Skalare Multiplikation
+\end{itemize}
+\onslide<3>
+\begin{itemize}
+ \item Skalare Multiplikation
+ \item Vektoraddition
+\end{itemize}
+\onslide<4>
+\begin{itemize}
+ \item Skalare Multiplikation
+ \item Vektoraddition
+ \item Skalarprodukt
+\end{itemize}
+\onslide<5>
+\begin{itemize}
+ \item Skalare Multiplikation
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\onslide<6>
+\begin{itemize}
+ \item Skalare Multiplikation
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+mul :: Num a => a -> V3 a -> V3 a
+\end{minted}
+\onslide<7>
+\begin{itemize}
+ \item Anwendung von (*x) auf jede Komponente
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+mul :: Num a => a -> V3 a -> V3 a
+(*2) :: Num a => a -> a
+\end{minted}
+\onslide<8>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> a) -> V3 a -> V3 a
+\end{minted}
+\onslide<9>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+\end{minted}
+\onslide<10>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vadd :: Num a => V3 a -> V3 a -> V3 a
+\end{minted}
+\onslide<11>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Vektoraddition
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vadd :: Num a => V3 a -> V3 a -> V3 a
+(+) :: Num a => a -> a -> a
+\end{minted}
+\onslide<12>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vapply :: (a -> a -> a) -> V3 a -> V3 a -> V3 a
+(+) :: Num a => a -> a -> a
+\end{minted}
+\onslide<13>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+(+) :: Num a => a -> a -> a
+\end{minted}
+\onslide<14>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Skalarprodukt
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+vdot :: Num a => V3 a -> V3 a -> a
+\end{minted}
+\onslide<15>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+vdot :: Num a => V3 a -> V3 a -> a
+vcompress :: V3 a -> a
+\end{minted}
+\onslide<16>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+vdot :: Num a => V3 a -> V3 a -> a
+vfold :: (a -> a -> a) -> V3 a -> a
+\end{minted}
+\onslide<17>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
+ \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
+ \item Kreuzprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+vdot :: Num a => V3 a -> V3 a -> a
+vfold :: (a -> a -> a) -> V3 a -> a
+vcross :: Num a => V3 a -> V3 a -> V3 a
+\end{minted}
+\end{overprint}
+\end{frame}
+
+\subsection{Implementation}
+
+\begin{frame}[fragile]
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vmap f (V3 x y z) = ?
+\end{minted}
+\onslide<3->
+\begin{minted}{haskell}
+vmap :: (a -> b) -> V3 a -> V3 b
+vmap f (V3 x y z) = V3 (f x) (f y) (f z)
+\end{minted}
+\end{overprint}
+\pause
+\pause
+\pause
+Dieses Muster haben wir schon häufiger gesehen.\\\par
+\pause
+Es ist ein \texttt{Functor}.
+\begin{minted}{haskell}
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+\end{minted}
+\pause
+\begin{minted}{haskell}
+instance Functor V3 where
+  fmap :: (a -> b) -> V3 a -> V3 b
+  fmap = vmap
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+vapply f (V3 x y z) (V3 a b c) = ?
+\end{minted}
+\onslide<3->
+\begin{minted}{haskell}
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
+vapply f (V3 x y z) (V3 a b c) = V3 (f x a) (f y b) (f z c)
+\end{minted}
+\end{overprint}
+\pause
+\pause
+\pause
+Wenn wir schon generisch sind: Was machen wir bei einer Funktion mit 3 Argumenten? \pause
+ Was bei 4 Argumenten? \pause Was bei n Argumenten?\pause \\\bigskip
+Funktionen sind gecurried. Wir brauchen immer nur \glqq ein Argument mehr\grqq \ verarbeiten.
+\end{frame}
+
+\begin{frame}[fragile]
+Gehen wir das mal an einem Beispiel durch:
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+vapply (*) (V3 1 2 3)          (V3 4 5 6)
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+vapply (*) (V3 1 2 3)          (V3 4 5 6)
+           (V3 (1*) (2*) (3*)) (V3 4 5 6)
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+vapply (*) (V3 1 2 3)          (V3 4 5 6)
+           (V3 (1*) (2*) (3*)) (V3 4 5 6)
+           (V3 (1*4) (2*5) (3*6))
+\end{minted}
+\onslide<4->
+\begin{minted}{haskell}
+vapply (*) (V3 1 2 3)          (V3 4 5 6)
+           (V3 (1*) (2*) (3*)) (V3 4 5 6)
+           (V3 (1*4) (2*5) (3*6))
+           (V3   4    10    18)
+\end{minted}
+\end{overprint}
+\pause
+\pause
+\pause
+\pause
+Wie können wir nun dieses \texttt{V3 (1*) (2*) (3*)} erzeugen?
+\pause
+\begin{overprint}
+\onslide<6>
+\begin{minted}{haskell}
+(*) :: Num a => a -> a -> a
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+(*) :: Num a => a -> (a -> a)
+\end{minted}
+\onslide<8>
+\begin{minted}{haskell}
+(*) :: Num a => a -> b
+\end{minted}
+\texttt{b = (a -> a)}
+\onslide<9>
+\begin{minted}{haskell}
+(*) :: Num a => a -> b
+app :: (a ->  a -> a ) -> V3 a -> V3 (a -> a)
+\end{minted}
+\texttt{b = (a -> a)}
+\onslide<10>
+\begin{minted}{haskell}
+(*) :: Num a => a -> b
+app :: (a -> (a -> a)) -> V3 a -> V3 (a -> a)
+\end{minted}
+\texttt{b = (a -> a)}
+\onslide<11>
+\begin{minted}{haskell}
+(*) :: Num a => a -> b
+app :: (a -> b) -> V3 a -> V3 b
+\end{minted}
+\texttt{b = (a -> a)}
+\onslide<12>
+\begin{minted}{haskell}
+(*) :: Num a => a -> b
+fmap :: (a -> b) -> V3 a -> V3 b
+\end{minted}
+\texttt{b = (a -> a)}
+\end{overprint}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+fmap (*) (V3 1 2 3) = V3 (1*) (2*) (3*)
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+V3 (1*) (2*) (3*) :: V3 (a -> a)
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+V3 (1*) (2*) (3*) :: V3 (a -> a)
+V3 4 5 6          :: V3 a
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+V3 (1*) (2*) (3*) :: V3 (a -> a)
+V3 4 5 6          :: V3 a
+apply :: V3 (a -> a) -> V3 a -> V3 a
+\end{minted}
+\onslide<5->
+\begin{minted}{haskell}
+V3 (1*) (2*) (3*) :: V3 (a -> a)
+V3 4 5 6          :: V3 a
+apply :: V3 (a -> b) -> V3 a -> V3 b
+\end{minted}
+\end{overprint}
+\pause
+\pause
+\pause
+\pause
+\pause
+Dies sollte uns auch bekannt vorkommen. \pause Es ist ein \texttt{Applicative}.\pause \\\bigskip
+Applicative greift in unserem Beispiel auf \texttt{fmap} zurück um die Funktion in den Kontext zu bekommen und sofort anzuwenden.\\\pause
+Aber eigentlich könnten wir auch mit
+\begin{minted}{haskell}
+V3 ((*) (*) (*)) :: V3 (a -> a -> a)
+\end{minted}
+anfangen und 2x \texttt{apply} aufrufen.\\\par
+\pause
+Hierfür brauchen wir noch eine Funktion
+\begin{overprint}
+\onslide<10>
+\begin{minted}{haskell}
+ins :: (a -> a -> a) -> V3 (a -> a -> a)
+\end{minted}
+\onslide<11>
+\begin{minted}{haskell}
+ins :: b             -> V3 b
+\end{minted}
+\texttt{b = (a -> a -> a)}
+\end{overprint}
+\end{frame}
+
+\begin{frame}[fragile]
+Somit haben wir alles für unser \texttt{Applicative} beisammen:
+\begin{minted}{haskell}
+class Applicative f where
+  pure :: a -> f a
+  <*> :: f (a -> b) -> f a -> f b
+\end{minted}
+\pause
+Die Instanz für unser \texttt{V3} ist auch schnell geschrieben:
+\begin{overprint}
+\onslide<2>
+\begin{minted}{haskell}
+instance Applicative V3 where
+  pure f = undefined
+  vf <*> vx = undefined
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+instance Applicative V3 where
+  pure f = V3 f f f
+  vf <*> vx = undefined
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Applicative V3 where
+  pure f = V3 f f f
+  (V3 f g h) <*> (V3 x y z) = undefined
+\end{minted}
+\onslide<5->
+\begin{minted}{haskell}
+instance Applicative V3 where
+  pure f = V3 f f f
+  (V3 f g h) <*> (V3 x y z) = V3 (f x) (g y) (h z)
+\end{minted}
+\end{overprint}
+\pause
+\pause
+\pause
+\pause
+Somit fällt unsere Vektoraddition zusammen auf:
+\begin{overprint}
+\onslide<6>
+\begin{minted}{haskell}
+vadd x y =  pure (+) <*> x  <*> y
+\end{minted}
+\onslide<7>
+\begin{minted}{haskell}
+vadd x y = (fmap (+)     x) <*> y
+\end{minted}
+\onslide<8>
+\begin{minted}{haskell}
+vadd x y =       (+) <$> x  <*> y
+\end{minted}
+\end{overprint}
+\end{frame}
+
+
+\begin{frame}[fragile]
+Wozu braucht man Applicative noch?\\\par \pause
+Nehmen wir an wir hätten
+\begin{minted}{haskell}
+data Person = Person { name :: String
+                     , age :: Int
+                     , zip :: Int
+                     , gen :: Gender
+                     }
+\end{minted}
+\pause
+und
+\begin{minted}{haskell}
+let names = V3 "Alice" "Bob" "Charlie"
+let ages = V3 20 30 40
+let zips = V3 33333 44444 55555
+let gens = V3 Female Male Undecided
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+dann können wir einfach
+\begin{minted}{haskell}
+let all = Person <$> names
+                 <*> ages
+                 <*> zips
+                 <*> gens
+\end{minted}
+machen \pause und erhalten:
+\begin{minted}{haskell}
+all = V3 (Person "Alice"   20 33333 Female)
+         (Person "Bob"     30 44444 Male)
+         (Person "Charlie" 40 55555 Undecided)
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+Dieser Fall ist für den \texttt{V3} etwas konstruiert.\\\par
+\pause
+Ein Beispiel aus einer echten Applikation wäre:
+\begin{minted}{haskell}
+personForm :: Html -> MForm Handler (FormResult Person, Widget)
+personForm = renderDivs $ Person
+    <$> areq textField "Name" Nothing
+    <*> areq (jqueryDayField def
+        { jdsChangeYear = True -- give a year dropdown
+        , jdsYearRange = "1900:-5" -- 1900 till five years ago
+        }) "Birthday" Nothing
+    <*> aopt textField "Favorite color" Nothing
+    <*> areq emailField "Email address" Nothing
+    <*> aopt urlField "Website" Nothing
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Kommen wir aber nun zurück zu unserem \texttt{V3}:\\
+Wir möchten noch ein Skalarprodukt definieren. Die Hälfte haben wir schon:
+\begin{overprint}
+\onslide<1-4>
+\begin{minted}{haskell}
+vdot :: V3 a -> V3 a -> a
+vdot x y = _ ((*) <$> x <*> y)
+\end{minted}
+\onslide<5->
+\begin{minted}{haskell}
+vdot :: V3 a -> V3 a -> a
+vdot x y = compress (+) ((*) <$> x <*> y)
+\end{minted}
+\end{overprint}
+\pause
+Wir brauchen noch eine Funktion
+\begin{overprint}
+\onslide<2>
+\begin{minted}{haskell}
+compress :: (a -> a -> a) -> V3 a -> a
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+compress :: (a -> a -> a) -> V3 a -> a
+compress f (V3 x y z) = ?
+\end{minted}
+\onslide<4->
+\begin{minted}{haskell}
+compress :: (a -> a -> a) -> V3 a -> a
+compress f (V3 x y z) = f (f x y) z
+\end{minted}
+\end{overprint}
+\pause
+\pause
+\pause
+\pause
+Dies ist ein Spezialfall des generischen Faltens von Datestrukturen.\\\par
+\pause
+Man kann sich einen Vektor auch als Liste mit 3 Elementen vorstellen und auf Listen kennen wir bereits \texttt{foldl}, \texttt{foldr}, \dots
+\\\par \pause
+Also wäre es besser, wenn unser \texttt{V3} in dieser generischen Klasse sitzt, als wenn jeder Nutzer nachsehen muss, was nun \texttt{compress} genau tut.
+\end{frame}
+
+\begin{frame}[fragile]
+Die Klasse hierzu heisst \texttt{Foldable}:
+\begin{minted}{haskell}
+class Foldable f where
+  foldr :: (a -> b -> b) -> b -> f a -> b
+oder
+  foldMap :: Monoid m => (a -> m) -> f a -> m
+\end{minted}
+\pause
+Beide Definitionen sind gleichwertig.
+\pause
+\begin{minted}{haskell}
+instance Foldable V3 where
+  foldr f s (V3 x y z) = f x $ f y $ f z s
+\end{minted}
+\pause
+oder
+\begin{minted}{haskell}
+instance Foldable V3 where
+  foldMap f (V3 x y z) = f x `mappend` f y `mappend` f z
+\end{minted}
+\pause
+Diese Klasse definiert dann zahlreiche weitere Funktionen. Unter anderem auch
+\begin{minted}{haskell}
+foldr1 :: (a -> a -> a) -> f a -> a
+\end{minted}
+welches einfach nur \texttt{foldr} mit dem ersten Element als Startwert ist.
+\end{frame}
+
+\begin{frame}[fragile]
+Wozu brauchen wir diese Abstraktion?\\\pause
+Zunächst haben wir für unser Skalarprodukt
+\begin{minted}{haskell}
+vdot x y = foldr1 (+) ((*) <$> x <*> y)
+\end{minted}
+\pause
+Aber wenn wir jetzt z.B. die Norm berechnen wollen, müssen wir die Wurzel ziehen. \pause Diese ist z.B. auf \texttt{Int} nicht definiert. \pause Somit können wir \emph{nicht} schreiben:
+\begin{minted}{haskell}
+vnorm x y = sqrt $ foldr1 (+) ((*) <$> x <*> y)
+\end{minted}
+\pause
+Wir müssen also irgendwo die Umwandlung von \texttt{Int -> Double} machen. \\\par 
+\pause
+Dazu einige Beispiele:
+\begin{minted}{haskell}
+vnorm x y = sqrt $ fromIntegral $ foldr1 (+) ((*) <$> x <*> y)
+vnorm x y = sqrt $ foldr ((+) . fromIntegral) 0
+                                             ((*) <$> x <*> y)
+vnorm x y = sqrt $ foldr1 (+) ((*) <$> (fromIntegral <$> x)
+                                   <*> (fromIntegral <$> y))
+\end{minted}
+\pause
+Diese Funktionen unterscheiden sich in der Laufzeit - und je nach Datentyp auch im Ergebnis.
+\end{frame}
+
+\subsection{Zusammenfassung}
+\begin{frame}[fragile]
+\begin{minted}{haskell}
+module V3 where
+import Control.Applicative
+import Data.Foldable
+import Data.Monoid
+import Prelude hiding (foldr1)
+
+data V3 a = V3 a a a
+instance Functor V3 where
+  fmap f (V3 x y z) = V3 (f x) (f y) (f z)
+instance Applicative V3 where
+  pure f = V3 f f f
+  (V3 f g h) <*> (V3 x y z) = V3 (f x) (g y) (h z)
+instance Foldable V3 where
+  foldMap f (V3 x y z) = f x `mappend` f y `mappend` f z
+
+vmul s x = (s*) <$> x
+vadd x y = (+) <$> x <*> y
+vdot x y = foldr1 (+) $ (*) <$> x <*> y
+vnorm x y = sqrt $ vdot x y
+vnorm' x y = sqrt . fromIntegral $ vdot x y
+\end{minted}
+\end{frame}
+
+\begin{frame}[fragile]
+Interessant wird es, wenn wir uns die Typen von unseren Funktionen geben lassen:
+\begin{minted}{haskell}
+vmul :: (Num b, Functor f) => b -> f b -> f b
+vadd :: (Applicative f, Num b) => f b -> f b -> f b
+vdot :: (Foldable t, Applicative t, Num a) => t a -> t a -> a
+vnorm :: (Foldable t, Applicative t, Floating s) => t s -> t s -> s
+vnorm':: (Foldable t, Applicative t, Integral s, Floating c) =>
+         t s -> t s -> c
+\end{minted}
+\pause
+Hier ist gar nicht mehr die Rede von \texttt{V3}.\\\par
+\pause
+Somit können wir dieselben Funktionen auch für \texttt{V2}, \texttt{V4} etc. benutzen, wenn wir diese entsprechend definieren.\\\par
+\pause
+Wir brauchen hier nur Instanzen für \texttt{Functor, Applicative, Foldable} und schon sind wir fertig.\\\par
+\pause
+Damit läuft das \glqq programmieren\grqq \ nicht mehr auf das erneute Implementieren, sondern nur auf das Instanzieren von Bekanntem hinaus.
+\end{frame}
+
 
 \section{Parsing}
 
