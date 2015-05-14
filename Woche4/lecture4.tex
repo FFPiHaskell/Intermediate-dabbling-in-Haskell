@@ -102,70 +102,68 @@ Was für Operationen soll so ein Vektor unterstützen?
  \item Skalare Multiplikation
  \item Vektoraddition
  \item Skalarprodukt
- \item Kreuzprodukt
-\end{itemize}
-\onslide<6>
-\begin{itemize}
- \item Skalare Multiplikation
- \item Vektoraddition
- \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 mul :: Num a => a -> V3 a -> V3 a
 \end{minted}
-\onslide<7>
+\onslide<6>
 \begin{itemize}
  \item Anwendung von (*x) auf jede Komponente
  \item Vektoraddition
  \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 mul :: Num a => a -> V3 a -> V3 a
 (*2) :: Num a => a -> a
+\end{minted}
+\onslide<7>
+\begin{itemize}
+ \item Anwendung derselben Funktion auf jede Komponente
+ \item Vektoraddition
+ \item Skalarprodukt
+\end{itemize}
+\begin{minted}{haskell}
+vmap :: (a -> a) -> V3 a -> V3 a
 \end{minted}
 \onslide<8>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
  \item Vektoraddition
  \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
-vmap :: (a -> a) -> V3 a -> V3 a
+vmap :: (a -> b) -> V3 a -> V3 b
 \end{minted}
 \onslide<9>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
  \item Vektoraddition
  \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
+vadd :: Num a => V3 a -> V3 a -> V3 a
 \end{minted}
 \onslide<10>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
  \item Vektoraddition
  \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
 vadd :: Num a => V3 a -> V3 a -> V3 a
+(+) :: Num a => a -> a -> a
 \end{minted}
 \onslide<11>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
- \item Vektoraddition
+ \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
  \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
-vadd :: Num a => V3 a -> V3 a -> V3 a
+vapply :: (a -> a -> a) -> V3 a -> V3 a -> V3 a
 (+) :: Num a => a -> a -> a
 \end{minted}
 \onslide<12>
@@ -173,11 +171,10 @@ vadd :: Num a => V3 a -> V3 a -> V3 a
  \item Anwendung derselben Funktion auf jede Komponente
  \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
  \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
-vapply :: (a -> a -> a) -> V3 a -> V3 a -> V3 a
+vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
 (+) :: Num a => a -> a -> a
 \end{minted}
 \onslide<13>
@@ -185,31 +182,17 @@ vapply :: (a -> a -> a) -> V3 a -> V3 a -> V3 a
  \item Anwendung derselben Funktion auf jede Komponente
  \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
  \item Skalarprodukt
- \item Kreuzprodukt
-\end{itemize}
-\begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
-vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
-(+) :: Num a => a -> a -> a
-\end{minted}
-\onslide<14>
-\begin{itemize}
- \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
- \item Skalarprodukt
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
 vdot :: Num a => V3 a -> V3 a -> a
 \end{minted}
-\onslide<15>
+\onslide<14>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
  \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
  \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
@@ -217,32 +200,17 @@ vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
 vdot :: Num a => V3 a -> V3 a -> a
 vcompress :: V3 a -> a
 \end{minted}
-\onslide<16>
+\onslide<15>
 \begin{itemize}
  \item Anwendung derselben Funktion auf jede Komponente
  \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
  \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
- \item Kreuzprodukt
 \end{itemize}
 \begin{minted}{haskell}
 vmap :: (a -> b) -> V3 a -> V3 b
 vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
 vdot :: Num a => V3 a -> V3 a -> a
 vfold :: (a -> a -> a) -> V3 a -> a
-\end{minted}
-\onslide<17>
-\begin{itemize}
- \item Anwendung derselben Funktion auf jede Komponente
- \item Anwendung einer Funktion mit 2 Argumenten auf 2 Vektoren
- \item Erst \texttt{vapply (*)}, dann Zusammenfassen mit \texttt{+}
- \item Kreuzprodukt
-\end{itemize}
-\begin{minted}{haskell}
-vmap :: (a -> b) -> V3 a -> V3 b
-vapply :: (a -> b -> c) -> V3 a -> V3 b -> V3 c
-vdot :: Num a => V3 a -> V3 a -> a
-vfold :: (a -> a -> a) -> V3 a -> a
-vcross :: Num a => V3 a -> V3 a -> V3 a
 \end{minted}
 \end{overprint}
 \end{frame}
@@ -731,7 +699,7 @@ In Haskell möchten wir gerne \textbf{kleine Teilprobleme lösen} (wie z.b. das 
 
 \subsection{Theorie}
 \begin{frame}[fragile]
-Kernstück für das stückweise Parsen bildet die Applicative-Typklasse mit ihrer monoidal-Erweiterung \glqq Alternative\grqq .\\
+Kernstück für das stückweise Parsen bildet die Applicative-Typklasse mit ihrer Erweiterung \glqq Alternative\grqq .\\
 \pause
 \bigskip
 Was heisst das genau?\\
@@ -826,6 +794,7 @@ data Geraet = Mouse
             | Speakers 
             deriving (Show,Eq)
 \end{minted}
+\pause
 Hier können wir nachher bei Bedarf auch schnell welche hinzufügen und der Compiler meckert dann an allen stellen herum, wo wir nicht mehr alle Fälle abfangen.
 \end{frame}
 
@@ -837,7 +806,67 @@ Datum {tag = 2014-01-02, zeit = 13:37:00}
 \end{minted}
 \pause
 Mit attoparsec liest sich der Code fast von allein:
-\small
+\begin{overprint}
+\onslide<2>
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+             undefined
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+  y  <- count 4 digit
+  undefined
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+  y  <- count 4 digit
+  char '-'
+  undefined
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+  y  <- count 4 digit
+  char '-'
+  mm <- count 2 digit
+  char '-'
+  undefined
+\end{minted}
+\onslide<6>
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+  y  <- count 4 digit; char '-'
+  mm <- count 2 digit; char '-'
+  undefined
+\end{minted}
+\onslide<7>
 \begin{minted}{haskell}
 {-# LANGUAGE OverloadedStrings #-}
 import Data.Time
@@ -850,13 +879,29 @@ zeitParser = do
   d  <- count 2 digit; char ' '
   h  <- count 2 digit; char ':'
   m  <- count 2 digit; char ':'
-  s  <- count 2 digit;
+  s  <- count 2 digit
+  undefined
+\end{minted}
+\onslide<8>
+\begin{minted}{haskell}
+{-# LANGUAGE OverloadedStrings #-}
+import Data.Time
+import Data.Attoparsec.Char8
+
+zeitParser :: Parser Datum
+zeitParser = do
+  y  <- count 4 digit; char '-'
+  mm <- count 2 digit; char '-'
+  d  <- count 2 digit; char ' '
+  h  <- count 2 digit; char ':'
+  m  <- count 2 digit; char ':'
+  s  <- count 2 digit
   return $
     Datum { tag  = fromGregorian (read y) (read mm) (read d)
           , zeit = TimeOfDay (read h) (read m) (read s)
           }
 \end{minted}
-\normalsize
+\end{overprint}
 
 \end{frame}
 
@@ -883,7 +928,7 @@ parseIP = do
 \end{frame}
 
 \begin{frame}[fragile]
-Für das Gerät brauchen wir die Mächtigkeit von Alternativen:
+Für das Gerät brauchen wir die Mächtigkeit von \texttt{Alternative}:
 \small
 \begin{minted}{haskell}
 {-# LANGUAGE OverloadedStrings #-}
@@ -898,9 +943,10 @@ geraetParser =
  <|> (string "speakers" >> return Speakers)
 \end{minted}
 \normalsize
-\texttt{<|>} ist der alternativ-Operator, der das Rechte ausführt, wenn das Linke einen Fehler wirft.\\
 \pause
-Wir matchen hier jeweils auf den String, schmeissen das gematchte Ergebnis weg (den String selbst) und liefern unseren Datentyp zurück.
+\texttt{<|>} ist der alternativ-Operator, der das Linke ausfürht und bei einem Fehler das Rechte zurückgibt.\\
+\pause
+Wir matchen hier jeweils auf den String, schmeissen ihn weg und liefern unseren Datentyp zurück.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -925,7 +971,9 @@ Für das Log nehmen wir die many-Funktion aus \glqq Alternative\grqq :
 logParser :: Parser Log
 logParser = many $ zeilenParser <* endOfLine
 \end{minted}
+\pause
 \texttt{<*} (aus Applicative) fungiert hier als ein Parser-Kombinator, der erst links matched, dann rechts matched und dann das Ergebnis des Linken zurückliefert.\\
+\pause
 Hier verwenden wir diesen um das Zeilenende hinter jeder Zeile loszuwerden.
 \end{frame}
 
@@ -955,40 +1003,52 @@ Right [LogZeile (Datum {tag = 2013-06-29, zeit = 11:16:23}) (IP 124 67 34 60) Ke
 \begin{frame}[fragile]
 Wie funktioniert so ein Parser nun intern genau?\\
 \bigskip
-Wir werden im folgenden attoparsec nicht im Detail erklären, sondern eher die Idee, die dahinter steht.
+\pause
+Wir werden im folgenden \texttt{attoparsec} nicht im Detail erklären, sondern eher die Idee, die dahinter steht.
 \end{frame}
 
 \subsection{Poor-mans parser}
 \begin{frame}[fragile]
+\begin{overprint}
+\onslide<1-2>
 Eigentlich hätten wir gerne eine Funktion
+\onslide<3-6>
+Also brauchen wir
+\end{overprint}
+\begin{overprint}
+\onslide<1-2>
 \begin{minted}{haskell}
 parse :: String -> a
 \end{minted}
-\pause
-aber was machen wir, wenn etwas von dem String überbleibt, damit wir später weitere dinge parsen können?\\
-\pause
-Also brauchen wir
+\onslide<3-4>
 \begin{minted}{haskell}
-parse :: String -> (a,String)
+parse :: String -> (a, String)
 \end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+parse :: String -> (Maybe a, String)
+\end{minted}
+\onslide<6->
+\begin{minted}{haskell}
+parse :: String -> (Either String a, String)
+\end{minted}
+\end{overprint}
+\begin{overprint}
+\onslide<2>
+aber was machen wir, wenn etwas von dem String überbleibt, damit wir später weitere dinge parsen können?
+\onslide<4>
+Aber das Parsen kann auch Fehlschlagen.
+\onslide<5>
+Und Fehlermeldungen wären auch schön.
+\end{overprint}
 \pause
-Aber das Parsen kann auch Fehlschlagen. Und Fehlermeldungen wären auch schön.
 \pause
-\begin{minted}{haskell}
-parse :: String -> (Either String a,String)
-\end{minted}
-oder alternativ
-\begin{minted}{haskell}
-parse :: String -> Either String (a,String)
-\end{minted}
-\end{frame}
-
-\begin{frame}[fragile]
-Im folgenden nehmen wir
-\begin{minted}{haskell}
-parse :: String -> (Either String a,String)
-\end{minted}
-als Parser an. So können wir z.b. weiterparsen, wenn ein Teil einen Fehler wirft. Außerdem wollen wir einen fancy type:
+\pause
+\pause
+\pause
+\pause
+Da wir auch so elegant die \texttt{do}-Notation nutzen möchten, brauchen wir eine Monade. Dazu brauchen wir einen einzelnen Typen:\\
+\pause
 \begin{minted}{haskell}
 data Parser a = 
      Parser {
@@ -1003,13 +1063,28 @@ runParser :: Parser a -> String -> (Either String a, String)
 \end{minted}
 \end{frame}
 
-\begin{frame}[fragile]
-Natürlich bildet unser Parser wieder eine Monade. So können wir verschiedene Parser miteinander zu großen kombinieren.\\
-Um das besser zu verstehen, gehen wir im Folgenden die nötigen Definitionen (Functor, Applicative, Monad) durch.
-\end{frame}
-
 \subsection{F/A/M}
 \begin{frame}[fragile]
+\begin{minted}{haskell}
+Parser    :: (String -> (Either String a, String)) -> Parser a
+runParser :: Parser a -> String -> (Either String a, String)
+\end{minted}
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+instance Functor Parser where
+fmap f p = Parser $ \input -> undefined
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+instance Functor Parser where
+fmap f p = Parser $ \input ->
+             let
+               (res, rem) = runParser p input
+             in
+               undefined
+\end{minted}
+\onslide<3>
 \begin{minted}{haskell}
 instance Functor Parser where
 fmap f p = Parser $ \input ->
@@ -1018,9 +1093,46 @@ fmap f p = Parser $ \input ->
              in
                (fmap f res, rem)
 \end{minted}
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
+\begin{minted}{haskell}
+Parser    :: (String -> (Either String a, String)) -> Parser a
+runParser :: Parser a -> String -> (Either String a, String)
+\end{minted}
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+instance Applicative Parser where
+  pure a    = Parser $ \input -> undefined
+  pf <*> pa = undefined
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+instance Applicative Parser where
+  pure a    = Parser $ \input -> (Right a,input)
+  pf <*> pa = undefined
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+instance Applicative Parser where
+  pure a    = Parser $ \input -> (Right a,input)
+  pf <*> pa = Parser $ \input ->
+                undefined
+\end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Applicative Parser where
+  pure a    = Parser $ \input -> (Right a,input)
+  pf <*> pa = Parser $ \input ->
+                let
+                  (rf, rem1) = runParser pf input
+                  (ra, rem2) = runParser pa rem1
+                in
+                  undefined
+\end{minted}
+\onslide<5>
 \begin{minted}{haskell}
 instance Applicative Parser where
   pure a    = Parser $ \input -> (Right a,input)
@@ -1031,9 +1143,33 @@ instance Applicative Parser where
                 in
                   (rf <*> ra, rem2)
 \end{minted}
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
+\begin{minted}{haskell}
+Parser    :: (String -> (Either String a, String)) -> Parser a
+runParser :: Parser a -> String -> (Either String a, String)
+\end{minted}
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+instance Monad Parser where
+  return a  = pure a
+  pa >>= f  = Parser $ \input ->
+                undefined
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+instance Monad Parser where
+  return a  = pure a
+  pa >>= f  = Parser $ \input ->
+                let
+                  (ra, rem1) = runParser pa input
+                in
+                  undefined
+\end{minted}
+\onslide<3>
 \begin{minted}{haskell}
 instance Monad Parser where
   return a  = pure a
@@ -1042,9 +1178,34 @@ instance Monad Parser where
                   (ra, rem1) = runParser pa input
                 in
                   case ra of
-                    Right a  -> runParser (f a) rem1
-                    Left err -> (Left err, rem1)
+                    Left err -> undefined
+                    Right a  -> undefined
 \end{minted}
+\onslide<4>
+\begin{minted}{haskell}
+instance Monad Parser where
+  return a  = pure a
+  pa >>= f  = Parser $ \input ->
+                let
+                  (ra, rem1) = runParser pa input
+                in
+                  case ra of
+                    Left err -> (Left err, rem1)
+                    Right a  -> undefined
+\end{minted}
+\onslide<5>
+\begin{minted}{haskell}
+instance Monad Parser where
+  return a  = pure a
+  pa >>= f  = Parser $ \input ->
+                let
+                  (ra, rem1) = runParser pa input
+                in
+                  case ra of
+                    Left err -> (Left err, rem1)
+                    Right a  -> runParser (f a) rem1
+\end{minted}
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1052,15 +1213,45 @@ Was fehlt uns noch?\\
 \pause
 \begin{itemize}
  \item Langweilige Definition simpler Parser (digit, lit, space, ...)
- \item Erweiterung mit Continuations (Text \glqq nachschieben\grqq)
+ \pause
+ \item Erweiterung mit sog. Continuations (Text \glqq nachschieben\grqq)
+ \pause
  \item Implementation einer Standardfehlerbehandlung
 \end{itemize}
 \pause
-Wir kümmern uns um das letzgenannte, indem wir Alternative implementieren
+Wir kümmern uns zunächst um das letzgenannte, indem wir \texttt{Alternative} implementieren.
 \end{frame}
 
 \subsection{Alternative}
 \begin{frame}[fragile]
+\begin{minted}{haskell}
+Parser    :: (String -> (Either String a, String)) -> Parser a
+runParser :: Parser a -> String -> (Either String a, String)
+\end{minted}
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+instance Alternative Parser where
+  empty     = Parser $ \input -> undefined
+  pa <|> pb = undefined
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+instance Alternative Parser where
+  empty     = Parser $ \inp -> (Left "",inp)
+  pa <|> pb = undefined
+\end{minted}
+\onslide<3>
+\begin{minted}{haskell}
+instance Alternative Parser where
+  empty     = Parser $ \inp -> (Left "",inp)
+  pa <|> pb = Parser $ \input -> 
+                let
+                  (ra, rem1) = runParser pa input
+                in
+                  undefined
+\end{minted}
+\onslide<4>
 \begin{minted}{haskell}
 instance Alternative Parser where
   empty     = Parser $ \inp -> (Left "",inp)
@@ -1073,6 +1264,7 @@ instance Alternative Parser where
                     _       -> runParser pb input
 \end{minted}
 Schlägt der Parser hier fehl, dann wird der bereits benutzte Input wiederhergestellt und ein weiterer Parser probiert.
+\end{overprint}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -1089,11 +1281,28 @@ parse0 = Parser $ \inp -> case inp of
                     x        -> (Left "no 0", x)
 \end{minted}
 \pause
-Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq nicht möglich sind. Somit können wir verhindern, dass Leute mit dem Eingabestring schindluder treiben.
+Dies sind dann intrinsics oder interne Funktionen, die ohne einen Zugriff auf \glqq Parser\grqq nicht möglich sind.\\
+\pause
+Man versteckt die Funktion \texttt{Parser}, damit niemand anderes solche \glqq intrinsics\grqq \ definieren kann. Damit wird eine manipulation des Inputs bzw. ein fehlerhaftes Anwenden unmöglich.
 \end{frame}
 
 \begin{frame}[fragile]
 Binärzahlen können wir dann wie folgt parsen:
+\begin{overprint}
+\onslide<1>
+\begin{minted}{haskell}
+parseBin :: Parser Int
+parseBin = parse0 <|> parse1
+\end{minted}
+\onslide<2>
+\begin{minted}{haskell}
+parseBin :: Parser Int
+parseBin = parse0 <|> parse1
+
+testParser :: Parser [Int]
+testParser = many parseBin
+\end{minted}
+\onslide<3>
 \begin{minted}{haskell}
 parseBin :: Parser Int
 parseBin = parse0 <|> parse1
@@ -1105,10 +1314,27 @@ main :: IO ()
 main = print $ runParser testParser "101001"
 -- (Right [1,0,1,0,0,1],"")
 \end{minted}
+\end{overprint}
 \end{frame}
 
-
-
-
+\begin{frame}[fragile]
+In allen gängigen Parsing-Bibliotheken benutzt man ähnlich. Die Bibliotheken stellen minimalste Intrinsics zur verfügung um z.B.
+\pause
+\begin{itemize}
+ \item Zeichen zu parsen
+ \pause
+ \item solange Zeichen zu parsen, bis ein Stoppzeichen kommt
+ \pause
+ \item Ziffern zu parsen
+ \pause
+ \item Ziffern zu parsen, bis non-Ziffern kommen und die Zahl zurückgeben
+ \pause
+ \item etc.
+\end{itemize}
+\pause
+Aus diesen kleinstbausteinen Konstruiert man dann Parser für größere Datenstrukturen.\\\par
+\pause
+So haben wir in unserem Log-Beispiel zunächst nur Teil-Parser definiert (Datum, IP, Gerät) und diese dann einfach kombiniert.
+\end{frame}
 
 \end{document}
