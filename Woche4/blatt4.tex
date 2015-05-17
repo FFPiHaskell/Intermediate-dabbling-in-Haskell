@@ -26,7 +26,7 @@
 \end{LARGE}
 \end{center}
 \section*{Aufgabe \theuebungszettel.1:}
-In der Vorlesung haben wir an einem Beispiel gelernt, wie Parsing funktioniert. Nun haben wir aber amerikanische Freunde, die ein anderes Format benutzen:
+In der Vorlesung haben wir an einem Beispiel gelernt, wie Parsing funktioniert. Nun haben wir aber amerikanische Freunde, die ein anderes Format für ihre Logdateien benutzen:
 \begin{verbatim}
 154.41.32.99 29/06/2013 15:32:23 4 internet
 76.125.44.33 29/06/2013 16:56:45 3 noanswer
@@ -35,26 +35,33 @@ In der Vorlesung haben wir an einem Beispiel gelernt, wie Parsing funktioniert. 
 151.123.45.67 29/06/2013 20:30:13 2 internet
 \end{verbatim}
 Hierbei sind die Geräte als Zahlen codiert:
-\begin{enumerate}
- \item Mouse
- \item Keyboard
- \item Monitor
- \item Speakers
-\end{enumerate}
-Passen sie den gegebenen Code so an, dass sie eine 2. Funktion \texttt{parseAmericanLog} schreiben, die das amerikanische Logformat in dieselben Datenstrukturen überführt. Die weiteren Angaben (internet, noanswer, friend) sollen zunächst ignoriert werden.
+\begin{itemize}
+ \item \texttt{1} entspricht \texttt{Mouse}
+ \item \texttt{2} entspricht \texttt{Keyboard}
+ \item \texttt{3} entspricht \texttt{Monitor}
+ \item \texttt{4} entspricht \texttt{Speakers}
+\end{itemize}
+
+Passen Sie den gegebenen Code an, indem Sie eine zweite Funktion \texttt{parseAmericanLog} schreiben, die das amerikanische Logformat in dieselben Datenstrukturen überführt wie das bisher bekannte. Die weiteren Angaben (\texttt{internet}, \texttt{noanswer}, \texttt{friend}) sollen zunächst ignoriert werden.
+
 \section*{Aufgabe \theuebungszettel.2:}
-Das Management hat entschieden, dass nun mehr Informationen zur Verfügung stehen sollen. Erweitern sie ihr Programm erneut um ein Feld \texttt{Maybe Source}, sodass die Definition der Datenstruktur nun wie folgt aussieht:
+Das Management hat entschieden, dass nun mehr Informationen zur Verfügung stehen sollen. Erweitern Sie Ihr Programm erneut um ein Feld \texttt{Maybe Source}, sodass die Definition der Datenstruktur nun wie folgt aussieht:
 \begin{minted}{haskell}
 data Source = Internet | Friend | NoAnswer deriving Show
 
 data LogZeile = LogZeile Datum IP Geraet (Maybe Source) deriving Show
 \end{minted}
-Implementieren sie die Änderung in beiden Parsern.\\
+Implementieren Sie die Änderung in beiden Parsern.\smallskip
+
 \textbf{Hinweis:} Die Funktion \texttt{option} aus \texttt{Data.Attoparsec.Combinator} könnte hilfreich sein.
+
 \section*{Aufgabe \theuebungszettel.3:}
-Stellen sie alles, was sie bisher haben zu einer Binärdatei zusammen, die als erstes Argument eine Datei im \glqq normalen\grqq \ Format nimmt und als zweites Argument eine Datei im \glqq amerikanischen\grqq \ Format. Geben sie dann die gesamte Datenstruktur aus, in der beide Logdateien nach Datum/Uhrzeit sortiert vorkommen.\\
-\textbf{Beispiel:}
-\footnotesize
+
+Stellen Sie alles, was Sie bisher haben zu einer kompilierten Binärdatei zusammen, die als erstes Argument eine Datei im \glqq normalen\grqq \ Format nimmt und als zweites Argument eine Datei im \glqq amerikanischen\grqq \ Format.
+
+Geben Sie dann die gesamte Datenstruktur aus, in der beide Logdateien nach Datum/Uhrzeit sortiert vorkommen.\\\smallskip
+
+\textbf{Beispiel:}\footnotesize
 \begin{verbatim}
 ./parser "log.txt" "logAm.txt"
 
