@@ -10,7 +10,7 @@
 \geometry{a4paper,left=30mm,right=30mm, top=3cm, bottom=2cm} 
 
 \newcommand{\underfat}[1]{\underline{\textbf{#1}}}
-\newcommand{\theuebungszettel}{4}
+\newcommand{\theuebungszettel}{6}
 
 \parindent0pt
 
@@ -25,7 +25,12 @@
 \textbf{Übungszettel \theuebungszettel}
 \end{LARGE}
 \end{center}
+
+
 \section*{Aufgabe \theuebungszettel.1:}
+Für die Bearbeitung dieses Zettels benötigen Sie die Bibliothek \texttt{attoparsec >= 0.13.0.0 \&\& < 0.14}. Richten Sie ein cabal-Projekt und eine cabal-Sandbox ein und installieren sie die Vorraussetzungen.
+
+\section*{Aufgabe \theuebungszettel.2:}
 In der Vorlesung haben wir an einem Beispiel gelernt, wie Parsing funktioniert. Nun haben wir aber amerikanische Freunde, die ein anderes Format für ihre Logdateien benutzen:
 \begin{verbatim}
 154.41.32.99 29/06/2013 15:32:23 4 internet
@@ -44,7 +49,7 @@ Hierbei sind die Geräte als Zahlen codiert:
 
 Passen Sie den gegebenen Code an, indem Sie eine zweite Funktion \texttt{parseAmericanLog} schreiben, die das amerikanische Logformat in dieselben Datenstrukturen überführt wie das bisher bekannte. Die weiteren Angaben (\texttt{internet}, \texttt{noanswer}, \texttt{friend}) sollen zunächst ignoriert werden.
 
-\section*{Aufgabe \theuebungszettel.2:}
+\section*{Aufgabe \theuebungszettel.3:}
 Das Management hat entschieden, dass nun mehr Informationen zur Verfügung stehen sollen. Erweitern Sie Ihr Programm erneut um ein Feld \texttt{Maybe Source}, sodass die Definition der Datenstruktur nun wie folgt aussieht:
 \begin{minted}{haskell}
 data Source = Internet | Friend | NoAnswer deriving Show
@@ -55,7 +60,7 @@ Implementieren Sie die Änderung in beiden Parsern.\smallskip
 
 \textbf{Hinweis:} Die Funktion \texttt{option} aus \texttt{Data.Attoparsec.Combinator} könnte hilfreich sein.
 
-\section*{Aufgabe \theuebungszettel.3:}
+\section*{Aufgabe \theuebungszettel.4:}
 
 Stellen Sie alles, was Sie bisher haben zu einer kompilierten Binärdatei zusammen, die als erstes Argument eine Datei im \glqq normalen\grqq \ Format nimmt und als zweites Argument eine Datei im \glqq amerikanischen\grqq \ Format.
 
