@@ -1,0 +1,102 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx} % Bilder
+\usepackage{wrapfig} % Umflussbilder
+\usepackage{multicol} % Multiple columns
+\usepackage{minted} % Haskell source code
+\usepackage{framed} % Frames around source code
+\usepackage[framemethod=tikz]{mdframed} % Frames
+\usepackage{verbatim} % \begin{comment}...\end{comment}
+\usepackage{etoolbox} % manipulate minted
+\AtBeginEnvironment{minted}{\fontsize{10}{10}\selectfont}
+\AfterEndEnvironment{minted}{}
+
+\mdfdefinestyle{fancy}{
+  roundcorner=5pt,
+  linewidth=4pt,
+  linecolor=red!80,
+  backgroundcolor=red!20
+}
+\newmdenv[style=fancy]{important}
+
+% redifine \em for \emph to use bold instead of italics
+\makeatletter
+\DeclareRobustCommand{\em}{%
+  \@nomath\em \if b\expandafter\@car\f@series\@nil
+  \normalfont \else \bfseries \fi}
+\makeatother
+
+% Stuff for Beamer
+\beamertemplatenavigationsymbolsempty
+\usetheme{Warsaw}
+
+\title{Fortgeschrittene Funktionale Programmierung in Haskell}
+
+\begin{document}
+  
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}
+  \begin{center}
+    \huge\textbf{Fortgeschrittene Funktionale Programmierung in Haskell}\\ \bigskip
+    \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
+    \large Jonas Betzendahl \& Stefan Dresselhaus
+    \end{center}
+  \end{frame}
+
+%----------------------------------------------------------------------------------------  
+\begin{frame}[allowframebreaks]{Outline}
+\frametitle{Übersicht}
+\tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Übersicht}
+
+\subsection{Motivation}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{center}
+\Large
+\textbf{Motivation}
+\end{center}
+
+%----------------------------------------------------------------------------------------
+
+\end{frame}
+
+\begin{frame}[fragile]
+
+\begin{center}
+\huge
+\emph{Free Lunch is over!}\smallskip
+
+\normalsize
+Herb Sutter (2005)
+\end{center}
+\pause
+
+
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\subsection{Definitionen}
+
+\begin{frame}[fragile]
+
+\begin{center}
+\Large
+\textbf{Definitionen}
+\end{center}
+
+\end{frame}
+
+
+\end{document}
