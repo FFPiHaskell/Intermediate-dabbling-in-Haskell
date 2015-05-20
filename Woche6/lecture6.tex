@@ -69,7 +69,7 @@
 
 Wunderbares Buch zum Thema von Simon Marlow.\pause\bigskip
 
-Gratis im Internet verfügbar, inklusive Beispielcode.
+Nicht in der Uni-Bibliothek, dafür aber Gratis im Internet verfügbar, inklusive Beispielcode auf \texttt{Hackage}.
 \end{multicols}
 
 \end{frame}
@@ -117,9 +117,94 @@ Um technischen Fortschritt voll auszunutzen ist es also essentiell, gute Werkzeu
 
 \end{frame}
 
-\section{Parallelism}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\underline{Parallelism vs. Concurrency:}\smallskip
+
+Beides ist ein Ausdruck von \glqq Dinge gleichzeitig tun\grqq ; in der Programmierung haben sie aber grundverschiedene Bedeutungen.\pause\bigskip
+
+Programme arbeiten \emph{parallel}, wenn sie mehrere Prozessorkerne einsetzen, um schneller an die Antwort einer bestimmten Frage zu kommen.\pause\bigskip
+
+\emph{Nebenläufige} Programme hingegen haben mehrere \glqq threads of control\grqq . Oft dient das dazu, gleichzeitig mit mehreren externen Agenten (dem User, einer Datenbank, \dots) zu interagieren.
+\end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\begin{frame}
+More foo about parallelism and determinism and such...
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\underline{(WH)NF:}\smallskip
+
+Im Themenbereich Parallelism wird oft darüber gesprochen, wann Ausdrücke ausgewertet werden und \glqq wie weit\grqq\ (Laziness). Es gibt dafür zwei wichtige Vokabeln:
+\textbf{Normal Form} und \textbf{Weak Head Normal Form}.\bigskip\pause
+
+Die \textbf{NF} eines Ausdrucks ist der gesamte Ausdruck, vollständig berechnet. Es gibt keine Unterausdrücke, die weiter ausgewertet werden könnten.\bigskip\pause
+
+Die \textbf{WHNF} eines Ausdrucks ist der Ausdruck, evaluiert zum äußersten Konstruktor oder zur äußersten $\lambda$-Abstraktion (dem \emph{head}). Unterausdrücke können berechnet sein oder auch nicht. Ergo ist jeder Ausdruck in \textbf{NF} auch in \textbf{WHNF}.
+\end{frame}
+
+\begin{frame}[fragile]
+
+\underline{\textbf{(WH)NF} Zuschauer-Wachzustands-Überprüfungs-Quiz:}\smallskip
+
+Sind diese Ausdrücke in \textbf{NF} oder \textbf{WHNF}? Wenn ja welche davon?
+\bigskip\pause
+
+\mint{haskell}|(1337, "Hello World!")|
+\pause
+$\Rightarrow$ \textbf{NF} und \textbf{WHNF}! Der komplette Ausdruck ist evaluiert.
+\pause
+
+\mint{haskell}|\x -> 2 + 2 |
+\pause
+$\Rightarrow$ \textbf{WHNF}! Der \emph{head} ist eine $\lambda$-Abstraktion.
+\pause
+
+\mint{haskell}|'f' : ("oo" ++ "bar")|
+\pause
+$\Rightarrow$ \textbf{WHNF}! Der \emph{head} ist der Konstruktor \texttt{(:)}.
+\pause
+
+\mint{haskell}|(\x -> x + 1) 2|
+\pause
+$\Rightarrow$ Weder noch! Äußerster Part ist Anwendung der Funktion.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\subsection{Technisches}
+
+\begin{frame}[fragile]
+\underline{Ein paar technische Feinheiten:}\pause\bigskip
+
+Um Programme in \texttt{Haskell} parallel ausführen zu können, müssen sie wie folgt
+kompiliert werden:\smallskip
+
+\texttt{\$ ghc --make -rtsopts -threaded Main.hs}
+\pause
+\bigskip
+
+Danach können sie auch mit RTS (Run Time System) - Optionen wie z.B. diesen hier ausgeführt werden:\smallskip
+
+\texttt{\$ ./Main.hs +RTS -N2 -s -RTS}
+\bigskip
+\pause
+
+Dokumentation findet sich leicht via beliebiger Suchmaschine.
+
+Eine Kurzübersicht gibt es zum Beispiel unter \texttt{cheatography.com/nash/cheat-sheets/ghc-and-rts-options/}
+
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
+\section{Parallelism}
 
 \begin{frame}
 
@@ -179,6 +264,133 @@ Wohlgemerkt: \texttt{runEval} ist \emph{pur!}
 
 Wir müssen nicht gleichzeitig auch in der \texttt{IO}-Monade sein.
 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\texttt{rpar} ist die Strategie, die ihr Argument parallel auswertet und währenddessen das Programm weiter laufen lässt.
+\bigskip\pause
+
+\texttt{rseq} ist die Strategie, die auf das Ergebnis ihres Argumentes wartet und erst dann mit dem Programm weiter macht.
+\bigskip\pause
+
+\emph{Protips:}\pause
+\begin{itemize}
+\item Ausgewertet wird jeweils zur WHNF (wenn nichts anderes angegeben wurde).\pause
+\item Wird \texttt{rpar} ein bereits evaluierter Ausdruck übergeben, passiert nichts,
+weil es keine Arbeit parallel auszuführen gibt. \pause
+\end{itemize}
+\bigskip
+
+Sehen wir uns das mal \emph{in action} an\dots
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\underline{Ein Beispiel (1):}\smallskip
+
+Wir wollen die Ausdrücke \texttt{(f x)} und \texttt{(f y)} mit der \texttt{Eval}-Monade parallel auswerten. O.B.d.A. benötigt \texttt{(f x)} mehr Zeit.\pause
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+-- don't wait for evaluation
+runEval $ do
+    a <- rpar (f x)
+    b <- rpar (f y)
+    return (a,b)
+\end{minted}
+%$
+\columnbreak
+\pause
+\includegraphics[scale=0.7]{evalmonad_01.png}
+\end{multicols}
+\pause
+
+Hier passiert das \texttt{return} sofort. Der Rest des Programmes läuft weiter, während \texttt{(f x)} und \texttt{(f y)} (parallel) ausgewertet werden.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\underline{Ein Beispiel (2):}\smallskip
+
+Wir wollen die Ausdrücke \texttt{(f x)} und \texttt{(f y)} mit der \texttt{Eval}-Monade parallel auswerten. O.B.d.A. benötigt \texttt{(f x)} mehr Zeit.
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+-- wait for (f y)
+runEval $ do
+    a <- rpar (f x)
+    b <- rseq (f y) -- wait
+    return (a,b)
+\end{minted}
+%$
+\columnbreak
+\pause
+\includegraphics[scale=0.7]{evalmonad_02.png}
+\end{multicols}
+\pause
+
+Hier werden \texttt{(f x)} und \texttt{(f y)} ebenfalls ausgewertet,
+allerdings wird mit \texttt{return} gewartet, bis \texttt{(f y)} zu Ende evaluiert wurde.
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\underline{Ein Beispiel (3):}\smallskip
+
+Wir wollen die Ausdrücke \texttt{(f x)} und \texttt{(f y)} mit der \texttt{Eval}-Monade parallel auswerten. O.B.d.A. benötigt \texttt{(f x)} mehr Zeit.
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+-- wait for (f y) and (f x)
+runEval $ do
+    a <- rpar (f x)
+    b <- rseq (f y) -- wait
+    rseq a          -- wait
+    return (a,b)
+\end{minted}
+%$
+\columnbreak
+\pause
+\includegraphics[scale=0.7]{evalmonad_03.png}
+\end{multicols}
+\pause
+
+In diesem Code wird sowohl auf \texttt{(f x)} als auch auf \texttt{(f y)} gewartet, 
+bevor etwas zurück gegeben wird.
+\end{frame}
+
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\underline{Ein Beispiel (3):}\smallskip
+
+Wir wollen die Ausdrücke \texttt{(f x)} und \texttt{(f y)} mit der \texttt{Eval}-Monade parallel auswerten. O.B.d.A. benötigt \texttt{(f x)} mehr Zeit.
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+-- perhaps more readable:
+runEval $ do
+    a <- rpar (f x)
+    b <- rpar (f y)
+    rseq a          -- wait
+    rseq b          -- wait
+    return (a,b)
+\end{minted}
+%$
+\columnbreak
+\includegraphics[scale=0.7]{evalmonad_03.png}
+\end{multicols}
+
+In diesem Code wird sowohl auf \texttt{(f x)} als auch auf \texttt{(f y)} gewartet, 
+bevor etwas zurück gegeben wird.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
