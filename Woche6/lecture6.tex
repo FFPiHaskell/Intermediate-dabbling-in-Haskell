@@ -395,6 +395,267 @@ bevor etwas zurück gegeben wird.
 
 %----------------------------------------------------------------------------------------
 
+\begin{frame}[fragile]
+Ein weiteres Beispiel: Wir wollen ein Programm zum Lösen von Sudokus parallelisieren.
+
+Wir nehmen dazu an wir haben bereits die folgende Funktion:
+
+\mint{haskell}|solve :: String -> Maybe Grid|
+\pause
+
+Dann wäre ein mögliches (sequentielles) Programm das folgende:
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do
+    [f]  <- getArgs
+    file <- readFile f
+
+    let puzzles   = lines file
+        solutions = map solve puzzles
+
+    print (length (filter isJust solutions))
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Nun wollen wir Liste der Lösungen parallel auf zwei Kernen ausführen lassen:
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do
+  [f] <- getArgs
+  file <- readFile f
+
+  let puzzles = lines file
+
+      (as,bs) = splitAt (length puzzles `div` 2) puzzles
+
+      solutions = runEval $ do
+                    as' <- rpar (force (map solve as))
+                    bs' <- rpar (force (map solve bs))
+                    rseq as'
+                    rseq bs'
+                    return (as' ++ bs')
+
+  print (length (filter isJust solutions))
+\end{minted}
+%$
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Was tut die Funktion \texttt{force} und warum wird sie hier benötigt?
+\mint{haskell}|force :: NFData a => a -> a|
+\pause
+\bigskip
+
+\texttt{rpar} evaluiert nur zur \textbf{WHNF}, nicht zur vollen Lösung. Dies ist ein häufiger Fehler bei Parallelisierung von \texttt{Haskell}-Programmen. Die Lösung ist, die Evaluation zu forcen.
+\pause
+\bigskip
+
+Allerdings muss hierbei bedacht werden, dass \texttt{force} $\mathcal{O}(n)$ Zeit benötigt, um die Datenstruktur komplett zu evaluieren.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Einschub: Die \texttt{NFData}-Typklasse:\smallskip
+
+Diese Typklasse umfasst alle Typen, die zu einer Normalform ausgewertet werden können (nur Daten, keine Funktionstypen).
+\pause
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+class NFData a where
+  rnf :: a -> ()
+  rnf a = a `seq` ()
+\end{minted}
+\columnbreak
+\pause
+
+\begin{minted}{haskell}
+-- Zur Erinnerung:
+seq :: a -> b -> b
+\pause
+\end{minted}
+\end{multicols}
+
+\texttt{rnf} bringt Standardimplementation mit, dies erleichtert Instanzen von simplen Datentypen ohne Substrukturen:
+\mint{haskell}|instance NFData Bool|
+\pause
+
+Instanzen von Typen mit Substrukturen funktionieren nutzen rekursive Aufrufe von \texttt{rnf} und \texttt{seq}:
+
+\begin{minted}{haskell}
+data Tree a = Empty
+            | Branch (Tree a) a (Tree a)
+\end{minted}
+
+\begin{minted}{haskell}
+instance NFData a => NFData (Tree a) where
+  rnf Empty          = ()
+  rnf (Branch l a r) = rnf l `seq` rnf a `seq` rnf r
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Zurück zu unserem Beispiel:
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do
+  [f]  <- getArgs
+  file <- readFile f
+  let puzzles = lines file
+      (as,bs) = splitAt (length puzzles `div` 2) puzzles
+      solutions = runEval $ do
+                    as' <- rpar (force (map solve as))
+                    bs' <- rpar (force (map solve bs))
+                    rseq as'
+                    rseq bs'
+                    return (as' ++ bs')
+  print (length (filter isJust solutions))
+\end{minted}
+%$
+\pause
+
+Wenn wir diesen Code auf zwei Kernen laufen lassen, bekommen wir einen Speedup in Wall-clock-time, allerdings \glqq nur\grqq\ um einen Faktor von $\sim 1,5$.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Analyse mit \emph{ThreadScope}:\smallskip
+
+\begin{center}
+\includegraphics[scale=0.7]{threadscope.png}
+\end{center}
+\pause
+
+Wir bemerken: Unsere parallelen Berechnungen sind ungleich groß. Eine benötigt deutlich länger als die andere.\pause
+
+Auch dies ist ein häufiges Problem mit Parallelisierung: Chunks von voraus bestimmter Größe (\emph{static partitioning}) enthalten nur selten tatsächlich gleich viel Arbeit.\pause\smallskip
+
+Außerdem sind wir so durch die Anzahl der Chunks beschränkt. Werden nur zwei Chunks parallel evaluiert, können wir keine Verschnellerung $>2$ erreichen, egal wie viele Kerne wir einsetzen.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Diese Probleme können wir lösen, indem wir von \emph{static partitioning} auf \emph{dynamic partitioning} wechseln.\smallskip
+
+Das bedeutet, anstatt von Hand ein paar große Chunks anzugeben, auf denen Parallelism
+angewendet werden soll, geben wir viele kleine Chunks an, die dann zur Laufzeit unter den Prozessorkernen aufgeteilt werden.\bigskip\pause
+
+Es gibt ein Fachwort für dieses Konzept: \emph{Spark}.
+
+Ein Spark ist ein noch nicht ausgewerteter Ausdruck in einer Queue, die vom RTS auf magische (sprich: schlaue) Weise parallel evaluiert werden können.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\begin{multicols}{2}
+
+Sparks sind \emph{nicht} das gleiche wie \texttt{Haskell}-Threads, und diese wiederum sind etwas anderes als Betriebssystem-Threads.
+
+Ein etwas größeres Programm hätte vielleicht\dots\pause
+
+\begin{itemize}
+\item mehrere Milliarden Sparks,\pause
+\item ca. eine Million lightweight Haskell-Threads,\pause
+\item ein Dutzend OS-Thread,\pause
+\item auf sechs Kernen.\pause
+\end{itemize}
+
+\columnbreak
+
+\includegraphics[scale=0.25]{sparks.png}
+\end{multicols}
+
+\footnotesize
+Grafik von Don Stewart, Quelle:
+\texttt{http://stackoverflow.com/questions/958449/what-is-a-spark-in-haskell}
+\normalsize
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Hands on: Wir definieren uns folgende monadische Version von \texttt{map}:\pause
+
+\begin{minted}{haskell}
+parMap :: (a -> b) -> [a] -> Eval [b]
+parMap f []     = return []
+parMap f (a:as) = do b  <- rpar (f a)
+                     bs <- parMap f as
+                     return (b:bs)
+\end{minted}
+
+Nun wird für jede Funktionsanwendung \texttt{(f a)} ein \emph{Spark} erstellt, die alle parallel arbeiten und vom RTS des GHC gemanaged werden.
+
+\pause
+Eingesetzt in unser Beispiel:
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do
+  [f]  <- getArgs
+  file <- readFile f
+  let puzzles   = lines file
+      solutions = runEval (parMap solve puzzles)
+  print (length (filter isJust solutions))
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+Analyse mit \emph{ThreadScope}:\smallskip
+
+\begin{center}
+\includegraphics[scale=0.7]{threadscope2.png}
+\end{center}
+\bigskip
+
+Schon viel besser. Der Speedup beträgt jetzt $\sim 1,8$. Den optimalen Wert von $2$ zu erreichen ist (praktisch) unmöglich, da immer ein Overhead für das Management der Sparks entstehen muss.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Wir können uns auch eine Übersicht darüber geben lassen, was mit den Sparks passiert ist:
+
+\scriptsize
+\texttt{SPARKS: 1000 (1000 converted, 0 overflowed, 0 dud, 0 GC'd, 0 fizzled)}
+\normalsize\bigskip
+\pause
+
+Was bedeutet das jetzt im Einzelnen?\pause
+\begin{itemize}
+\item \texttt{converted}: der Spark wurde erfolgreich für Parallelism verwendet.\pause
+\item \texttt{overflowed}: Die maximale Anzahl Sparks wurde überschritten, Spark gelöscht.\pause
+\item \texttt{dud}: Es wurde ein Spark für einen Ausdruck erstellt, der bereits ausgewertet wurde.\pause
+\item \texttt{GC'd}: Der evaluierte Ausdruck wurde nicht benötigt und garbage collected.\pause
+\item \texttt{fizzled}: Ausdruck wurde an anderer Stelle schneller vom Programm ausgewertet.
+\end{itemize}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
 \subsection{Die Par-Monade}
 
 \begin{frame}[fragile]
