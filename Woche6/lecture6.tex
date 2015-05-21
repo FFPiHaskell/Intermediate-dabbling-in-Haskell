@@ -215,8 +215,7 @@ Eine Kurzübersicht gibt es zum Beispiel unter \texttt{cheatography.com/nash/che
 \begin{itemize}
 \item Die \texttt{Eval}-Monade und Strategies
 \item Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek
-\item GPU-Programming mit \texttt{Accelerate}
+\item Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
@@ -234,8 +233,7 @@ Eine Kurzübersicht gibt es zum Beispiel unter \texttt{cheatography.com/nash/che
 \begin{itemize}
 \item $\circ$ Die \texttt{Eval}-Monade und Strategies
 \item Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek
-\item GPU-Programming mit \texttt{Accelerate}
+\item Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
@@ -656,6 +654,28 @@ Was bedeutet das jetzt im Einzelnen?\pause
 
 %----------------------------------------------------------------------------------------
 
+\begin{frame}[fragile]
+
+Das Rabbithole zu Strategien geht ziemlich tief. Andere Funktionen, die zur Verfügung stehen, sind zum Beispiel... \bigskip
+
+\begin{minted}{haskell}
+using :: a -> Strategy a -> a
+x `using` strat = runEval (strat x)
+
+rdeepseq :: NFData a => Strategy a -- evaluiert komplett
+
+dot :: Strategy a -> Strategy a -> Strategy a -- Kombination
+
+parList :: Strategy a -> Strategy [a]
+\end{minted}
+\pause
+
+All diese sind wunderschöne Werkzeuge um schnell und einfach adequaten Parallelism zu erzeugen. Etwas mehr Finetuning bietet zum Beispiel\dots
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
 \subsection{Die Par-Monade}
 
 \begin{frame}[fragile]
@@ -666,8 +686,7 @@ Was bedeutet das jetzt im Einzelnen?\pause
 \begin{itemize}
 \item Die \texttt{Eval}-Monade und Strategies
 \item $\circ$ Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek
-\item GPU-Programming mit \texttt{Accelerate}
+\item Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
@@ -685,27 +704,7 @@ Was bedeutet das jetzt im Einzelnen?\pause
 \begin{itemize}
 \item Die \texttt{Eval}-Monade und Strategies
 \item Die \texttt{Par}-Monade
-\item $\circ$ Die \texttt{RePa}-Bibliothek
-\item GPU-Programming mit \texttt{Accelerate}
-\end{itemize}
-\end{center}
-
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\subsection{Accelerate}
-
-\begin{frame}[fragile]
-
-\begin{center}
-\Large
-\textbf{Parallelism}\normalsize\bigskip
-\begin{itemize}
-\item Die \texttt{Eval}-Monade und Strategies
-\item Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek
-\item $\circ$ GPU-Programming mit \texttt{Accelerate}
+\item $\circ$ Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
