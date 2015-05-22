@@ -67,9 +67,12 @@
 \includegraphics[scale=0.45]{parcur.png} 
 \columnbreak
 
-Wunderbares Buch zum Thema von Simon Marlow.\pause\bigskip
+Wunderbares Buch zum Thema von Simon Marlow. Gratis im Internet verfügbar, inklusive Beispielcode auf \texttt{Hackage}.\pause\smallskip\smallskip
 
-Nicht in der Uni-Bibliothek, dafür aber Gratis im Internet verfügbar, inklusive Beispielcode auf \texttt{Hackage}.
+S.a.: HaskellCast, Episode 4
+\begin{center}
+\includegraphics[scale=0.14]{haskellcast-logo.jpg} 
+\end{center}
 \end{multicols}
 
 \end{frame}
@@ -126,13 +129,19 @@ Beides ist ein Ausdruck von \glqq Dinge gleichzeitig tun\grqq ; in der Programmi
 
 Programme arbeiten \emph{parallel}, wenn sie mehrere Prozessorkerne einsetzen, um schneller an die Antwort einer bestimmten Frage zu kommen.\pause\bigskip
 
-\emph{Nebenläufige} Programme hingegen haben mehrere \glqq threads of control\grqq . Oft dient das dazu, gleichzeitig mit mehreren externen Agenten (dem User, einer Datenbank, \dots) zu interagieren.
+\emph{Nebenläufige} Programme hingegen haben mehrere \glqq threads of control\grqq . Oft dient das dazu, gleichzeitig mit mehreren externen Agenten (dem User, einer Datenbank, \dots) zu interagieren (das bedeutet \texttt{IO}).
 \end{frame}
 
 %----------------------------------------------------------------------------------------
 
 \begin{frame}
-More foo about parallelism and determinism and such...
+Eine ähnliche Unterscheidung ist zwischen \emph{deterministischem} und \emph{nicht-deterministischem} Code.\smallskip\pause
+
+Nebenläufiger Code ist zwangsläufig nicht-deterministisch (wegen der Interaktion mit Externa), paralleler Code kann jedoch oft deterministisch formuliert werden. Das erlaubt es z.B. das Programm auf einem Kern zu testen und dann einfach auf mehr Kerne zu schmeißen ohne, dass sich das Ergebnis ändert.\bigskip\pause
+
+Manchmal wird Concurrency an der falschen Stelle eingesetzt (wenn eigentlich Parallelism gewollt wäre). Das ist oft eine unkluge Entscheidung weil es den Determinismus des Programmes opfert und damit das Programm schwerer zu verstehen und zu optimieren macht.\pause\smallskip
+
+Es ist auch ganz natürlich, beides im gleichen Programm verwenden zu wollen.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -656,12 +665,13 @@ Was bedeutet das jetzt im Einzelnen?\pause
 
 \begin{frame}[fragile]
 
-Das Rabbithole zu Strategien geht ziemlich tief. Andere Funktionen, die zur Verfügung stehen, sind zum Beispiel... \bigskip
+Das Rabbithole zu Strategien geht ziemlich tief. Andere Funktionen, die zur Verfügung stehen, sind zum Beispiel\dots\smallskip
 
 \begin{minted}{haskell}
 using :: a -> Strategy a -> a
 x `using` strat = runEval (strat x)
 
+r0       :: Strategy a             -- evaluiert nichts
 rdeepseq :: NFData a => Strategy a -- evaluiert komplett
 
 dot :: Strategy a -> Strategy a -> Strategy a -- Kombination
