@@ -945,4 +945,44 @@ computeS (Repa.map (+1) (Repa.map (^2) a)) :: Array U DIM1 Int
 
 %----------------------------------------------------------------------------------------
 
+\begin{frame}
+
+Anwendungidee: Mandelbrot-Visualisierer\pause\bigskip
+
+Was war nochmal die Mandelbrot-Menge?
+\begin{multicols}{2}
+
+\begin{itemize}
+\item Nehme einen Punkt $z \in \mathbb{C}$\pause
+\item Sei $z_1 = z^2 + z$\pause
+\item Sei $z_2 = z_1^2 + z$\pause
+\item Sei $z_3 = z_2^2 + z$
+\item \dots\pause
+\item Wenn diese Folge nicht divergiert ist $z$ in der Mandelbrot Menge.
+\end{itemize}
+
+\columnbreak
+\pause
+
+Benannt nach Benoit B. Mandelbrot:
+
+\includegraphics[scale=0.15]{profile.png} 
+
+\end{multicols}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\dots und das gibt uns hübsche Bilder! :-)\smallskip
+
+\begin{center}
+\includegraphics[scale=0.65]{mandelbrot.png} 
+\end{center}
+
+\end{frame}
+
+
 \end{document}
