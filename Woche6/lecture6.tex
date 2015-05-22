@@ -195,13 +195,13 @@ $\Rightarrow$ Weder noch! Äußerster Part ist Anwendung der Funktion.
 Um Programme in \texttt{Haskell} parallel ausführen zu können, müssen sie wie folgt
 kompiliert werden:\smallskip
 
-\texttt{\$ ghc --make -rtsopts -threaded Main.hs}
+\texttt{\$ ghc -\,-make -rtsopts -threaded Main.hs}
 \pause
 \bigskip
 
 Danach können sie auch mit RTS (Run Time System) - Optionen wie z.B. diesen hier ausgeführt werden:\smallskip
 
-\texttt{\$ ./Main.hs +RTS -N2 -s -RTS}
+\texttt{\$ ./Main +RTS -N2 -s -RTS}
 \bigskip
 \pause
 
@@ -488,8 +488,8 @@ class NFData a where
 \begin{minted}{haskell}
 -- Zur Erinnerung:
 seq :: a -> b -> b
-\pause
 \end{minted}
+\pause
 \end{multicols}
 
 \texttt{rnf} bringt Standardimplementation mit, dies erleichtert Instanzen von simplen Datentypen ohne Substrukturen:
