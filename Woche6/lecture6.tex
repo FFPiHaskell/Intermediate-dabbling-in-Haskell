@@ -214,8 +214,8 @@ Eine Kurzübersicht gibt es zum Beispiel unter \texttt{cheatography.com/nash/che
 
 \begin{itemize}
 \item Die \texttt{Eval}-Monade und Strategies
-\item Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
+\item Überblick: Die \texttt{Par}-Monade
+\item Überblick: Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
@@ -232,8 +232,8 @@ Eine Kurzübersicht gibt es zum Beispiel unter \texttt{cheatography.com/nash/che
 \textbf{Parallelism}\normalsize\bigskip
 \begin{itemize}
 \item $\circ$ Die \texttt{Eval}-Monade und Strategies
-\item Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
+\item Überblick: Die \texttt{Par}-Monade
+\item Überblick: Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
@@ -687,8 +687,8 @@ Es gibt aber auch andere Use Cases. Etwas mehr Finetuning bietet zum Beispiel\do
 \textbf{Parallelism}\normalsize\bigskip
 \begin{itemize}
 \item Die \texttt{Eval}-Monade und Strategies
-\item $\circ$ Die \texttt{Par}-Monade
-\item Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
+\item $\circ$ Überblick: Die \texttt{Par}-Monade
+\item Überblick: Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
@@ -696,7 +696,126 @@ Es gibt aber auch andere Use Cases. Etwas mehr Finetuning bietet zum Beispiel\do
 
 %----------------------------------------------------------------------------------------
 
-\subsection{Die RePa-Bibliothek}
+\begin{frame}[fragile]
+
+Alternative zu Strategies, mit anderen Schwerpunkten und anderen Tradeoffs.\pause\smallskip
+
+Das Interface heißt - Überraschung! - \texttt{Par}.
+
+\begin{minted}{haskell}
+newtype Par a
+instance Monad Par
+
+runPar :: Par a -> a
+\end{minted}
+\pause
+
+Wir können explizit Parallelism erzeugen mit einer Funktion namens \texttt{fork}, die ihr Argument (das \glqq Kind\grqq ) parallel zum Aufrufenden Programm (\glqq Elter\grqq ) ausführt.
+
+\mint{haskell}|fork :: Par () -> Par ()|
+\pause
+
+Aber \texttt{fork} gibt nichts an das Elter zurück, wie können wir dann Informationen austauschen?
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Introducing: \emph{IVars}
+
+\begin{minted}{haskell}
+data IVar a  -- instance Eq
+
+new :: Par (IVar a)
+put :: NFData a => IVar a -> a -> Par ()
+get :: IVar a -> Par a
+\end{minted}
+\pause
+
+IVars können benutzt werden, um Daten zwischen Berechnungen in \texttt{Par} zu übergeben.\bigskip 
+
+Stellt euch eine Kiste vor, die zunächst mal leer startet (\texttt{new}). Mit \texttt{put} können Daten von einer Berechnung in der \texttt{Par}-Monade in die Kiste hinein gelegt und mit \texttt{get} von einer anderen ausgelesen werden. Ist noch nichts in der Kiste wartet \texttt{get} so lange bis sich das ändert, bevor es weiter geht.\pause
+
+(Ein ähnlicher Datentyp, \emph{MVar}, wird uns im Kontext von \texttt{Haskell} und Concurrency noch begegnen.)
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein einfaches Beispiel mit \texttt{Par}:
+
+\begin{multicols}{2}
+\begin{minted}{haskell}
+runPar $ do
+      i <- new
+      j <- new
+      fork (put i (fib n))
+      fork (put j (fib m))
+      a <- get i
+      b <- get j
+      return (a+b) 
+\end{minted}
+%$
+\pause
+\columnbreak
+\begin{center}
+Graph:\\
+
+\includegraphics[scale=1.25]{parmonad.png} 
+\end{center}
+\pause
+\scriptsize
+\texttt{fork}: Neuer Knoten\\
+\texttt{new}: Neue Kante\\
+\texttt{put, get}: Kanten \& Knoten verbinden
+\end{multicols}
+\normalsize
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Die \texttt{Par}-Monade kann allerdings noch mehr als nur hübsche Datenfluss-Graphen!
+Wie würden wir unsere parallele Version von \texttt{map} von vorhin hier formulieren?\pause
+
+\begin{minted}{haskell}
+spawn :: NFData a => Par a -> Par (IVar a)
+spawn p = do i <- new
+             fork (do x <- p; put i x)
+             return i
+  
+parMapM :: NFData b => (a -> Par b) -> [a] -> Par [b]
+parMapM f as = do ibs <- mapM (spawn . f) as
+                  mapM get ibs
+\end{minted}
+\pause
+
+Da \texttt{f :: (a -> Par b)} kann auch in \texttt{f} wieder Parallelism verwendet werden.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Ein paar Faustregeln zur \texttt{Par}-Monade (im Vergleich zu Strategies):\bigskip\pause
+\begin{itemize}
+\item Wenn euer Programm eine lazy Datenstruktur ausspuckt, die ihr mit Strategien parallelisieren wollt, funktioniert das in der Regel gut. Ansonsten bietet sich \texttt{Par} an.\pause
+\item \texttt{runEval} ist quasi umsonst, \texttt{runPar} ist teuer. Idealerweise \texttt{runPar} um alle Stellen wickeln, die Parallelism brauchen und nicht rekursiv aufrufen.\pause
+\item Kein \glqq speculative Parallelism\grqq\ in der \texttt{Par}-Monade.\pause
+\item Strategies erlauben, den eigentlichen Code komplett vom Parallelism zu trennen.
+\texttt{(expr `using` strat) vs. (expr)}\pause
+\item \texttt{Par} ist eine reine Haskell-Bibliothek, leichter zu modifizieren (Scheduler)\pause
+\item Strategies haben besseren Support vom RTS und ThreadScope
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\subsection{RePAs und Accelerate}
 
 \begin{frame}[fragile]
 
@@ -705,8 +824,8 @@ Es gibt aber auch andere Use Cases. Etwas mehr Finetuning bietet zum Beispiel\do
 \textbf{Parallelism}\normalsize\bigskip
 \begin{itemize}
 \item Die \texttt{Eval}-Monade und Strategies
-\item Die \texttt{Par}-Monade
-\item $\circ$ Die \texttt{RePa}-Bibliothek und \texttt{Accelerate}
+\item Überblick: Die \texttt{Par}-Monade
+\item $\circ$ Überblick: Die \texttt{RePA}-Bibliothek und \texttt{Accelerate}
 \end{itemize}
 \end{center}
 
