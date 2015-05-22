@@ -843,4 +843,106 @@ Ein paar Faustregeln zur \texttt{Par}-Monade (im Vergleich zu Strategies):\bigsk
 
 %----------------------------------------------------------------------------------------
 
+\begin{frame}
+
+Die bisherigen Ansätze für Parallelism waren gut geeignet für herkömmliche Datenstrukturen in \texttt{Haskell}. Für manche Probleme (oft solche, die große Arrays voller ungeboxter Daten verarbeiten) ist das aber nicht der richtige Weg.\pause\bigskip
+
+Beispiele:
+\begin{itemize}
+\item Bildverarbeitung\pause
+\item high-performance number crunching\pause
+\item \dots
+\end{itemize}
+\pause
+
+Für diese Zwecke wurden die Bibliotheken \texttt{REPA} und \texttt{Accelerate} entwickelt. Ihre Datenstrukturen sind sich im Kern ähnlich\dots
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Ein kurzer Blick auf die wichtigsten Datentypen von \texttt{REPA} (Abk: REgular PArallel arrays):\pause\smallskip
+
+\mint{haskell}|data Array r sh e|
+
+\begin{itemize}
+\item \texttt{e} ist der Datentyp, der gespeichert werden soll (unboxed).\pause
+\item \texttt{sh} ist die Form (\emph{shape}) des Arrays.\pause
+\item \texttt{r} ist der \emph{representation type}. Dazu gleich mehr.\pause
+\end{itemize}
+
+Die Form eines Arrays ist entweder ein Skalar oder eine Form \glqq mal\grqq\ eine zusätzliche (immer durch \texttt{Int} indizierte) Dimension.
+
+\begin{multicols}{2}
+
+\begin{minted}{haskell}
+data Z = Z -- Scalar
+data tail :. head
+          = tail :. head
+\end{minted}
+
+\columnbreak
+\pause
+
+\begin{minted}{haskell}
+type DIM0 = Z
+type DIM1 = DIM0 :. Int
+type DIM2 = DIM1 :. Int
+\end{minted}
+\pause
+
+\end{multicols}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+
+\begin{frame}[fragile]
+
+Es gibt einige Operationen auf \texttt{REPA}-Arrays, die denen auf normalen Arrays zumindest ähneln:\pause\bigskip
+
+\begin{minted}{haskell}
+fromListUnboxed :: (Shape sh, Unbox a) => sh -> [a] 
+                                             -> Array U sh a
+(!)  :: (Shape sh, Source r e) => Array r sh e -> sh -> e
+size :: Shape sh => sh -> Int
+
+Repa.map :: (Shape sh, Source r a)
+         => (a -> b) -> Array r sh a -> Array D sh b
+\end{minted}
+\pause
+\bigskip
+
+Bei der Anwendung von \texttt{Repa.map} erhalten wir ein Array von \texttt{D} (Delayed) werten.
+
+Das ist der Mechanismus, um mehrere Funktionsapplikationen zu einer zusammen zu schmelzen (genannt \glqq Fusion\grqq ).
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Mit \texttt{REPA} und \texttt{Accelerate} zu arbeiten ist etwas extra Arbeit im Design\dots\smallskip\pause
+
+\begin{minted}{haskell}
+let a = fromListUnboxed (Z :. 10) [1..10] :: Array U DIM1 Int
+computeS (Repa.map (+1) a) :: Array U DIM1 Int
+> AUnboxed (Z :. 10) (fromList [2,3,4,5,6,7,8,9,10,11])
+
+computeS (Repa.map (+1) (Repa.map (^2) a)) :: Array U DIM1 Int
+> AUnboxed (Z :. 10) (fromList [2,5,10,17,26,37,50,65,82,101])
+\end{minted}
+\pause
+
+\dots dafür können wir diese Berechnungen aber dann mit \texttt{computeP} oder \texttt{foldP} extrem fix quasi automatisch parallelisieren.\pause\bigskip
+
+\texttt{REPA} unterstützt auch \glqq stencil convolutions\grqq . Wenn z.B. eine Funktion auf jedes Pixel angewendet werden soll, die die Nachbarpixel mit einbezieht, kann \texttt{REPA} hochspezialisierten Code generieren, der extrem schnell durchläuft.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
 \end{document}
