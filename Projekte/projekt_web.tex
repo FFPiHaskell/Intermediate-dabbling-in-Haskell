@@ -1,0 +1,99 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[german]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{minted}
+\usepackage{wrapfig}
+\usepackage{multicol}
+\usepackage{vwcol}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\author{Jonas Betzendahl}
+\title{Fortgeschrittene Funktionale Programmiernug in Haskell}
+
+\parindent0pt
+
+\begin{document}
+
+\huge \underline{Fortgeschrittene Funktionale Programmiernug in Haskell}\smallskip
+
+\Large
+\begin{center}
+\textbf{Projekt:} Entwicklung einer Blogging-Platform mit Yesod\bigskip
+
+\normalsize
+\underline{Tutoren:}
+Jonas Betzendahl \texttt{(jbetzend@techfak...)},
+Stefan Dresselhaus \texttt{(sdressel@techfak...)}
+\end{center}
+\normalsize
+
+\section*{\underline{Aufgabenstellung:}}
+
+Ziel dieses Projektes ist die Implementation einer Blogging-Platform mit Hilfe der Haskell-Library \texttt{yesod}\footnote{\url{http://www.yesodweb.com/}}.
+
+\subsection*{Mindestanforderungen:}
+
+Ihre Abgabe sollte folgende Punkte erfüllen:\bigskip
+
+\begin{itemize}
+ \item Anmeldung \\
+       Ein Blog-Autor soll in der Lage sein, sich anzumelden und Posts zu verfassen.
+ \item Übersichtsseite
+       \begin{itemize}
+        \item Anzeige der letzte x Posts (nach \glqq hinten\grqq \ blätterbar)
+        \item Suche für den Blog (Nach Inhalt oder Tag)
+        \item Anzeige der letzte Kommentare
+        \item Tag-Cloud
+       \end{itemize}
+ \item Blog-Eintrag
+       \begin{itemize}
+        \item Anzeige des Blogposts
+        \item Anzeige der Tags, die dem Post zugeordnet wurden
+        \item Anzeige der Kommentare zu diesem Post
+        \item Möglichkeit, Kommentare zu posten (anonym)
+       \end{itemize}
+ \item Tag-Cloud\\
+       Einzelne Blogposts können mit Stichworten (Tags) versehen werden. Diese werden dann nach Häufigkeit skaliert angezeigt (Häufig verwendete Tags groß). Ein Klick auf den jeweiligen Tag zeigt die letzten x Posts mit diesem Tag an (nach \glqq hinten\grqq \ blätterbar).
+ \item Admin-Bereich
+       \begin{itemize}
+        \item Posts verfassen/editieren/löschen
+        \item Kommentare löschen
+        \item Globale Blogeinstellungen vornehmen (Blogname, Rechteverwaltung (Autor hinzufügen/löschen/zum Admin machen))
+       \end{itemize}
+\end{itemize}
+
+
+\subsection*{Zusatz:}
+
+Bei besonderer Motivation können außerdem die folgenden Features noch eingebaut werden:\bigskip
+ 
+\begin{itemize}
+ \item Kommentare
+       \begin{itemize}
+        \item Kommentare müssen freigeschaltet werden, bevor sie zu sehen sind (Einstellungsoption)
+        \item Kommentieren auch/ausschließlich nach Anmeldung über OAuth2 (ggf. hilft hier \footnote{\url{https://github.com/thoughtbot/yesod-auth-oauth2}})
+       \end{itemize}
+ \item Unterstützung für mehr als ein Blog\\
+       Zum Beispiel kann man statt der Route \texttt{/*} zu nutzen über die Route \texttt{/\#BlogName/*} Blogs unterscheiden.
+ \item Konfigurationsoptionen für das Aussehen (css einstellbar machen oder mehrere \glqq Skins\grqq \ zur Auswahl stellen)
+ \item Verfassen der Posts in einem Standard-Format (z.B. Markdown \footnote{\url{https://hackage.haskell.org/package/pandoc}}) und automatische Umwandlung in HTML statt direkter HTML-Eingabe
+ \item In der Übersicht nur die ersten x Sätze anzeigen und dann ein \glqq weiterlesen...\grqq-Button
+\end{itemize}
+
+\section*{\underline{Abgabemodalitäten:}}
+
+Eine gültige Abgabe ist ein \texttt{yesod}-Projekt, das fehlerfrei in einer \texttt{cabal}-Sandbox installiert werden kann und per \texttt{yesod devel} einen funktionierenden Webserver bereitstellt (Testumgebung ist im Zweifelsfall wie immer das GZI). Als Datenbank verwenden sie im Rahmen des Projektes SQLite (kann bei einer späteren Verwendung aber problemlos gewechselt werden). Bitte reichen Sie Ihre Projekte spätestens bis zum \textbf{Freitag, den 18.09.2015} ein.
+Dazu schicken Sie alle Dateien, die zu Ihrem Projekt gehören (eventuell modulo einer vernünftigen \texttt{.gitignore}) in einem Dateiarchiv an beide Tutoren.\bigskip
+
+Falls gewünscht, kann Ihnen für die Entwicklung des Projekts ein privates Repository auf \texttt{GitHub} zur Verfügung gestellt werden. Dann kann auch direkt dort abgegeben werden. Kontaktieren Sie dafür bitte die Tutoren.\bigskip
+
+Sollten Sie Rückfragen haben oder Hilfestellung benötigen, wenden Sie sich bitte ebenfalls an die Tutoren.
+
+\end{document}
