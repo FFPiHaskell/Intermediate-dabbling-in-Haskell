@@ -36,15 +36,13 @@ Stefan Dresselhaus \texttt{(sdressel@techfak...)}
 
 \section*{\underline{Aufgabenstellung:}}
 
-Ziel dieses Projektes ist die Implementation einer eigenen DSL (\textbf{D}omain \textbf{S}pecific \textbf{L}anguage) zur Erstellung von \href{http://en.wikipedia.org/wiki/Turtle_graphics}{Turtle Grpahics}, ähnlich der Programmiersprache \emph{\textbf{Logo}}.
-
-Hierbei liegt ein Roboter (die \glqq Schildkröte\grqq ) als Cursor in einem 2D-Raum und kann dort umher wandern und geometrische Figuren wie Dreiecke, Spiralen oder Bäume (siehe Bild) zeichnen. 
+Ziel dieses Projektes ist die Implementation einer eigenen DSL (\textbf{D}omain \textbf{S}pecific \textbf{L}anguage) zur Erstellung von Turtle Graphics\footnote{\url{http://en.wikipedia.org/wiki/Turtle_graphics}}, ähnlich der Programmiersprache \emph{\textbf{Logo}}.
 
 \subsection*{Mindestanforderungen:}
 
-Ihre Abgabe soll in der Lage sein, eine Datei mit Befehlen für die Schildkröte (s.u.) einzulesen, zu parsen, in eine interne Repräsentation zu überführen und daraus entsprechenden Output zu generieren.\smallskip\smallskip
+Ihre Abgabe soll in der Lage sein, eine Datei mit Befehlen für die Schildkröte (s.u.) einzulesen, zu parsen, in eine interne Repräsentation zu überführen und daraus entsprechenden Output zu generieren.\smallskip
 
-Sie können mit einer Text-Only Ausgabe beginnen, die nur auf \texttt{stdout} printet, was die Schildkröte tun würde. In der Endabgabe muss allerdings eine grafische Ausgabe generiert werden. Die Wahl der Bibliothek für diese Zwecke (\texttt{sdl2}, \texttt{gtk2hs}, \dots) ist Ihnen frei gestellt.\smallskip\smallskip
+Sie können mit einer Text-Only Ausgabe beginnen, die nur auf \texttt{stdout} printet, was die Schildkröte tun würde. In der Endabgabe muss allerdings eine grafische Ausgabe generiert werden. Die Wahl der Bibliothek für diese Zwecke (\texttt{sdl2}, \texttt{gtk2hs}, \dots) ist Ihnen frei gestellt.
 
 \begin{wrapfigure}{R}{0.35\textwidth}
   \vspace{-22pt}
@@ -53,11 +51,13 @@ Sie können mit einer Text-Only Ausgabe beginnen, die nur auf \texttt{stdout} pr
   \end{center}
   \vspace{-10pt}
   \caption{Ein möglicher Output der Turtle. Credit: \emph{Chalmers University}}
-  \vspace{-40pt}
+
 \end{wrapfigure}
 
+Wenn Sie wünschen, können Sie anstatt einer grafischen Oberfläche auch nur ein Bild ausgeben (z.B. ein \texttt{.png} oder ein animated \texttt{.gif}). Falls Sie sich dazu entscheiden, implementieren Sie außerdem den Operator \texttt{<\%>} aus den Zusatzaufgaben.\smallskip
+
 Ihre Programmiersprachen muss zur Abgabe mindestens die folgenden Befehle unterstützen:
-\smallskip\smallskip\smallskip
+\smallskip\smallskip
 
 \textbf{forward n}: bewegt die Schildkröte n Einheiten vorwärts\\
 \textbf{turn d}: dreht die Schildkröte d Grad im Uhrzeigersinn\\
@@ -65,7 +65,7 @@ Ihre Programmiersprachen muss zur Abgabe mindestens die folgenden Befehle unters
 \textbf{forever}: führt ein Programm endlos immer wieder aus\\
 \textbf{color r g b} oder \textbf{color c}: Verändert die Farbe (Farbwerte oder Name)\\
 \textbf{penup/pendown}: hebt/senkt den Stift sodass (nicht) gezeichnet wird
-\smallskip\smallskip\smallskip
+\smallskip
 
 Sie werden für diese außerdem einen Kombinator wie \texttt{>\%>} implementieren müssen. Dieser führt zwei Programme hintereinander aus. So können sie auch einzelne Befehle zu
 komplexeren Programmen zusammenfügen. Welche der oben aufgeführten Befehle lassen sich auf eine Kombination
@@ -77,15 +77,13 @@ Bei besonderer Motivation können außerdem die folgenden Features noch eingebau
  
 \begin{minipage}{0.68\linewidth}
 \begin{itemize}
-\item \textbf{Parallel Turtles:}\\ Implementieren sie den Operator \texttt{<\%>} analog zu \texttt{>\%>}. Dieser startet beide Programme parallel (es gibt also danach eine zusätzliche Schildkröte).
-\item \textbf{Schildkröten-Funktionen:}\\ Geben Sie Ihrer Programmiersprache die Möglichkeit, Funktionen auszudrücken (z.B. analog zum Code rechts), die dann ebenfalls als Programme aufgerufen werden können.
+\item \textbf{Parallel Turtles:}\\ Implementieren sie den Operator \texttt{<\%>} analog zu \texttt{>\%>}. Dieser startet beide Programme parallel (es gibt also danach eine zusätzliche Turtle).
+\item \textbf{Schildkröten-Funktionen:}\\ Geben Sie Ihrer Sprache die Möglichkeit, Funktionen auszudrücken (s. Code rechts), die dann wie Befehle aufgerufen werden können.
 \end{itemize}
 \end{minipage}
 \hfill
 \begin{minipage}{0.3\linewidth}
 \begin{verbatim}
- Schildkröten-Funktion:
- 
  to spiral :size :angle
    if :size > 100 [stop]
    forward :size
@@ -98,9 +96,9 @@ Bei besonderer Motivation können außerdem die folgenden Features noch eingebau
 \section*{\underline{Abgabemodalitäten:}}
 
 Eine gültige Abgabe ist ein \texttt{cabal}-Projekt, das fehlerfrei in einer Sandbox installiert werden kann und eine funktionierende ausführbare Datei generiert (Testumgebung ist im Zweifelsfall wie immer das GZI). Bitte reichen Sie Ihre Projekte spätestens bis zum \textbf{Freitag, den 18.09.2015} ein.
-Dazu schicken Sie alle Dateien, die zu Ihrem Projekt gehören (eventuell modulo einer vernünftigen \texttt{.gitignore}) in einem Dateiarchiv an beide Tutoren.\bigskip
+Dazu schicken Sie alle Dateien, die zu Ihrem Projekt gehören (eventuell modulo einer vernünftigen \texttt{.gitignore}) in einem Dateiarchiv an beide Tutoren.\smallskip
 
-Falls gewünscht, kann Ihnen für die Entwicklung des Projekts ein privates Repository auf \texttt{GitHub} zur Verfügung gestellt werden. Dann kann auch direkt dort abgegeben werden. Kontaktieren Sie dafür bitte die Tutoren.\bigskip
+Falls gewünscht, kann Ihnen für die Entwicklung des Projekts ein privates Repository auf \texttt{GitHub} zur Verfügung gestellt werden. Dann kann auch direkt dort abgegeben werden. Kontaktieren Sie dafür bitte die Tutoren.\smallskip
 
 Sollten Sie Rückfragen haben oder Hilfestellung benötigen, wenden Sie sich bitte ebenfalls an die Tutoren.
 

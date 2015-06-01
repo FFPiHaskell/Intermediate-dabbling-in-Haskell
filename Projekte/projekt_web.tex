@@ -36,7 +36,8 @@ Stefan Dresselhaus \texttt{(sdressel@techfak...)}
 
 \section*{\underline{Aufgabenstellung:}}
 
-Ziel dieses Projektes ist die Implementation einer Blogging-Platform mit Hilfe der Haskell-Bibliothek \href{http://www.yesodweb.com/}{\texttt{Yesod}}.
+Ziel dieses Projektes ist die Implementation einer Blogging-Platform mit Hilfe der Haskell-Bibliothek
+\texttt{Yesod}\footnote{\url{http://www.yesodweb.com/}}.
 
 \subsection*{Mindestanforderungen:}
 
@@ -47,7 +48,7 @@ Ihre Abgabe sollte folgende Features umfassen:
        Ein Blog-Autor soll in der Lage sein, sich anzumelden und Posts zu verfassen.
  \item \textbf{Übersichtsseite}
        \begin{itemize}
-        \item Anzeige der letzten $n$ Posts (nach \glqq hinten\grqq \ blätterbar)
+        \item Anzeige der letzten $n$ Posts (nach \glqq hinten\grqq\ blätterbar)
         \item Suchfunktion für den Blog (Nach Inhalt oder Tag (s.u.))
         \item Anzeige der letzten Kommentare
        \end{itemize}
@@ -77,12 +78,12 @@ Bei besonderer Motivation können außerdem die folgenden Features noch eingebau
  \item \textbf{Zusatzfunktionen für Kommentare}
        \begin{itemize}
         \item Kommentare müssen freigeschaltet werden, bevor sie zu sehen sind (Einstellungsoption)
-        \item Kommentieren auch/ausschließlich nach Anmeldung über OAuth2 (ggf. \href{https://github.com/thoughtbot/yesod-auth-oauth2}{hier} nachlesen)
+        \item Kommentieren auch/ausschließlich nach Anmeldung über OAuth2 (ggf. hier\footnote{\url{https://github.com/thoughtbot/yesod-auth-oauth2}} nachlesen)
        \end{itemize}
  \item \textbf{Unterstützung für mehr als ein Blog}\\
        Zum Beispiel kann man statt der Route \texttt{/*} zu nutzen über die Route \texttt{/\#BlogName/*} Blogs unterscheiden.
  \item \textbf{Konfigurationsoptionen} für das Aussehen (css einstellbar machen oder mehrere \glqq Skins\grqq \ zur Auswahl stellen)
- \item \textbf{Verfassen der Posts in einem Standard-Format} (z.B. \href{https://hackage.haskell.org/package/pandoc}{Markdown}) und automatische Umwandlung in HTML statt direkter HTML-Eingabe
+ \item \textbf{Verfassen der Posts in einem Standard-Format} (z.B. Markdown\footnote{\url{https://hackage.haskell.org/package/pandoc}}) und automatische Umwandlung in HTML statt direkter HTML-Eingabe
  \item \textbf{Verkürzte Ansichten}\\ In der Übersicht nur die ersten $n$ Zeichen anzeigen und dann ein \glqq weiterlesen...\grqq-Button
 \end{itemize}
 
