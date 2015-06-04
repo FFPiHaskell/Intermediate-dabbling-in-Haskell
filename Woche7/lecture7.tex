@@ -100,6 +100,8 @@
 \textbf{Überblick:}
 \pause
 
+Was war nochmal der Unterschied zwischen Paralllelism und Nebenläufigkeit?
+
 \begin{multicols}{2}
 \textbf{Parallelism:}
 \begin{itemize}
@@ -122,8 +124,6 @@
 
 %----------------------------------------------------------------------------------------
 
-%----------------------------------------------------------------------------------------
-
 \section{Threads, MVars, etc.}
 
 \begin{frame}
@@ -136,6 +136,8 @@
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\subsection{forkIO und MVars}
 
 \begin{frame}[fragile]
 
@@ -266,6 +268,8 @@ In Concurrent Haskell brauchen oft mehrere Threads Zugriff auf einen shared stat
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\subsection{Deadlock Detection}
 
 \begin{frame}[fragile]
 
@@ -436,7 +440,7 @@ Problem: Fehleranfälligkeit bei kleinen Listen
 
 \begin{frame}
 
-Aufgabe vs. Schwierigkeit:\bigskip
+Aufgabe vs. Schwierigkeit: Zweiendige Liste\bigskip
 
 \begin{center}
 \begin{tabular}{c|c}
@@ -705,6 +709,18 @@ später entweder direkt oder auch als Baustein einer größeren Transaktion ausf
 
 Der Vorteil ist, dass wir nur einen Weg haben, diese Berechnung haben, das zu tun:
 \mint{haskell}|atomically :: STM a -> IO a|
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Wenn wir doch jetzt dieses tolle \texttt{STM} haben, brauchen wir dann überhaupt noch \texttt{MVar}s?\pause\bigskip
+
+Ja! Hier sind einige Gründe:\pause
+\begin{itemize}
+\item \textbf{Performance:} \texttt{STM} ist eine Abstraktion, und wie (fast) alle Abstraktionen hat es Laufzeitkosten.\pause
+\item \textbf{Fairness:} Blockieren mehrere Threads auf einer \texttt{MVar}, werden sie garantiert FIFO wieder aufgeweckt. \texttt{STM} hingegen hat keine Garantie für Fairness.
+\end{itemize} 
 \end{frame}
 
 %----------------------------------------------------------------------------------------
