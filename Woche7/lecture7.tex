@@ -330,7 +330,7 @@ main = do
 \pause
 \bigskip
 
-Da nicht nur der geforkte Thread sondern auch der ursprüngliche gedeadlocked sind, wird hier die Fehlermeldung geprintet, statt die rettende Exception an das Kind zu sende.
+Da nicht nur der geforkte Thread sondern auch der ursprüngliche gedeadlocked sind, wird hier die Fehlermeldung geprintet, statt die rettende Exception an das Kind zu senden.
 
 \end{frame}
 
@@ -345,6 +345,366 @@ Da nicht nur der geforkte Thread sondern auch der ursprüngliche gedeadlocked si
 \textbf{Software Transactional Memory (STM)}
 \end{center}
 
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\subsection{Motivation}
+
+\begin{frame}
+
+\textbf{Motivation:}\smallskip
+
+Trotz aller Unterstützung durch das \texttt{RTS}:\pause
+
+\begin{center}
+\emph{Locks are absurdly hard to get right!} (SPJ)
+\end{center}
+\tiny \glqq The Future is Parallel, and the Future of Parallel is Declarative \grqq
+\vspace{-5pt} \\
+ https://www.youtube.com/watch?v=hlyQjK1qjw8\normalsize
+\pause
+\smallskip\smallskip
+
+Beliebte Fehler:
+
+\begin{itemize}
+\item \textbf{Races} (vergessene Locks)\pause
+\item \textbf{Deadlocks} (Locks in falscher Reihenfolge genommen)\pause
+\item \textbf{Lost wakeups} (Conditional-Variable nicht bescheid gesagt)\pause
+\item \textbf{Error Recovery} (Exceptionhandler müssen Locks freigeben und teilweise Ursprungszustand restaurieren)
+\end{itemize}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\textbf{Beispiel:}\bigskip
+
+Angenommen wir möchten gerne eine Queue parallel bearbeiten:\\
+\tiny Bildquelle: http://www.math.bas.bg/$\sim$nkirov/2015/NETB201/slides/ch04/ch04.html \normalsize
+
+\begin{center}
+\includegraphics[scale=0.35]{liste_frei.jpg} 
+\end{center}
+\pause
+
+Problem: offensichtlich, race conditions etc.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\textbf{Beispiel:}\bigskip
+
+Angenommen wir möchten gerne eine Queue parallel bearbeiten:\\
+\tiny Bildquelle: http://www.math.bas.bg/$\sim$nkirov/2015/NETB201/slides/ch04/ch04.html \normalsize
+
+\begin{center}
+\includegraphics[scale=0.35]{liste_locked.jpg} 
+\end{center}
+\pause
+
+Problem: Nicht gerade nebenläufig\dots
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\textbf{Beispiel:}\bigskip
+
+Angenommen wir möchten gerne eine Queue parallel bearbeiten:\\
+\tiny Bildquelle: http://www.math.bas.bg/$\sim$nkirov/2015/NETB201/slides/ch04/ch04.html \normalsize
+
+\begin{center}
+\includegraphics[scale=0.35]{liste_individually_locked.jpg} 
+\end{center}
+\pause
+
+Problem: Fehleranfälligkeit bei kleinen Listen
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+Aufgabe vs. Schwierigkeit:\bigskip
+
+\begin{center}
+\begin{tabular}{c|c}
+Problemstellung & Schwierigkeit \\
+\hline \\
+sequentiell & Gymnasium oder Bachelor \pause \\ \\
+Locks et al. & (gerade nicht mehr) publizierbar \\ & auf internationalen Konferenzen \pause \\ \\
+atomic blocks (\texttt{STM}) & Bachelor
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Software Transactional Memory stellt die Möglichkeit zur Verfügung, Berechnungen in atomaren (d.h. nicht unterbrochenen) Blöcken auszuführen. Das Interface ist aber das gleiche, wie in wie jeder anderen Monade auch (\texttt{do}-Notation etc.).\pause\bigskip
+
+\begin{itemize}
+\item Das bedeutet, dass Deadlocks unmöglich werden \emph{weil es keine Locks mehr gibt}!\pause
+\item Automatisierte error recovery. \texttt{STM} stellt den Ausgangszustand von selbst wieder her.\pause
+\item \texttt{TVar}s (Transaction Variables). Wie \texttt{IVar}s und \texttt{MVar}s, nur in der \texttt{STM}-Monade.
+\end{itemize}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\underline{\texttt{STM} auf einen Blick:}\bigskip
+
+\begin{minted}{haskell}
+data STM a                        -- abstract
+instance Monad STM                -- among other things
+
+atomically :: STM a -> IO a
+
+data TVar a                       -- abstract
+newTVar   :: a -> STM (TVar a)
+readTVar  :: TVar a -> STM a
+writeTVar :: TVar a -> a -> STM ()
+
+retry     :: STM a
+orElse    :: STM a -> STM a -> STM a
+
+throwSTM  :: Exception e => e -> STM a
+catchSTM  :: Exception e => STM a -> (e -> STM a) -> STM a
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein kurzer Blick auf \texttt{atomically}:
+
+\mint{haskell}|atomically :: STM a -> IO a|
+\pause
+
+\begin{itemize}
+\item \emph{Kein} Sprachkonstrukt!\pause
+\item Führt Berechnungen in \texttt{STM} in der echten Welt aus\pause
+\item \dots und zwar in einem Rutsch, ohne Unterbrechung!\pause
+\item Stellt bei Fehlschlag Ursprungszustand wieder her.\pause
+\item Deshalb: Kein \texttt{IO} in Transaktionen!\pause
+\item Ebenfalls: Keine genesteten \texttt{atomically}s (Typen!) 
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein kurzer Blick auf \texttt{retry}:
+
+\mint{haskell}|retry :: STM a|
+\pause
+
+\begin{itemize}
+\item \emph{Kein} Sprachkonstrukt!\pause
+\item Rollt zurück und versucht die gleiche Transaktion erneut durchzuführen\pause
+\item \dots allerdings erst zu einem angebrachten Zeitpunkt.\\ CPU wird nicht unnützerweise zur Heizung.\pause
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein kurzer Blick auf \texttt{orElse}:
+
+\mint{haskell}|orElse :: STM a -> STM a -> STM a|
+\pause
+
+\begin{itemize}
+\item \emph{Kein} Sprachkonstrukt!\pause
+\item \texttt{orElse a b} führt \texttt{b} aus, wenn \texttt{a} \texttt{retry} aufruft.\pause
+\item Komposition von \texttt{STM}-Berechnungen:\\
+\texttt{>>=} ist \texttt{AND}; \texttt{orElse} ist \texttt{OR}
+\end{itemize}
+\pause
+
+Beispiel:
+\begin{minted}{haskell}
+takeEitherTMVar :: TMVar a -> TMVar b -> STM (Either a b)
+takeEitherTMVar ma mb =
+  fmap Left (takeTMVar ma)
+    `orElse`
+  fmap Right (takeTMVar mb)
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\subsection{Beispiel: Banksoftware}
+
+\begin{frame}[fragile]
+
+Stellen wir uns vor, wir wollen eine simplifizierte Bankensoftware schreiben, die in der Lage sein soll, Konten und Überweisungen zu repräsentieren.\pause\bigskip
+
+Eine naive Implementation wäre die folgende:
+
+\begin{minted}{haskell}
+type Account = IORef Integer
+ 
+transfer :: Integer -> Account -> Account -> IO ()
+transfer amount from to = do
+    fromVal <- readIORef from
+    toVal   <- readIORef to
+    writeIORef from (fromVal - amount)
+    writeIORef to (toVal + amount)
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Diese Implementation hätte jedoch in einem Nebenläufigen Setting einige Probleme. Man beachte folgende Zeile:
+
+\begin{minted}{haskell}
+fromVal <- readIORef from
+\end{minted}
+\pause
+
+Finden nun mehrere Aktionen gleichzeitig statt, so könnte es sein, dass mehrere Threads denselben Wert als \texttt{fromVal} lesen, bevor die jeweils andere Transaktion durchgeführt wurde.
+
+Dies hätte zur Folge, dass später ein inkorrekter Kontostand berechnet und gesetzt würde.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Führen wir also Locks ein (durch Benutzung von \texttt{MVar}s), um diese race condition zu verhindern. \pause\smallskip
+
+\begin{minted}{haskell}
+type Account = MVar Integer
+ 
+credit :: Integer -> Account -> IO ()
+credit amount account = do
+    current <- takeMVar account
+    putMVar account (current + amount)
+ 
+debit :: Integer -> Account -> IO ()
+debit amount account = do
+    current <- takeMVar account
+    putMVar account (current - amount)
+
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+In dieser Implementation sähe eine Funktion für Überweisungen etwa so aus:
+
+\begin{minted}{haskell}
+transfer :: Integer -> Account -> Account -> IO ()
+transfer amount from to = do
+    debit  amount from
+    credit amount to
+\end{minted}
+\pause
+
+Diese verhindert, dass durch fehlerhaftes Zusammenspiel von Threads Geld geschaffen oder
+vernichtet wird.\pause\smallskip\smallskip
+
+Es existiert allerdings immer noch eine race condition: Der Thread, der die Überweisung ausführt, könnte direkt nach dem \texttt{debit}-Schritt von der CPU verdrängt werden und die Bankensoftware dadurch in einem inkonsistenten Zustand zurück lassen.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Wie sähe diese Software mit \texttt{STM} aus?
+
+\begin{minted}{haskell}
+type Account = TVar Integer
+ 
+credit :: Integer -> Account -> STM ()
+credit amount account = do
+    current <- readTVar account
+    writeTVar account (current + amount)
+ 
+debit :: Integer -> Account -> STM ()
+debit amount account = do
+    current <- readTVar account
+    writeTVar account (current - amount)
+ 
+transfer :: Integer -> Account -> Account -> STM ()
+transfer amount from to = do
+    debit  amount from
+    credit amount to
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Vergleich zur Variante mit \texttt{MVar}s:
+
+\begin{minted}{haskell}
+type Account = MVar Integer
+ 
+credit :: Integer -> Account -> IO ()
+credit amount account = do
+    current <- takeMVar account
+    putMVar account (current + amount)
+ 
+debit :: Integer -> Account -> IO ()
+debit amount account = do
+    current <- takeMVar account
+    putMVar account (current - amount)
+ 
+transfer :: Integer -> Account -> Account -> IO ()
+transfer amount from to = do
+    debit  amount from
+    credit amount to
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Der Unterschied hier besteht hauptsächlich in den Rückgabetypen.\pause
+
+\mint{haskell}|transfer :: Integer -> Account -> Account -> IO ()|
+
+Diese Funktion führt die Überweisung vollkommen in der echten Welt durch, mit allen
+möglichen Fehlern, die dabei auftreten können.\pause
+
+\mint{haskell}|transfer :: Integer -> Account -> Account -> STM ()|
+
+Diese Funktion stellt uns nur eine Berechnung in der \texttt{STM}-Monade bereit, die wir
+später entweder direkt oder auch als Baustein einer größeren Transaktion ausführen können.\pause
+
+Der Vorteil ist, dass wir nur einen Weg haben, diese Berechnung haben, das zu tun:
+\mint{haskell}|atomically :: STM a -> IO a|
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -356,19 +716,6 @@ Da nicht nur der geforkte Thread sondern auch der ursprüngliche gedeadlocked si
 \begin{center}
 \Large
 \textbf{Parallelism through Concurrency}
-\end{center}
-
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\section{Distributed Programming}
-
-\begin{frame}
-
-\begin{center}
-\Large
-\textbf{Distributed Programming}
 \end{center}
 
 \end{frame}
