@@ -267,6 +267,75 @@ In Concurrent Haskell brauchen oft mehrere Threads Zugriff auf einen shared stat
 
 %----------------------------------------------------------------------------------------
 
+\begin{frame}[fragile]
+
+\textbf{Mehr Leckerlis:}\smallskip\smallskip
+
+Was passiert, wenn wir folgenden Code ausführen?
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do m <- newEmptyMVar
+          takeMVar m
+\end{minted}
+\pause
+\bigskip
+
+Wir bekommen eine Fehlermeldung, dass das Programm hängt, statt einfach nur ein hängendes Programm.
+
+\begin{verbatim}
+$ ./mvar3
+mvar3: thread blocked indefinitely in an MVar operation
+\end{verbatim}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\textbf{Deadlock detection:}
+
+\begin{multicols}{2}
+Threads und \texttt{MVar}s sind Objekte auf dem Heap. Das \texttt{RTS} (i.e. der Garbage collector) durchläuft den Heap um alle lebendigen Objekte zu finden, angefangen bei den laufenden Threads und ihren Stacks.\smallskip
+
+Alles was so nicht erreichbar sind (z.B. ein Thread der auf eine \texttt{MVar} wartet, die nirgendwo sonst referenziert wird), blockiert und bekommt eine Exception geschmissen.
+
+\columnbreak
+
+\begin{figure}
+\includegraphics[scale=0.52]{dining_philosophers.png} 
+\caption{dining philosophers}
+\end{figure}
+
+\end{multicols}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\textbf{Deadlock detection:}\smallskip\smallskip
+
+Dieses Vorgang funktioniert allerdings nicht immer wie man zunächst denkt.
+Beispiel: Was passiert mit diesem Code?
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do 
+  lock <- newEmptyMVar
+  complete <- newEmptyMVar
+  forkIO $ takeMVar lock `finally` putMVar complete ()
+  takeMVar complete
+\end{minted}
+%$
+\pause
+\bigskip
+
+Da nicht nur der geforkte Thread sondern auch der ursprüngliche gedeadlocked sind, wird hier die Fehlermeldung geprintet, statt die rettende Exception an das Kind zu sende.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
 \section{Software Transactional Memory}
 
 \begin{frame}
