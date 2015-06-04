@@ -137,6 +137,136 @@
 
 %----------------------------------------------------------------------------------------
 
+\begin{frame}[fragile]
+
+Wir beginnen mit der Funktion, die einen neuen Thread erstellt:
+
+\mint{haskell}|forkIO :: IO () -> IO ThreadId|
+\pause
+
+Threads interagieren notwendigerweise mit der Welt, ergo ist die Berechnung, die wir 
+übergeben vom Typ \texttt{IO ()}.\smallskip\smallskip
+\pause
+
+Die \texttt{ThreadId} kann später benutzt werden um z.B. den Thread vorzeitig zu töten oder ihm
+eine Exception zuzuschmeißen.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein kleines Beispiel:
+
+\begin{minted}{haskell}
+import Control.Concurrent
+import Control.Monad
+import System.IO
+
+main :: IO ()
+main = do
+  hSetBuffering stdout NoBuffering
+  forkIO (replicateM_ 100000 (putChar 'A')) 
+  replicateM_ 100000 (putChar 'B')
+\end{minted}
+\pause
+\dots Output?
+\pause
+\begin{verbatim}
+AAAAAAAAABABABABABABABABABABABABABABABABABABABABABABAB
+ABABABABABABABABABABABABABABABABABABABABABABABABABABAB
+ABABABABABABABABABABABABABABABABABABABABABABABABABABAB
+ABABABABABABABABABABABABABABABABABABABABABABABABABABAB
+\end{verbatim}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Aber\dots \pause wie kriegen wir jetzt Ergebnisse aus der Berechnung raus?\\
+Der Typ ist nur \texttt{IO ()}, das liefert nichts (interessantes) zurück!\pause\bigskip
+
+Das gleiche Problem hatten wir schon in der \texttt{Par}-Monade. Lösung damals waren
+\texttt{IVar}s:\bigskip
+
+\begin{minted}{haskell}
+data IVar a  -- instance Eq
+
+new :: Par (IVar a)
+put :: NFData a => IVar a -> a -> Par ()
+get :: IVar a -> Par a
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Introducing: \dots \pause \texttt{MVar}s!\bigskip
+
+\begin{minted}{haskell}
+data MVar a  -- abstract
+
+newEmptyMVar :: IO (MVar a)
+newMVar      :: a -> IO (MVar a)
+takeMVar     :: MVar a -> IO a
+putMVar      :: MVar a -> a -> IO ()
+
+readMVar     :: MVar a -> IO a
+\end{minted}
+\pause
+
+Wir brauchen hier keine eigene Monade wie \texttt{Par}. Da Concurrency so oder so
+effektvoll ist, reicht \texttt{IO} vollkommen aus.\bigskip
+
+Unterschied zwischen \texttt{IVar}s und \texttt{MVar}s: erstere sind \emph{\textbf{i}}mmutable,
+letztere sind \emph{\textbf{m}}utable.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein Beispiel zu \texttt{MVar}s:
+
+\begin{minted}{haskell}
+main :: IO ()
+main = do
+  m <- newEmptyMVar
+  forkIO $ do putMVar m 'x'; putMVar m 'y'
+  r <- takeMVar m
+  print r
+  r <- takeMVar m
+  print r
+\end{minted}
+%$
+\pause
+
+Wie wir sehen kann die gleiche \texttt{MVar} über Zeit mehrere Zustände annehmen
+und erfolgreich zur Kommunikation zwischen Threads benutzt werden. 
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Generell haben \texttt{MVar}s drei Hauptaufgaben:\pause
+
+\begin{itemize}
+\item \textbf{Channel mit nur einem Slot}\\
+Eine \texttt{MVar} kann als Nachrichtenkanal zwischen Threads benutzt werden, allerdings maximal eine Nachricht auf einmal halten.\pause
+
+\item \textbf{Behältnis für shared mutable state}\\
+In Concurrent Haskell brauchen oft mehrere Threads Zugriff auf einen shared state. Ein beliebtes Designpattern ist, das dieser State als normaler (immutable) Haskell-Datentyp repräsentiert und in einer \texttt{MVar} verpackt wird.\pause
+
+\item \textbf{Baustein für kompliziertere Strukturen}
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
 \section{Software Transactional Memory}
 
 \begin{frame}
@@ -169,7 +299,7 @@
 
 \begin{center}
 \Large
-\textbf{Distributed Programming
+\textbf{Distributed Programming}
 \end{center}
 
 \end{frame}
