@@ -757,8 +757,13 @@ Insbesondere sollen einem Client folgende Befehle offen stehen:
 
 \begin{frame}[fragile]
 
+Ein sinnvoller erster Schritt ist oft, zu überlegen, wie man seine grundlegenden Datentypen
+repräsentieren möchte.\smallskip\smallskip
+
+Bei uns sind das inbesondere Clients und Nachrichten:\pause\smallskip\smallskip
+
 \begin{minted}{haskell}
-type ClientName = String
+type ClientName = String -- zum besseren Verständnis
 
 data Client = Client
   { clientName     :: ClientName
@@ -768,6 +773,14 @@ data Client = Client
   }
 \end{minted}
 \pause
+\texttt{TChan}s sind FIFO Channel zur Kommunikation zwischen Threads, ebenfalls ein \texttt{STM} primitive.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile] 
+
+Nachrichten sind ebenfalls schnell implementiert:\pause
 
 \begin{minted}{haskell}
 data Message = Notice String
@@ -775,11 +788,17 @@ data Message = Notice String
              | Broadcast ClientName String
              | Command String
 \end{minted}
+
+Wobei \texttt{Notice} eine Nachricht vom Server, \texttt{Tell} eine private Nachricht, \texttt{Broadcast} eine
+öffentliche Nachricht und \texttt{Command} ein Befehl vom Nutzer ist.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
 
 \begin{frame}[fragile]
+
+Neue Clients zu erstellen ist für's Erste ziemlich einfach (vorausgesetzt \texttt{Handle} und 
+\texttt{ClientName} werden übergeben):\smallskip
 
 \begin{minted}{haskell}
 newClient :: ClientName -> Handle -> STM Client
@@ -791,11 +810,18 @@ newClient name handle = do
                 , clientSendChan = c
                 , clientKicked   = k
                 }
-                
+\end{minted}
+\pause
+Man beachte, dass der Rückgabewert ein \texttt{Client} in \texttt{STM} ist!
+\pause
+      
+\begin{minted}{haskell}          
 sendMessage :: Client -> Message -> STM ()
 sendMessage Client{..} msg =
   writeTChan clientSendChan msg
 \end{minted}
+
+Die \texttt{\{..\}}-Syntax nennt sich \emph{record wildcard}-Syntax (benötigt die Extension \texttt{RecordWildCards}). Diese holt alle Felder des Records mit ihren respektiven Namen in scope.
 
 \end{frame}
 
@@ -803,23 +829,67 @@ sendMessage Client{..} msg =
 
 \begin{frame}[fragile]
 
+Ein Server ist in unserem Falle eine Key-Value-Map von \texttt{ClientName}s zu \texttt{Client}s. Das bedeutet jedem Namen wird genau ein Client zugeordnet.
+
+(importiert aus \texttt{Data.Map}, nicht zu verwechseln mit \texttt{map} für Listen)\smallskip
+
+Diese Map wird in einer \texttt{TVar} vorgehalten.\bigskip
+
 \begin{minted}{haskell}
 data Server = Server
   { clients :: TVar (Map ClientName Client)
   }
+\end{minted}
 
+\end{frame}
+  
+  
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile] 
+
+Eine Funktion für neue Server ist schnell erstellt. Hier ist es nicht notwendig, in 
+\texttt{STM} zu bleiben.
+
+\begin{minted}{haskell}
 newServer :: IO Server
 newServer = do
   c <- newTVarIO Map.empty
   return Server { clients = c }
-  
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Wollen wir nun also eine Nachricht über einen ganzen \texttt{Server} verschicken, 
+(Broadcast), nehmen wir uns einfach alle Elemente der Map einzeln.
+
+\begin{minted}{haskell}
 broadcast :: Server -> Message -> STM ()
 broadcast Server{..} msg = do
   clientmap <- readTVar clients
   mapM_ (\client -> sendMessage client msg)
                            (Map.elems clientmap)
 \end{minted}
+\pause
 
+\texttt{mapM\_} ist das \texttt{map} auf Listen, nur dass das (monadische) Ergebnis jeweils weggeschmissen wird.
+\smallskip
+
+\mint{haskell}|mapM_ :: (Monad m, Foldable t) => (a -> m b) -> t a -> m ()|
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Wir brauchen einen Port, auf dem der Server lauschen soll. Eigentlich egal welcher, solange wir nicht einen beliebten Standardport nehmen. 
+
+\begin{minted}{haskell}
+port :: Int
+port = 44444
+\end{minted}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -827,9 +897,6 @@ broadcast Server{..} msg = do
 \begin{frame}[fragile]
 
 \begin{minted}{haskell}
-port :: Int
-port = 44444
-
 main :: IO ()
 main = withSocketsDo $ do
   server <- newServer
@@ -840,12 +907,22 @@ main = withSocketsDo $ do
     printf "Accepted connection from %s: %s\n" host (show port)
     forkFinally (talk handle server) (\_ -> hClose handle)
 \end{minted}
+\pause
+
+\texttt{accept} blockiert bis eine neue Verbindung hergestellt wurde.\pause\smallskip\smallskip
+
+Mit \texttt{forkFinally} erstellen wir einen neuen Thread um die Interaktion mit diesem Client
+(über die noch zu schreibende Funktion \texttt{talk}) zu regeln und sobald das beendet ist den Handle
+sinnvoll zu beenden.
 
 \end{frame}
 
 %----------------------------------------------------------------------------------------
 
 \begin{frame}[fragile]
+
+Clients werden atomar hionzugefügt, damit sich nicht zwei Clients gleichzeitig
+mit demselben Namen anmelden können.
 
 \begin{minted}{haskell}
 checkAddClient :: Server -> ClientName -> Handle
@@ -859,13 +936,23 @@ checkAddClient server@Server{..} name handle = atomically $ do
        writeTVar clients $ Map.insert name client clientmap
        broadcast server  $ Notice (name ++ " has connected")
        return (Just client)
-            
+\end{minted}
+%$
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Clients entfernen funktioniert ähnlich, ebenfalls atomar:
+
+\begin{minted}{haskell}
 removeClient :: Server -> ClientName -> IO ()
 removeClient server@Server{..} name = atomically $ do
   modifyTVar' clients $ Map.delete name
   broadcast server $ Notice (name ++ " has disconnected")
 \end{minted}
-
+%$
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -917,7 +1004,8 @@ runClient serv@Server{..} client@Client{..} = do
     k <- readTVar clientKicked
     case k of
       Just reason -> return $
-        hPutStrLn clientHandle $ "You have been kicked: " ++ reason
+        hPutStrLn clientHandle $
+              "You have been kicked: " ++ reason
       Nothing -> do
         msg <- readTChan clientSendChan
         return $ do
@@ -957,15 +1045,7 @@ handleMessage server client@Client{..} message =
  where
    output s = do hPutStrLn clientHandle s; return True
 \end{minted}
-
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\begin{frame}[fragile]
-
-\begin{minted}{haskell}
-\end{minted}
+%$
 
 \end{frame}
 
