@@ -706,9 +706,9 @@ möglichen Fehlern, die dabei auftreten können.\pause
 \mint{haskell}|transfer :: Integer -> Account -> Account -> STM ()|
 
 Diese Funktion stellt uns nur eine Berechnung in der \texttt{STM}-Monade bereit, die wir
-später entweder direkt oder auch als Baustein einer größeren Transaktion ausführen können.\pause
+später entweder direkt oder auch als Baustein einer größeren Transaktion ausführen können.\pause\smallskip
 
-Der Vorteil ist, dass wir nur einen Weg haben, diese Berechnung haben, das zu tun:
+Der Vorteil ist, dass wir nur einen Weg haben, die Berechnung auszuführen:
 \mint{haskell}|atomically :: STM a -> IO a|
 \end{frame}
 
@@ -983,6 +983,34 @@ talk handle server@Server{..} = do
                Just client ->
                   restore (runClient server client)
                       `finally` removeClient server name
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+mask :: ((forall a. IO a -> IO a) -> IO b) -> IO b 
+\end{minted}
+\pause\smallskip
+
+\begin{center}
+\textbf{Keine Panik!}
+\end{center}
+\pause\smallskip
+
+\texttt{mask} ist eine Funktion, die eine Funktion als Argument nimmt, die wiederum eine Funktion nimmt\dots
+
+Die Feinheiten sind nicht enorm wichtig (und können bei Neugier oder Bedarf gerne nachgelesen werden).
+
+Die Idee ist, dass für kritische Bereiche verhindert wird, dass Exceptions von außen geblockt werden, sodass nicht unpassend dazwischen gefunkt werden kann.\pause\smallskip
+
+\begin{minted}{haskell}
+mask $ \restore -> do
+    x <- acquire
+    restore (do_something_with x) `onException` release
+    release
 \end{minted}
 
 \end{frame}
