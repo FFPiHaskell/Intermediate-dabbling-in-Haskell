@@ -98,9 +98,9 @@
 \begin{frame}
 
 \textbf{Überblick:}
-\pause
 
 Was war nochmal der Unterschied zwischen Paralllelism und Nebenläufigkeit?
+\pause
 
 \begin{multicols}{2}
 \textbf{Parallelism:}
@@ -525,7 +525,7 @@ Ein kurzer Blick auf \texttt{retry}:
 \begin{itemize}
 \item \emph{Kein} Sprachkonstrukt!\pause
 \item Rollt zurück und versucht die gleiche Transaktion erneut durchzuführen\pause
-\item \dots allerdings erst zu einem angebrachten Zeitpunkt.\\ CPU wird nicht unnützerweise zur Heizung.\pause
+\item \dots allerdings erst zu einem angebrachten Zeitpunkt.\\ CPU wird nicht unnützerweise zur Heizung.
 \end{itemize}
 \end{frame}
 
@@ -545,8 +545,9 @@ Ein kurzer Blick auf \texttt{orElse}:
 \texttt{>>=} ist \texttt{AND}; \texttt{orElse} ist \texttt{OR}
 \end{itemize}
 \pause
+\smallskip
 
-Beispiel:
+Beispiel:\smallskip
 \begin{minted}{haskell}
 takeEitherTMVar :: TMVar a -> TMVar b -> STM (Either a b)
 takeEitherTMVar ma mb =
@@ -1013,6 +1014,21 @@ runClient serv@Server{..} client@Client{..} = do
             when continue $ server
 \end{minted}
 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\mint{haskell}|race :: IO a -> IO b -> IO (Either a b)|
+\bigskip
+
+\texttt{race} ist eine Funktion, die zwei \texttt{IO}-Aktionen nimmt und sie gleichzeitig 
+startet.\pause\smallskip\smallskip
+
+Die erste Funktion, die Output produziert (oder eine Exception wirft), darf ihr Ergebnis nach oben weiter geben, die andere wird sofort abgebrochen.
+
+Die beiden Argumente zu \texttt{race} befinden sich also in einem \emph{Wettrennen} miteinander.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
