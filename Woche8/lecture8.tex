@@ -512,6 +512,40 @@ Mit etwas mentaler Gymnastik merken wir: Die Typen stimmen!
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Wir können genau diese \texttt{Lens} jetzt verwenden.
+\pause
+\bigskip
+
+\begin{verbatim}
+ghci> let fred = P { _name = "Fred", _balance = 1000 }
+
+ghci> view name fred
+"Fred"
+
+ghci> set name "Bill" fred
+P { _name = "Bill", _balance = 1000 }
+\end{verbatim}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+ghci> view name P { _name = "Fred", _balance = 1000 }
+      -- inline view
+= getConst (name Const (P { _name = "Fred", _balance = 1000 }))
+      -- inline name
+= 
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
 \section{QuickCheck}
 %----------------------------------------------------------------------------------------
 
@@ -523,7 +557,5 @@ Mit etwas mentaler Gymnastik merken wir: Die Typen stimmen!
 \end{center}
 
 \end{frame}
-
-
 
 \end{document}
