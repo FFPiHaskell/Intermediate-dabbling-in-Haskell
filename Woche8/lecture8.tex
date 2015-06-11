@@ -1,0 +1,529 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{graphicx} % Bilder
+\usepackage{wrapfig} % Umflussbilder
+\usepackage{multicol} % Multiple columns
+\usepackage{minted} % Haskell source code
+\usepackage{framed} % Frames around source code
+\usepackage[framemethod=tikz]{mdframed} % Frames
+\usepackage{verbatim} % \begin{comment}...\end{comment}
+\usepackage{etoolbox} % manipulate minted
+\AtBeginEnvironment{minted}{\fontsize{10}{10}\selectfont}
+\AfterEndEnvironment{minted}{}
+
+\mdfdefinestyle{fancy}{
+  roundcorner=5pt,
+  linewidth=4pt,
+  linecolor=red!80,
+  backgroundcolor=red!20
+}
+\newmdenv[style=fancy]{important}
+
+% redifine \em for \emph to use bold instead of italics
+\makeatletter
+\DeclareRobustCommand{\em}{%
+  \@nomath\em \if b\expandafter\@car\f@series\@nil
+  \normalfont \else \bfseries \fi}
+\makeatother
+
+% Stuff for Beamer
+\beamertemplatenavigationsymbolsempty
+\usetheme{Warsaw}
+
+\title{Fortgeschrittene Funktionale Programmierung in Haskell}
+
+\begin{document}
+  
+%----------------------------------------------------------------------------------------  
+
+  \begin{frame}
+  \begin{center}
+    \huge\textbf{Fortgeschrittene Funktionale Programmierung in Haskell}\\ \bigskip
+    \LARGE Universität Bielefeld, Sommersemester 2015\\ \bigskip
+    \large Jonas Betzendahl \& Stefan Dresselhaus
+    \end{center}
+  \end{frame}
+
+%----------------------------------------------------------------------------------------  
+\begin{frame}[allowframebreaks]{Outline}
+Übersicht für Heute:\smallskip
+
+\tableofcontents
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\section{Lens}
+\subsection{Grundidee}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\begin{center}
+\Large
+\textbf{Lenses}
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\textbf{Was sind \glqq Lenses\grqq und wozu braucht man die?}
+\smallskip
+
+foo bar
+
+\pause
+\bigskip
+
+\textbf{Und warum sollte ich jetzt zuhören, wenn eh nur eine Bibliothek vorgestellt wird?}
+\smallskip
+
+bar baz
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\Large
+Regel 1: Keine Panik!
+\normalsize
+\pause
+
+\begin{multicols}{2}
+
+\begin{center}
+\includegraphics[scale=0.25]{learning_curve.jpg} 
+\end{center}
+
+\columnbreak
+\quad
+
+
+Sich über die Komplexität der \texttt{Lens}-Bibliothek lustig zu machen, ist zu einem gewissen \emph{inside joke} der Community geworden\dots
+\pause
+\bigskip
+
+Das bedeutet aber auch, dass es (größtenteils) nicht so schlimm ist, wie Leute behaupten.
+
+\end{multicols}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\Large \textbf{\underline{Die Grundidee:}}\normalsize
+\bigskip
+
+Eine \texttt{Lens} gibt Zugriff auf einen bestimmten Teil eines Container oder einer sonstigen Datenstruktur.\pause\smallskip
+
+Zugriff bedeutet hier\dots
+\begin{itemize}
+\item lesen, schreiben, modifizieren\dots\pause
+\item aber auch falten, traversieren usw.\pause
+\end{itemize}
+\smallskip
+
+\texttt{Lens}es sind \glqq first-class values\grqq\ (können also umhergereicht, in Datenstrukturen gepackt oder zurückgegeben werden\dots). Die simple Variante hat den Typ \texttt{Lens' s a}.
+\pause
+\bigskip
+
+Beispiele:
+\begin{verbatim}
+  Lens' DateTime Hour
+  Lens' DateTime Minute
+  ...
+\end{verbatim}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\Large \textbf{\underline{Die Grundidee:}}\normalsize
+
+\begin{center}
+\includegraphics[scale=0.5]{lens_0.png} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\Large \textbf{\underline{Die Grundidee:}}\normalsize
+
+\begin{center}
+\includegraphics[scale=0.5]{lens_1.png} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\Large \textbf{\underline{Die Grundidee:}}\normalsize
+
+\begin{center}
+\includegraphics[scale=0.5]{lens_2.png} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\Large \textbf{\underline{Die Grundidee:}}\normalsize
+
+\begin{center}
+\includegraphics[scale=0.5]{lens_3.png} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{multicols}{2}
+\includegraphics[scale=0.4]{lenses_compose.png} 
+
+\columnbreak
+
+Was wir gerne hätten: \texttt{Lens}es, die sich einfach miteinander kombinieren lassen.
+\bigskip
+
+\begin{minted}{haskell}
+composeL :: Lens' s s1 
+         -> Lens' s1 s2
+         -> Lens' s s2
+\end{minted}
+
+Wir wissen bereits, dass Composability ein großer Vorteil für funktioniale Konstrukte ist.\smallskip
+
+\glqq Puzzle Programming\grqq\ macht es uns einfacher, korrekte und elegante Programme zu schreiben.
+\end{multicols}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection{Motivation \& Anwendungen}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Aber warum brauchen wir sowas? Geht das nicht alles schon mit Pattern-Matching?
+\pause
+
+\begin{minted}{haskell}
+data Person = Person { name :: String
+                     , addr :: Address }
+                     
+data Address = Address { road :: String
+                       , city :: String
+                       , pstc :: Int }
+                       
+setName :: String -> Person -> Person 
+setName nm p = p { name = nm } -- record update notation
+
+setPostcode :: Int -> Person -> Person
+setPostcode pc p = p { addr = addr p { pstc = pc } }
+\end{minted}
+
+Ja, das geht. Aber es wird schnell ermüdend. Wer beim Erklären zu oft \glqq blah-blah\grqq\ sagt, sollte sich um elegantere Wege oder Automatisierung bemühen.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Angenommen, wir hätten jetzt eine \texttt{Lens} für jedes Feld, \dots
+
+\begin{minted}{haskell}
+lname :: Person -> String
+laddr :: Person -> Address
+\end{minted}
+\pause
+
+\dots Funktionen, die \texttt{Lens}es zum lesen und schreiben benutzen, \dots
+
+\begin{minted}{haskell}
+view :: Lens' s a -> s -> s
+set  :: Lens' s a -> a -> s -> s
+\end{minted}
+\pause
+
+\dots dann könnten wir (zusammen mit der \texttt{composeL}-Funktion) deutlich eleganteren und effizienteren Code schreiben:\bigskip
+
+\begin{minted}{haskell}
+setPostcode :: Int -> Person -> Person
+setPostcode pc p = set (laddr `composeL` lpstc) pc p
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Der naive Ansatz für so eine Struktur wäre wahrscheinlich, einfach feste Getter und Setter zu bündeln:
+
+\begin{minted}{haskell}
+data LensR s a = L { view :: s -> a
+                   , set  :: a -> s -> s }
+\end{minted}
+\pause
+
+Mit etwas Hirnschmalz kriegen wir sogar \texttt{composeL}:
+
+\begin{minted}{haskell}
+composeL :: LensR s s1 -> LensR s1 s2 -> LensR s s2
+composeL (L v1 u1) (L v2 u2) = L (\s -> v2 (v1 s))
+                                 (\a s -> u1 (u2 a (v1 s)) s) 
+\end{minted}
+\pause
+\dots all das ist aber sehr ineffizient. Falls wir \texttt{over} haben wollen
+
+\mint{haskell}|over :: Lens s a -> (a -> a) -> s -> s|
+
+\dots müssten wir erst getten, dann setten. \emph{Nicht cool}.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Wir könnten jetzt einfach eine \texttt{modify}-Funktion hinzufügen:
+
+\begin{minted}{haskell}
+data LensR s a = L { view   :: s -> a
+                   , set    :: a -> s -> s 
+                   , modify :: (a -> a) -> s -> s }
+\end{minted}
+\pause
+
+Das Problem dabei ist nur, dass wir sehr schnell zu viele Funktionen haben. Was ist mit
+effektvollen Veränderungen? Oder mit Veränderungen, die Fehlschlagen können?
+\pause
+
+\begin{minted}{haskell}
+data LensR s a =
+    L { view        :: s -> a
+      , set         :: a -> s -> s 
+      , modify      :: (a -> a) -> s -> s 
+      , modidyIO    :: (a -> IO a) -> s -> IO s
+      , modifyMaybe :: (a -> Maybe a) -> s -> Maybe s }
+\end{minted}
+
+Diese Datenstruktur wächst uns schnell über den Kopf und ist dafür nicht mal sehr flexibel.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\begin{center}
+\includegraphics[scale=1]{the-end-or-is-it.jpg} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Das geübte Auge findet zumindest für den letzten Schritt noch einen Ausweg.
+\pause
+
+Wir könnten immerhin die Funktionen \texttt{modifyMaybe} und \texttt{modifyIO} (und alle, die dem gleichen Muster folgen) zusammenfassen:
+
+\begin{minted}{haskell}
+data LensR s a =
+    L { view    :: s -> a
+      , set     :: a -> s -> s 
+      , modify  :: (a -> a) -> s -> s 
+      , modidyF :: Functor f => (a -> f a) -> s -> f s }
+\end{minted}
+
+Und das ist eine wirklich gute Idee. 
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\textbf{Edward's big insight:}
+\pause
+\smallskip
+
+Eine \emph{noch} bessere Idee ist es allerdings (und das ist die große Idee hinter \texttt{Lens}), auch die Funktionen \texttt{view}, \texttt{set} und \texttt{modify} über die Funktion \texttt{modifyF} auszudrücken!
+\pause
+\smallskip\smallskip
+
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+\end{minted}
+\pause
+\smallskip\smallskip
+
+Das ist nur noch ein \texttt{type}, also ein Alias von einem Typen auf einen anderen. Mehr brauchen wir nicht.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\textbf{Fun Fact:} \texttt{Lens'} und \texttt{LensR} sind \emph{isomorph}!
+\pause
+\smallskip\smallskip
+
+Das bedeutet wir können folgende Funktionen schreiben:
+
+\begin{minted}{haskell}
+lensR2Lens :: LensR s a -> Lens' s a
+lens2LensR :: Lens' s a -> LensR s a
+\end{minted}
+\bigskip
+\pause
+
+Hier ist eine Richtung, wir werden uns aber nicht lange damit aufhalten. Übungsaufgabe. ;-)
+
+\begin{minted}{haskell}
+view :: Lens' s a -> s -> a
+view ln = getConst . ln Const
+
+set :: Lens' s a -> a -> s -> s
+set ln x = getIdentity . ln (Identity . const x)
+
+-- one way of the isomorphism
+lens2LensR :: Lens' s a -> LensR s a
+lens2LensR ln = L { viewR = view ln, setR = set ln }
+\end{minted}
+ 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection{Fortgeschrittenes}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wollen aber auch noch sehen, wie wir uns welche \emph{bauen} können.
+\pause
+\smallskip
+\smallskip
+
+Zur Erinnerung:
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+\end{minted}
+\pause
+\smallskip
+
+\begin{minted}{haskell}
+-- field names with underscores so lenses can have the names
+data Person = P { _name :: String, _balance :: Integer}
+\end{minted}
+\pause
+\bigskip
+
+\begin{minted}{haskell}
+-- name :: Functor f => (String -> f String)
+--                   -> Person  -> f Person
+name :: Lens' Person String
+.
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wollen aber auch noch sehen, wie wir uns welche \emph{bauen} können.
+\smallskip
+\smallskip
+
+Zur Erinnerung:
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+\end{minted}
+\smallskip
+
+\begin{minted}{haskell}
+-- field names with underscores so lenses can have the names
+data Person = P { _name :: String, _balance :: Integer}
+\end{minted}
+\bigskip
+
+\begin{minted}{haskell}
+-- name :: Functor f => (String -> f String)
+--                   -> Person  -> f Person
+name :: Lens' Person String
+name fn (P n b) = ... ähm ...
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wollen aber auch noch sehen, wie wir uns welche \emph{bauen} können.
+\smallskip
+\smallskip
+
+Zur Erinnerung:
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+\end{minted}
+\smallskip
+
+\begin{minted}{haskell}
+-- field names with underscores so lenses can have the names
+data Person = P { _name :: String, _balance :: Integer}
+\end{minted}
+\bigskip
+
+\begin{minted}{haskell}
+-- name :: Functor f => (String -> f String)
+--                   -> Person  -> f Person
+name :: Lens' Person String
+name fn (P n b) = fmap (\n' -> P n' b) (fn n)
+\end{minted}
+\pause
+
+Mit etwas mentaler Gymnastik merken wir: Die Typen stimmen!
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\section{QuickCheck}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\begin{center}
+\Large
+\textbf{QuickCheck\\(Randomised Property-Based Testing)}
+\end{center}
+
+\end{frame}
+
+
+
+\end{document}
