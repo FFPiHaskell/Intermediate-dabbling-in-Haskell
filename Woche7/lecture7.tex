@@ -98,9 +98,9 @@
 \begin{frame}
 
 \textbf{Überblick:}
-\pause
 
 Was war nochmal der Unterschied zwischen Paralllelism und Nebenläufigkeit?
+\pause
 
 \begin{multicols}{2}
 \textbf{Parallelism:}
@@ -525,7 +525,7 @@ Ein kurzer Blick auf \texttt{retry}:
 \begin{itemize}
 \item \emph{Kein} Sprachkonstrukt!\pause
 \item Rollt zurück und versucht die gleiche Transaktion erneut durchzuführen\pause
-\item \dots allerdings erst zu einem angebrachten Zeitpunkt.\\ CPU wird nicht unnützerweise zur Heizung.\pause
+\item \dots allerdings erst zu einem angebrachten Zeitpunkt.\\ CPU wird nicht unnützerweise zur Heizung.
 \end{itemize}
 \end{frame}
 
@@ -545,8 +545,9 @@ Ein kurzer Blick auf \texttt{orElse}:
 \texttt{>>=} ist \texttt{AND}; \texttt{orElse} ist \texttt{OR}
 \end{itemize}
 \pause
+\smallskip
 
-Beispiel:
+Beispiel:\smallskip
 \begin{minted}{haskell}
 takeEitherTMVar :: TMVar a -> TMVar b -> STM (Either a b)
 takeEitherTMVar ma mb =
@@ -705,9 +706,9 @@ möglichen Fehlern, die dabei auftreten können.\pause
 \mint{haskell}|transfer :: Integer -> Account -> Account -> STM ()|
 
 Diese Funktion stellt uns nur eine Berechnung in der \texttt{STM}-Monade bereit, die wir
-später entweder direkt oder auch als Baustein einer größeren Transaktion ausführen können.\pause
+später entweder direkt oder auch als Baustein einer größeren Transaktion ausführen können.\pause\smallskip
 
-Der Vorteil ist, dass wir nur einen Weg haben, diese Berechnung haben, das zu tun:
+Der Vorteil ist, dass wir nur einen Weg haben, die Berechnung auszuführen:
 \mint{haskell}|atomically :: STM a -> IO a|
 \end{frame}
 
@@ -725,14 +726,370 @@ Ja! Hier sind einige Gründe:\pause
 
 %----------------------------------------------------------------------------------------
 
-\section{Parallelism through concurrency}
+\section{Ein simpler Chat-Server}
 
 \begin{frame}
 
 \begin{center}
 \Large
-\textbf{Parallelism through Concurrency}
+\textbf{Hands on:\\Ein einfacher Chat-Server in Haskell}
 \end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+Wir wollen uns einen simplen Chat-Server basteln, der Verbindungen mit mehreren Clients 
+(verbunden über \texttt{telnet}) gleichzeitig offen halten und bearbeiten kann.\pause\bigskip
+
+Insbesondere sollen einem Client folgende Befehle offen stehen:
+\begin{enumerate}
+\item \emph{/tell name} Schickt eine private Nachricht an den User \emph{name}\pause
+\item \emph{/kick name} Disconnectet den User \emph{name}\pause
+\item \emph{/quit} Disconnected den aktuellen Client selbst\pause
+\item \emph{message} Alle anderen Strings werden an alle verbundenen Clients gebroadcastet.
+\end{enumerate}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein sinnvoller erster Schritt ist oft, zu überlegen, wie man seine grundlegenden Datentypen
+repräsentieren möchte.\smallskip\smallskip
+
+Bei uns sind das inbesondere Clients und Nachrichten:\pause\smallskip\smallskip
+
+\begin{minted}{haskell}
+type ClientName = String -- zum besseren Verständnis
+
+data Client = Client
+  { clientName     :: ClientName
+  , clientHandle   :: Handle
+  , clientKicked   :: TVar (Maybe String)
+  , clientSendChan :: TChan Message
+  }
+\end{minted}
+\pause
+\texttt{TChan}s sind FIFO Channel zur Kommunikation zwischen Threads, ebenfalls ein \texttt{STM} primitive.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile] 
+
+Nachrichten sind ebenfalls schnell implementiert:\pause
+
+\begin{minted}{haskell}
+data Message = Notice String
+             | Tell ClientName String
+             | Broadcast ClientName String
+             | Command String
+\end{minted}
+
+Wobei \texttt{Notice} eine Nachricht vom Server, \texttt{Tell} eine private Nachricht, \texttt{Broadcast} eine
+öffentliche Nachricht und \texttt{Command} ein Befehl vom Nutzer ist.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Neue Clients zu erstellen ist für's Erste ziemlich einfach (vorausgesetzt \texttt{Handle} und 
+\texttt{ClientName} werden übergeben):\smallskip
+
+\begin{minted}{haskell}
+newClient :: ClientName -> Handle -> STM Client
+newClient name handle = do
+  c <- newTChan
+  k <- newTVar Nothing
+  return Client { clientName     = name
+                , clientHandle   = handle
+                , clientSendChan = c
+                , clientKicked   = k
+                }
+\end{minted}
+\pause
+Man beachte, dass der Rückgabewert ein \texttt{Client} in \texttt{STM} ist!
+\pause
+      
+\begin{minted}{haskell}          
+sendMessage :: Client -> Message -> STM ()
+sendMessage Client{..} msg =
+  writeTChan clientSendChan msg
+\end{minted}
+
+Die \texttt{\{..\}}-Syntax nennt sich \emph{record wildcard}-Syntax (benötigt die Extension \texttt{RecordWildCards}). Diese holt alle Felder des Records mit ihren respektiven Namen in scope.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein Server ist in unserem Falle eine Key-Value-Map von \texttt{ClientName}s zu \texttt{Client}s. Das bedeutet jedem Namen wird genau ein Client zugeordnet.
+
+(importiert aus \texttt{Data.Map}, nicht zu verwechseln mit \texttt{map} für Listen)\smallskip
+
+Diese Map wird in einer \texttt{TVar} vorgehalten.\bigskip
+
+\begin{minted}{haskell}
+data Server = Server
+  { clients :: TVar (Map ClientName Client)
+  }
+\end{minted}
+
+\end{frame}
+  
+  
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile] 
+
+Eine Funktion für neue Server ist schnell erstellt. Hier ist es nicht notwendig, in 
+\texttt{STM} zu bleiben.
+
+\begin{minted}{haskell}
+newServer :: IO Server
+newServer = do
+  c <- newTVarIO Map.empty
+  return Server { clients = c }
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Wollen wir nun also eine Nachricht über einen ganzen \texttt{Server} verschicken, 
+(Broadcast), nehmen wir uns einfach alle Elemente der Map einzeln.
+
+\begin{minted}{haskell}
+broadcast :: Server -> Message -> STM ()
+broadcast Server{..} msg = do
+  clientmap <- readTVar clients
+  mapM_ (\client -> sendMessage client msg)
+                           (Map.elems clientmap)
+\end{minted}
+\pause
+
+\texttt{mapM\_} ist das \texttt{map} auf Listen, nur dass das (monadische) Ergebnis jeweils weggeschmissen wird.
+\smallskip
+
+\mint{haskell}|mapM_ :: (Monad m, Foldable t) => (a -> m b) -> t a -> m ()|
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Wir brauchen einen Port, auf dem der Server lauschen soll. Eigentlich egal welcher, solange wir nicht einen beliebten Standardport nehmen. 
+
+\begin{minted}{haskell}
+port :: Int
+port = 44444
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+main :: IO ()
+main = withSocketsDo $ do
+  server <- newServer
+  sock <- listenOn (PortNumber (fromIntegral port))
+  printf "Listening on port %d\n" port
+  forever $ do
+    (handle, host, port) <- accept sock
+    printf "Accepted connection from %s: %s\n" host (show port)
+    forkFinally (talk handle server) (\_ -> hClose handle)
+\end{minted}
+\pause
+
+\texttt{accept} blockiert bis eine neue Verbindung hergestellt wurde.\pause\smallskip\smallskip
+
+Mit \texttt{forkFinally} erstellen wir einen neuen Thread um die Interaktion mit diesem Client
+(über die noch zu schreibende Funktion \texttt{talk}) zu regeln und sobald das beendet ist den Handle
+sinnvoll zu beenden.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Clients werden atomar hionzugefügt, damit sich nicht zwei Clients gleichzeitig
+mit demselben Namen anmelden können.
+
+\begin{minted}{haskell}
+checkAddClient :: Server -> ClientName -> Handle
+                                       -> IO (Maybe Client)
+checkAddClient server@Server{..} name handle = atomically $ do
+  clientmap <- readTVar clients
+  if Map.member name clientmap
+    then return Nothing
+    else do 
+       client <- newClient name handle
+       writeTVar clients $ Map.insert name client clientmap
+       broadcast server  $ Notice (name ++ " has connected")
+       return (Just client)
+\end{minted}
+%$
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Clients entfernen funktioniert ähnlich, ebenfalls atomar:
+
+\begin{minted}{haskell}
+removeClient :: Server -> ClientName -> IO ()
+removeClient server@Server{..} name = atomically $ do
+  modifyTVar' clients $ Map.delete name
+  broadcast server $ Notice (name ++ " has disconnected")
+\end{minted}
+%$
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+talk :: Handle -> Server -> IO ()
+talk handle server@Server{..} = do
+  hSetNewlineMode handle universalNewlineMode
+      -- Swallow carriage returns sent by telnet clients
+  hSetBuffering handle LineBuffering
+  readName
+ where
+  readName = do
+    hPutStrLn handle "What is your name?"
+    name <- hGetLine handle
+    if null name
+      then readName
+      else mask $ \restore -> do
+             ok <- checkAddClient server name handle
+             case ok of
+               Nothing -> restore $ do
+                  hPrintf handle
+                     "The name %s is already in use.\n" name
+                  readName
+               Just client ->
+                  restore (runClient server client)
+                      `finally` removeClient server name
+\end{minted}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+mask :: ((forall a. IO a -> IO a) -> IO b) -> IO b 
+\end{minted}
+\pause\smallskip
+
+\begin{center}
+\textbf{Keine Panik!}
+\end{center}
+\pause\smallskip
+
+\texttt{mask} ist eine Funktion, die eine Funktion als Argument nimmt, die wiederum eine Funktion nimmt\dots
+
+Die Feinheiten sind nicht enorm wichtig (und können bei Neugier oder Bedarf gerne nachgelesen werden).
+
+Die Idee ist, dass für kritische Bereiche verhindert wird, dass Exceptions von außen geblockt werden, sodass nicht unpassend dazwischen gefunkt werden kann.\pause\smallskip
+
+\begin{minted}{haskell}
+mask $ \restore -> do
+    x <- acquire
+    restore (do_something_with x) `onException` release
+    release
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+runClient :: Server -> Client -> IO ()
+runClient serv@Server{..} client@Client{..} = do
+  race server receive
+  return ()
+ where
+  receive = forever $ do
+    msg <- hGetLine clientHandle
+    atomically $ sendMessage client (Command msg)
+
+  server = join $ atomically $ do
+    k <- readTVar clientKicked
+    case k of
+      Just reason -> return $
+        hPutStrLn clientHandle $
+              "You have been kicked: " ++ reason
+      Nothing -> do
+        msg <- readTChan clientSendChan
+        return $ do
+            continue <- handleMessage serv client msg
+            when continue $ server
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\mint{haskell}|race :: IO a -> IO b -> IO (Either a b)|
+\bigskip
+
+\texttt{race} ist eine Funktion, die zwei \texttt{IO}-Aktionen nimmt und sie gleichzeitig 
+startet.\pause\smallskip\smallskip
+
+Die erste Funktion, die Output produziert (oder eine Exception wirft), darf ihr Ergebnis nach oben weiter geben, die andere wird sofort abgebrochen.
+
+Die beiden Argumente zu \texttt{race} befinden sich also in einem \emph{Wettrennen} miteinander.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}[fontsize=\tiny]{haskell}
+handleMessage :: Server -> Client -> Message -> IO Bool
+handleMessage server client@Client{..} message =
+  case message of
+     Notice msg         -> output $ "*** " ++ msg
+     Tell name msg      -> output $ "*" ++ name ++ "*: " ++ msg
+     Broadcast name msg -> output $ "<" ++ name ++ ">: " ++ msg
+     Command msg ->
+       case words msg of
+           ["/kick", who] -> do
+               atomically $ kick server who clientName
+               return True
+           "/tell" : who : what -> do
+               tell server client who (unwords what)
+               return True
+           ["/quit"] ->
+               return False
+           ('/':_):_ -> do
+               hPutStrLn clientHandle $ "Unrecognized command: " ++ msg
+               return True
+           _ -> do
+               atomically $ broadcast server $ Broadcast clientName msg
+               return True
+ where
+   output s = do hPutStrLn clientHandle s; return True
+\end{minted}
+%$
 
 \end{frame}
 
