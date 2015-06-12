@@ -399,6 +399,122 @@ lens2LensR :: Lens' s a -> LensR s a
 Hier werden wir eine Richtung vortanzen, die andere Richtung ist Übungsaufgabe. ;-)
 
 \begin{minted}{haskell}
+view :: Lens' s a -> (a -> s -> s)
+view ln a s = ... ähm ...
+\end{minted}
+\pause
+
+\texttt{ln}, wenn angewendet, gibt irgendein \texttt{f s} zurück, wir wollen aber eigentlich nur ein \texttt{s}. \pause
+Also müssen wir uns ein passendes \texttt{f} wählen:
+
+\begin{minted}{haskell}
+newtype Identity a = Identity a
+
+runIdentity :: Identity a -> a 
+runIdentity (Identity x) = x
+
+instance Functor Identity where
+   fmap f (Identity s) = Identity (f s)
+\end{minted}
+ 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\textbf{Fun Fact:} \texttt{Lens'} und \texttt{LensR} sind \emph{isomorph}!
+\smallskip\smallskip
+
+Das bedeutet wir können folgende Funktionen schreiben:
+
+\begin{minted}{haskell}
+lensR2Lens :: LensR s a -> Lens' s a
+lens2LensR :: Lens' s a -> LensR s a
+\end{minted}
+
+Hier werden wir eine Richtung vortanzen, die andere Richtung ist Übungsaufgabe. ;-)
+
+\begin{minted}{haskell}
+view :: Lens' s a -> (a -> s -> s)
+view ln x s = runIdentity (ln set_fld s)
+  where
+    set_fld :: a -> Identity a
+    set_fld _ = Identity x -- discard current
+                           -- return new value x
+\end{minted}
+\pause
+ 
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+view :: Lens' s a -> s -> a
+view ln = ... öhm ... 
+\end{minted}
+\pause
+Wieder einmal gibt uns die \texttt{Lens} ein \texttt{f s} zurück, wir wollen aber 
+einen Wert vom Typ \texttt{a}. WTF?
+\pause
+
+Erinnerung:
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
+                   
+newtype Const v a = Const v
+
+getConst :: Const v a -> v
+getConst (Const x) = x
+
+instance Functor (Const v) where
+    fmap f (Const x) = Const x
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+view :: Lens' s a -> s -> a
+view ln s = getConst (ln Const s) 
+\end{minted}
+\smallskip
+
+Die Idee: Wir packen das \texttt{a} in das \texttt{f}.\\ \texttt{Const} hat hier den Typen \texttt{a -> Const a a}. Auf was wird also \texttt{f} insatnziiert?
+
+\bigskip
+Erinnerung:
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
+
+newtype Const v a = Const v
+
+getConst :: Const v a -> v
+getConst (Const x) = x
+
+instance Functor (Const v) where
+    fmap f (Const x) = Const x
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\textbf{Fun Fact:} \texttt{Lens'} und \texttt{LensR} sind \emph{isomorph}!
+\smallskip\smallskip
+
+Nach point-free-style umgeschrieben und zusammengesteckt:
+
+\begin{minted}{haskell}
 view :: Lens' s a -> s -> a
 view ln = getConst . ln Const
 
@@ -408,6 +524,10 @@ set ln x = getIdentity . ln (Identity . const x)
 -- one way of the isomorphism
 lens2LensR :: Lens' s a -> LensR s a
 lens2LensR ln = L { viewR = view ln, setR = set ln }
+
+-- the other way of the isomorphism
+lensR2Lens :: LensR s a -> Lens' s a
+lensR2Lens = error "ToDo"
 \end{minted}
  
 \end{frame}
