@@ -72,18 +72,15 @@
 
 \begin{frame}
 
-\textbf{Was sind \glqq Lenses\grqq und wozu braucht man die?}
-\smallskip
-
-foo bar
-
-\pause
+\texttt{Lens} ist eine Bibliothek, geschrieben von Edward Kmett, einem 
+Ikon der \texttt{Haskell}-Community. \texttt{Lens}es sind in vielen 
+größeren Projekten nahezu unersätzlich und werden euch auf jeden Fall noch
+häufiger begegnen, wenn ihr weiter \texttt{Haskell} macht.
 \bigskip
 
-\textbf{Und warum sollte ich jetzt zuhören, wenn eh nur eine Bibliothek vorgestellt wird?}
-\smallskip
-
-bar baz
+\begin{center}
+\includegraphics[scale=1]{kmett.png} 
+\end{center}
 
 \end{frame}
 
@@ -397,10 +394,9 @@ Das bedeutet wir können folgende Funktionen schreiben:
 lensR2Lens :: LensR s a -> Lens' s a
 lens2LensR :: Lens' s a -> LensR s a
 \end{minted}
-\bigskip
 \pause
 
-Hier ist eine Richtung, wir werden uns aber nicht lange damit aufhalten. Übungsaufgabe. ;-)
+Hier werden wir eine Richtung vortanzen, die andere Richtung ist Übungsaufgabe. ;-)
 
 \begin{minted}{haskell}
 view :: Lens' s a -> s -> a
@@ -544,17 +540,29 @@ Glücklicherweise sind sie nicht sehr kompliziert:
 
 Wir können genau diese \texttt{Lens} jetzt verwenden.
 \pause
-\bigskip
 
 \begin{verbatim}
 ghci> let fred = P { _name = "Fred", _balance = 1000 }
-
 ghci> view name fred
 "Fred"
-
 ghci> set name "Bill" fred
 P { _name = "Bill", _balance = 1000 }
 \end{verbatim}
+\pause
+
+Aber wie funktioniert das genau?\pause
+
+\begin{minted}{haskell}
+ghci> view name P { _name = "Fred", _balance = 1000 }
+      -- inline view
+= getConst (name Const (P { _name = "Fred", _balance = 1000 }))
+      -- inline name
+= getConst (fmap (\n' -> P n' 100) (Const "Fred"))
+      -- fmap f (Const x) = Const (f x)
+= getConst (Const "Fred")
+      -- getConst (Const x) = x
+= "Fred"
+\end{minted}
 
 \end{frame}
 
@@ -562,13 +570,82 @@ P { _name = "Bill", _balance = 1000 }
 
 \begin{frame}[fragile]
 
+\textbf{\texttt{Lens}es generieren lassen:}\smallskip
+
 \begin{minted}{haskell}
-ghci> view name P { _name = "Fred", _balance = 1000 }
-      -- inline view
-= getConst (name Const (P { _name = "Fred", _balance = 1000 }))
-      -- inline name
-= 
+data Person = P { _name :: String, _balance :: Integer}
+
+name :: Lens' Person String
+name fn (P n b) = fmap (\n' -> P n' b) (fn n)
 \end{minted}
+
+Jedes Mal alle Lenses von Hand zu schreiben, wenn wir einen Datentypen anlegen
+wäre ziemlich schreibaufwändig. Aber genau davon wollen wir doch eigentlich weg.
+\pause
+
+Die Lösung: Statt dem Code oben können wir schreiben:
+
+\begin{minted}{haskell}
+import Control.Lens.TH
+data Person = P { _name :: String, _balance :: Integer}
+
+$(makeLenses ''Person)
+\end{minted}
+%$
+
+So erstellt \texttt{TemplateHaskell} \texttt{Lens}es für \emph{alle} Felder. Danke, Edward Kmett. :D
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{multicols}{2}
+\includegraphics[scale=0.4]{lenses_compose.png} 
+
+\columnbreak
+
+\textbf{Lens composition:}\smallskip
+
+Ihr erinnert euch: Wir wollten gerne eine Funktion \texttt{composeL} haben, mit der wir
+zwei verschiedene \texttt{Lens}es aneinander kleben können. 
+
+\begin{minted}{haskell}
+composeL :: Lens' s s1 
+         -> Lens' s1 s2
+         -> Lens' s s2
+\end{minted}
+
+Glücklicherweise ist das dieses Mal kein großer Aufwand\dots
+
+\pause
+
+\textbf{Lens composition is just function composition!}
+
+\end{multicols}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Wir wollten auch gerne solche Funktionen in unseren \texttt{Lens}es haben wie \texttt{modifyMaybe} oder \texttt{modifyIO}.
+
+\begin{minted}{haskell}
+modifyMaybe :: Lens' s a -> (a -> Maybe a) -> s -> Maybe s
+modifyIO    :: Lens' s a -> (a -> IO a) -> s -> IO a
+\end{minted}
+\pause
+
+Total einfach! Eine \texttt{Lens} \emph{ist} schon so eine Funktion!
+
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
+\end{minted}
+
+Und so sehen wir auch, dass es sinnig ist, \texttt{f} mit anderen Funktoren als \texttt{Const}
+oder \texttt{Identity} zu instanziieren.
 
 \end{frame}
 
@@ -577,7 +654,7 @@ ghci> view name P { _name = "Fred", _balance = 1000 }
 %----------------------------------------------------------------------------------------
 
 \begin{frame}[fragile]
-\textbf{Edward's zweite große Einsicht:}\bigskip
+\textbf{Edward's zweite große Einsicht:}\pause\bigskip
 
 \begin{minted}{haskell}
 type Lens' = forall f. Functor f =>
@@ -608,6 +685,58 @@ type Traversal' s a = forall f. Applicative f =>
 \end{center}
 
 Antwort: Wir bekommen eine \glqq \texttt{multi-lens}\grqq\ , genannt \texttt{Traversal}, mit mehreren Fokussen!
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\textbf{Ein Geständnis:}\dots\pause
+Ich hab euch die ganze Zeit angelogen!\bigskip
+
+\begin{minted}{haskell}
+type Lens' s a = Lens s s a a
+
+type Lens s t a b = forall f. Functor f =>
+     (a -> f b) -> (s -> f t)
+\end{minted}
+\pause
+\bigskip
+
+\texttt{over} sieht auch nicht besser aus!
+
+\begin{minted}{haskell}
+over :: Profunctor p => Setting p s t a b
+        -> p a b -> s -> t 
+\end{minted}
+\pause
+\bigskip
+
+\begin{center}
+\glqq Edward is deeply in thrall to abstractionitis!\grqq\ (SPJ)
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+Es gibt natürlich noch mehr. Viel mehr.
+\pause
+
+\begin{itemize}
+\item Prisms (indexed \texttt{Lens}es)
+\item Rays (\texttt{Lens}es nach außen)
+\item Generic Programming
+\item Interaktionen mit \texttt{State}
+\item \dots
+\end{itemize}
+\pause
+
+Eventuell sehen wir davon noch ein paar Sachen in späteren Vorlesungen.\smallskip\smallskip
+
+Die nach-Hause-Message ist, dass wir mit ein paar cleveren Typsysonymen und Typklassen in \texttt{Haskell} uns ein Framework basteln können, dass enorm viel Ausdruckskraft hat. \emph{The power of abstraction!}
 
 \end{frame}
 
