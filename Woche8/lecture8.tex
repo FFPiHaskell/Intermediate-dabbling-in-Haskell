@@ -429,7 +429,8 @@ Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wolle
 
 Zur Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
 \end{minted}
 \pause
 \smallskip
@@ -460,7 +461,8 @@ Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wolle
 
 Zur Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
 \end{minted}
 \smallskip
 
@@ -489,7 +491,8 @@ Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wolle
 
 Zur Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
 \end{minted}
 \smallskip
 
@@ -508,6 +511,30 @@ name fn (P n b) = fmap (\n' -> P n' b) (fn n)
 \pause
 
 Mit etwas mentaler Gymnastik merken wir: Die Typen stimmen!
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\textbf{\texttt{Lens} laws:}
+\smallskip
+
+Wenn wir eigene \texttt{Lens}es bauen, müssen wir ein paar Regeln beachten. Dann wie bestimmte
+Typklassen (\texttt{Functor, Applicative, Monad}), haben auch \texttt{Lens}es ihre eigenen Regeln.\pause
+\bigskip
+
+Glücklicherweise sind sie nicht sehr kompliziert:
+\begin{itemize}
+\item Man bekommt heraus, was man rein tut:\\
+\mint{haskell}|view l (set l v s)  == v|
+\pause
+\item Zurücklegen was man bekam ändert nichts:\\
+\mint{haskell}|set l (view l s) s  == s|
+\pause
+\item Zweimal setzen ist das gleiche wie einmal setzen:\\
+\mint{haskell}|set l v' (set l v s) == set l v' s|
+\end{itemize}
 
 \end{frame}
 
@@ -546,6 +573,45 @@ ghci> view name P { _name = "Fred", _balance = 1000 }
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+\subsection{Traversals}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\textbf{Edward's zweite große Einsicht:}\bigskip
+
+\begin{minted}{haskell}
+type Lens' = forall f. Functor f =>
+                   (a -> f a) -> s -> f s
+\end{minted}
+
+\begin{center}
+\includegraphics[scale=0.4]{lens_3.png} 
+\end{center}
+\pause
+
+Was passiert, wenn wir statt \texttt{Functor} ein \texttt{Applicative} fordern?
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\textbf{Edward's zweite große Einsicht:}\bigskip
+
+\begin{minted}{haskell}
+type Traversal' s a = forall f. Applicative f => 
+                            (a -> f a) -> s - > f s
+\end{minted}
+
+\begin{center}
+\includegraphics[scale=0.4]{traversal.png} 
+\end{center}
+
+Antwort: Wir bekommen eine \glqq \texttt{multi-lens}\grqq\ , genannt \texttt{Traversal}, mit mehreren Fokussen!
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
 \section{QuickCheck}
 %----------------------------------------------------------------------------------------
 
@@ -557,5 +623,216 @@ ghci> view name P { _name = "Fred", _balance = 1000 }
 \end{center}
 
 \end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection{Motivation}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\emph{Unit Testing} ist eine Vorgehensmethode in der Softwareentwicklung um Fehler
+vorzubeugen bzw. früh zu finden (und bessere Dokumentation zu haben, oft auch besseres Design etc.).
+\bigskip
+
+Ein Entwickler schreibt zunächst \emph{Tests} (i.e. Code, der funktionieren \textit{sollte})
+der Funktionalität benutzt, die noch nicht implementiert wurde, und gibt ein erwartetes
+Ergebnis an. Bei jedem Build können diese Tests dann automatisch durchgeführt werden, um einen Überblick darüber zu erhalten, was funktioniert und was nicht.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\textbf{Types vs. Tests}\bigskip
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[scale=0.4]{region-of-abysmal-pain.png} 
+  \end{center}
+  \vspace{-20pt}
+\end{wrapfigure}
+
+In \texttt{Haskell} steht uns natürlich schon das Typsystem zur Seite, wenn es darum geht, korrekten Code zu schreiben. Und an vielen Stellen ist es auch sehr hilfreich, weil es viele Fehler bereits zur \emph{compile time} abfängt, die sonst in der \emph{run time} landen würden.
+\bigskip
+
+Allerdings ist das Typsystem von \texttt{Haskell} nicht stark genug, wirklich alle Fehler abzufangen. Oft genug kann man sich leicht dran vorbei schummeln.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Man schaue sich die Typsignatur von \texttt{sort} (aus \texttt{Data.List}) an:
+
+\begin{minted}{haskell}
+sort :: Ord a => [a] -> [a]
+\end{minted}
+
+Alles, was wir wissen, ist, dass eine Liste von \texttt{a}s auf eine Liste von \texttt{a}s abgebildet wird. Mehr nicht.
+\pause
+\smallskip
+
+Hier sind ein paar Implementationen, die erfolgreich typchecken:
+
+\begin{minted}{haskell}
+sort = []
+sort = id
+sort = reverse
+sort = \xs -> (permutations xs) !! 19
+sort = take 5
+\end{minted}
+\pause
+
+\dots und wenn diese Beispiele durchlaufen, dann auch euer beinahe-korrektes Programm mit einem kritischen off-by-one-error. Aber dafür sind Unit Tests gedacht!
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Lesson learned: Unit Tests sind wichtig. Warum?\pause
+
+Weil wir dumme, fehlbare, stolze Menschen sind!
+
+\begin{center}
+\includegraphics[scale=0.45]{unit_tests.jpg} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\textbf{Das Problem mit Unit Tests}:
+\bigskip
+
+Wenn Unit tests also so toll sind, wo ist denn dann bitteschön die Problematik? Wir schreiben
+die Tests, fertig aus. Wer braucht diese dumme Bibliothek?
+\pause
+\bigskip
+
+Auch Unit Testing ist keine Silberkugel gegen Fehler in der eigenen Software:\pause
+
+\begin{itemize}
+\item Es ist eine Menge Arbeit, die signifikante Mengen an Zeit benötigt\pause
+\item \dots es sei denn man macht es halbherzig. Dann verliert es aber seinen ganzen Sinn.\pause
+\item Oft schreibt die Person, die ein Stück Code entwickelt auch die Tests für dieses Stück Code. Edge Cases, die eins hier übersieht, übersieht eins oft auch dort.\pause
+\item \dots
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection{Idee und Anwendung}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\textbf{Die Idee von QuickCheck: Automatisierte Testgenerierung}
+\bigskip
+Der große Sprung von QuickCheck ist, dass Menschen ihre Tests nicht mehr selbst schreiben,
+sondern wir das einer Bibliothek überlassen. 
+\smallskip\smallskip
+\pause 
+
+Um das zu ermöglichen (und das Testschreiben allen kürzer und einfacher zu machen), wechseln
+wir von spezifischen Tests, die einzelne Werte überprüfen, zu \emph{property based testing}. Das bedeutet, dass wir im Code nur noch Eigenschaften formulieren, die unser Code haben soll.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Ein paar Beispiele (zuerst \texttt{import Test.QuickCheck}):
+
+\begin{itemize}
+\item \texttt{reverse} doppelt angewendet hebt sich weg:
+  \begin{verbatim}
+  > quickCheck (\xs -> xs == (reverse . reverse) xs)
+  +++ OK, passed 100 tests.
+  \end{verbatim}
+  \pause
+\item Wenn $n$ gerade ist, ist $n+1$ ungerade (conditional):
+  \begin{verbatim}
+  > quickCheck(\n -> even(n) ==> odd(n+1))
+  +++ OK, passed 100 tests.
+  \end{verbatim}
+  \pause
+\item Früher wurde geglaubt, dass wenn $n$ prim ist, auch die $n$-te Mersenne-Zahl $\mathrm{M}_n = 2^n - 1$ prim ist.\\ (Die Vermutung hält für $\mathrm{M}_2$, $\mathrm{M}_3$, $\mathrm{M}_5$ und $\mathrm{M}_7$)
+  \begin{verbatim}
+  > quickCheck(\n -> isPrime n ==> isPrime(2^n - 1))
+  *** Failed! Falsifiable (after 14 tests):                  
+  11
+  \end{verbatim}
+\end{itemize}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+-- Sorting twice changes nothing
+prop_idempotency :: Ord a => [a] -> Bool
+prop_idempotency xs = qsort xs == qsort (qsort xs)
+
+-- Sorting doesn't change the length
+prop_len :: Ord a => [a] -> Bool
+prop_len xs = length xs == length (qsort xs)
+
+-- Sorted result is a permutation of input
+prop_perm :: Ord a => [a] -> Bool
+prop_perm xs = (qsort xs) `elem` (permutations xs)
+
+-- Sorting produces sorted list
+prop_sort :: Ord a => [a] -> Bool
+prop_sort = isSorted . qsort
+  where
+    isSorted :: Ord a => [a] -> Bool
+    isSorted []       = True
+    isSorted [x]      = True
+    isSorted (x:y:zs) = (x <= y) && isSorted (y:zs)
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+Allerdings kann natürlich auch QuickCheck reingelegt werden. Und 100 Test Cases sind 
+bei weitem nicht immer genug:
+\pause
+
+\begin{verbatim}
+> let notProduct n p q = n /= p * q
+> quickCheck (notProduct 10)
++++ OK, passed 100 tests.
+> quickCheck (notProduct 10)
++++ OK, passed 100 tests.
+> quickCheck (notProduct 10)
++++ OK, passed 100 tests.
+> quickCheck (notProduct 10)
+*** Failed! Falsifiable (after 9 tests):                  
+5
+2
+\end{verbatim}
+\pause
+
+Es kommt leider immer noch auf die Person vor der Tastatur an.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Lesson learned: Unit Tests zu automatisieren wichtig. Warum?\pause
+
+Weil wir dumme, fehlbare, stolze Menschen sind!
+
+\begin{center}
+\includegraphics[scale=0.45]{unit_tests.jpg} 
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
 
 \end{document}
