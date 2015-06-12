@@ -371,7 +371,7 @@ Eine \emph{noch} bessere Idee ist es allerdings (und das ist die große Idee hin
 \smallskip\smallskip
 
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f => (a -> f a) -> s - > f s
+type Lens' s a = forall f. Functor f => (a -> f a) -> s - > f s
 \end{minted}
 \pause
 \smallskip\smallskip
@@ -399,8 +399,8 @@ lens2LensR :: Lens' s a -> LensR s a
 Hier werden wir eine Richtung vortanzen, die andere Richtung ist Übungsaufgabe. ;-)
 
 \begin{minted}{haskell}
-view :: Lens' s a -> (a -> s -> s)
-view ln a s = ... ähm ...
+set :: Lens' s a -> (a -> s -> s)
+set ln a s = ... aehm ...
 \end{minted}
 \pause
 
@@ -436,33 +436,45 @@ lens2LensR :: Lens' s a -> LensR s a
 Hier werden wir eine Richtung vortanzen, die andere Richtung ist Übungsaufgabe. ;-)
 
 \begin{minted}{haskell}
-view :: Lens' s a -> (a -> s -> s)
-view ln x s = runIdentity (ln set_fld s)
+set :: Lens' s a -> (a -> s -> s)
+set ln x s = runIdentity (ln set_fld s)
   where
     set_fld :: a -> Identity a
     set_fld _ = Identity x -- discard current
                            -- return new value x
 \end{minted}
-\pause
- 
 \end{frame}
 
 %----------------------------------------------------------------------------------------
 
 \begin{frame}[fragile]
-
+\begin{overprint}
+\onslide<1>
 \begin{minted}{haskell}
 view :: Lens' s a -> s -> a
-view ln = ... öhm ... 
+view ln = ... aehm ...
 \end{minted}
-\pause
+\onslide<2-3>
+\begin{minted}{haskell}
+view :: Lens' s a -> s -> a
+view ln = ... aehm ...
+\end{minted}
 Wieder einmal gibt uns die \texttt{Lens} ein \texttt{f s} zurück, wir wollen aber 
 einen Wert vom Typ \texttt{a}. WTF?
-\pause
-
+\onslide<4>
+\begin{minted}{haskell}
+view :: Lens' s a -> s -> a
+view ln s = getConst (ln Const s) 
+\end{minted}
+\smallskip
+Die Idee: Wir packen das \texttt{a} in das \texttt{f}.\\ \texttt{Const} hat hier den Typen \texttt{a -> Const a a}. Auf was wird also \texttt{f} instanziiert?
+\end{overprint}
+\vspace{0.3cm}
+\begin{overprint}
+\onslide<3->
 Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
+type Lens' s a = forall f. Functor f =>
                    (a -> f a) -> s -> f s
                    
 newtype Const v a = Const v
@@ -473,35 +485,7 @@ getConst (Const x) = x
 instance Functor (Const v) where
     fmap f (Const x) = Const x
 \end{minted}
-
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\begin{frame}[fragile]
-
-\begin{minted}{haskell}
-view :: Lens' s a -> s -> a
-view ln s = getConst (ln Const s) 
-\end{minted}
-\smallskip
-
-Die Idee: Wir packen das \texttt{a} in das \texttt{f}.\\ \texttt{Const} hat hier den Typen \texttt{a -> Const a a}. Auf was wird also \texttt{f} insatnziiert?
-
-\bigskip
-Erinnerung:
-\begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
-                   (a -> f a) -> s -> f s
-
-newtype Const v a = Const v
-
-getConst :: Const v a -> v
-getConst (Const x) = x
-
-instance Functor (Const v) where
-    fmap f (Const x) = Const x
-\end{minted}
+\end{overprint}
 
 \end{frame}
 
@@ -545,7 +529,7 @@ Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wolle
 
 Zur Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
+type Lens' s a = forall f. Functor f =>
                    (a -> f a) -> s -> f s
 \end{minted}
 \pause
@@ -577,7 +561,7 @@ Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wolle
 
 Zur Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
+type Lens' s a = forall f. Functor f =>
                    (a -> f a) -> s -> f s
 \end{minted}
 \smallskip
@@ -592,7 +576,7 @@ data Person = P { _name :: String, _balance :: Integer}
 -- name :: Functor f => (String -> f String)
 --                   -> Person  -> f Person
 name :: Lens' Person String
-name fn (P n b) = ... ähm ...
+name fn (P n b) = ... aehm ...
 \end{minted}
 
 \end{frame}
@@ -607,7 +591,7 @@ Bisher haben wir uns nur angeschaut, wie wir \texttt{Lens}es benutzen. Wir wolle
 
 Zur Erinnerung:
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
+type Lens' s a = forall f. Functor f =>
                    (a -> f a) -> s -> f s
 \end{minted}
 \smallskip
@@ -627,30 +611,6 @@ name fn (P n b) = fmap (\n' -> P n' b) (fn n)
 \pause
 
 Mit etwas mentaler Gymnastik merken wir: Die Typen stimmen!
-
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\begin{frame}[fragile]
-\textbf{\texttt{Lens} laws:}
-\smallskip
-
-Wenn wir eigene \texttt{Lens}es bauen, müssen wir ein paar Regeln beachten. Dann wie bestimmte
-Typklassen (\texttt{Functor, Applicative, Monad}), haben auch \texttt{Lens}es ihre eigenen Regeln.\pause
-\bigskip
-
-Glücklicherweise sind sie nicht sehr kompliziert:
-\begin{itemize}
-\item Man bekommt heraus, was man rein tut:\\
-\mint{haskell}|view l (set l v s)  == v|
-\pause
-\item Zurücklegen was man bekam ändert nichts:\\
-\mint{haskell}|set l (view l s) s  == s|
-\pause
-\item Zweimal setzen ist das gleiche wie einmal setzen:\\
-\mint{haskell}|set l v' (set l v s) == set l v' s|
-\end{itemize}
 
 \end{frame}
 
@@ -677,12 +637,36 @@ ghci> view name P { _name = "Fred", _balance = 1000 }
       -- inline view
 = getConst (name Const (P { _name = "Fred", _balance = 1000 }))
       -- inline name
-= getConst (fmap (\n' -> P n' 100) (Const "Fred"))
+= getConst (fmap (\n' -> P n' 1000) (Const "Fred"))
       -- fmap f (Const x) = Const (f x)
 = getConst (Const "Fred")
       -- getConst (Const x) = x
 = "Fred"
 \end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\textbf{\texttt{Lens} laws:}
+\smallskip
+
+Wenn wir eigene \texttt{Lens}es bauen, müssen wir ein paar Regeln beachten. Dann wie bestimmte
+Typklassen (\texttt{Functor, Applicative, Monad}), haben auch \texttt{Lens}es ihre eigenen Regeln.\pause
+\bigskip
+
+Glücklicherweise sind sie nicht sehr kompliziert:
+\begin{itemize}
+\item Man bekommt heraus, was man rein tut:\\
+\mint{haskell}|view l (set l v s)  == v|
+\pause
+\item Zurücklegen was man bekam ändert nichts:\\
+\mint{haskell}|set l (view l s) s  == s|
+\pause
+\item Zweimal setzen ist das gleiche wie einmal setzen:\\
+\mint{haskell}|set l v' (set l v s) == set l v' s|
+\end{itemize}
 
 \end{frame}
 
@@ -760,7 +744,7 @@ modifyIO    :: Lens' s a -> (a -> IO a) -> s -> IO a
 Total einfach! Eine \texttt{Lens} \emph{ist} schon so eine Funktion!
 
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
+type Lens' s a = forall f. Functor f =>
                    (a -> f a) -> s -> f s
 \end{minted}
 
@@ -777,7 +761,7 @@ oder \texttt{Identity} zu instanziieren.
 \textbf{Edward's zweite große Einsicht:}\pause\bigskip
 
 \begin{minted}{haskell}
-type Lens' = forall f. Functor f =>
+type Lens' s a = forall f. Functor f =>
                    (a -> f a) -> s -> f s
 \end{minted}
 
@@ -977,8 +961,8 @@ Auch Unit Testing ist keine Silberkugel gegen Fehler in der eigenen Software:\pa
 \bigskip
 Der große Sprung von QuickCheck ist, dass Menschen ihre Tests nicht mehr selbst schreiben,
 sondern wir das einer Bibliothek überlassen. 
-\smallskip\smallskip
 \pause 
+\smallskip\smallskip
 
 Um das zu ermöglichen (und das Testschreiben allen kürzer und einfacher zu machen), wechseln
 wir von spezifischen Tests, die einzelne Werte überprüfen, zu \emph{property based testing}. Das bedeutet, dass wir im Code nur noch Eigenschaften formulieren, die unser Code haben soll.
