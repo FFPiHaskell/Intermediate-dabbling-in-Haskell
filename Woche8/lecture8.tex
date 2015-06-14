@@ -256,7 +256,7 @@ laddr :: Person -> Address
 \dots Funktionen, die \texttt{Lens}es zum lesen und schreiben benutzen, \dots
 
 \begin{minted}{haskell}
-view :: Lens' s a -> s -> s
+view :: Lens' s a -> s -> a
 set  :: Lens' s a -> a -> s -> s
 \end{minted}
 \pause
@@ -638,7 +638,7 @@ ghci> view name P { _name = "Fred", _balance = 1000 }
 = getConst (name Const (P { _name = "Fred", _balance = 1000 }))
       -- inline name
 = getConst (fmap (\n' -> P n' 1000) (Const "Fred"))
-      -- fmap f (Const x) = Const (f x)
+      -- fmap f (Const x) = Const x
 = getConst (Const "Fred")
       -- getConst (Const x) = x
 = "Fred"
@@ -907,7 +907,7 @@ Alles, was wir wissen, ist, dass eine Liste von \texttt{a}s auf eine Liste von \
 Hier sind ein paar Implementationen, die erfolgreich typchecken:
 
 \begin{minted}{haskell}
-sort = []
+sort = const []
 sort = id
 sort = reverse
 sort = \xs -> (permutations xs) !! 19
@@ -959,6 +959,7 @@ Auch Unit Testing ist keine Silberkugel gegen Fehler in der eigenen Software:\pa
 \begin{frame}
 \textbf{Die Idee von QuickCheck: Automatisierte Testgenerierung}
 \bigskip
+
 Der große Sprung von QuickCheck ist, dass Menschen ihre Tests nicht mehr selbst schreiben,
 sondern wir das einer Bibliothek überlassen. 
 \pause 

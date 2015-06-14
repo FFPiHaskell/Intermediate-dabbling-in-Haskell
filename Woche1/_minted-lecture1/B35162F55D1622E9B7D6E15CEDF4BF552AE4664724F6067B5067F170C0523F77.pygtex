@@ -1,7 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYGdefault{k+kr}{instance} \PYGdefault{k+kt}{Num} \PYGdefault{k+kt}{Int} \PYGdefault{k+kr}{where}
-  \PYGdefault{n}{i} \PYGdefault{o}{+} \PYGdefault{n}{j}    \PYGdefault{o+ow}{=} \PYGdefault{n}{plusInt} \PYGdefault{n}{i} \PYGdefault{n}{j}
-  \PYGdefault{n}{i} \PYGdefault{o}{*} \PYGdefault{n}{j}    \PYGdefault{o+ow}{=} \PYGdefault{n}{mulInt}  \PYGdefault{n}{i} \PYGdefault{n}{j}
-  \PYGdefault{n}{negate} \PYGdefault{n}{i} \PYGdefault{o+ow}{=} \PYGdefault{n}{negInt}  \PYGdefault{n}{i}
-  \PYGdefault{o}{...}
-\end{Verbatim}
