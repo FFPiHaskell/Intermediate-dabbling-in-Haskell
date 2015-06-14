@@ -256,7 +256,7 @@ laddr :: Person -> Address
 \dots Funktionen, die \texttt{Lens}es zum lesen und schreiben benutzen, \dots
 
 \begin{minted}{haskell}
-view :: Lens' s a -> s -> s
+view :: Lens' s a -> s -> a
 set  :: Lens' s a -> a -> s -> s
 \end{minted}
 \pause
