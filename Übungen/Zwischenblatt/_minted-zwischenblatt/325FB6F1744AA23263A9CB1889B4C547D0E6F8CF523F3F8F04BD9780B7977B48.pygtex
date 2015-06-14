@@ -1,4 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYGdefault{n+nf}{finitePrimes}   \PYGdefault{o+ow}{::} \PYGdefault{k+kt}{Integer} \PYGdefault{o+ow}{\PYGdefaultZhy{}\PYGdefaultZgt{}} \PYGdefault{p}{[}\PYGdefault{k+kt}{Integer}\PYGdefault{p}{]}
-\PYGdefault{n+nf}{infinitePrimes} \PYGdefault{o+ow}{::} \PYGdefault{p}{[}\PYGdefault{k+kt}{Integer}\PYGdefault{p}{]}
-\end{Verbatim}
