@@ -61,21 +61,28 @@
 
 \begin{frame}[fragile]
 
-Wir wollen mal so richtig Dampf ablassen und bauen uns dafür eine Ranting-Platform (RantR).\\\par
+Wir wollen mal so richtig Dampf ablassen und bauen uns dafür eine Ranting-Platform (RantR).
 \pause
-Wir möchten eine Platform, auf der jeder (nach Anmeldung) einen Text posten und ihn der Welt zeigen kann. Außerdem möchten wird, dass die User ihre Äußerungen auch wieder löschen können.\\\par
+\bigskip
+
+Wir möchten eine Platform, auf der jeder (nach Anmeldung) einen Text posten und ihn der Welt zeigen kann. Außerdem möchten wird, dass die User ihre Äußerungen auch wieder löschen können.
+\bigskip
 \pause
-Das ganze wird dann chronologisch sortiert (neueste Rants zuerst) angezeigt.
+
+Das Ganze wird dann chronologisch sortiert (neueste Rants zuerst) angezeigt.
 
 \end{frame}
 
 \subsection{Datentypen}
 
 \begin{frame}[fragile]
-Natürlich beginnen wir damit uns erstmal Gedanken über die Datentypen zu machen.\\\par
+Natürlich beginnen wir damit, uns erstmal Gedanken über die Datentypen zu machen.
 \pause
-Wir brauchen
+\bigskip
+
+Wir brauchen:
 \pause
+
 \begin{itemize}
  \item Einen Rant, bestehend aus
        \begin{itemize}
@@ -85,19 +92,23 @@ Wir brauchen
        \end{itemize}
  \pause
  \item Einen User, der sich einloggen kann\\\pause
-       Dies stellt yesod schon automatisch zur Verfügung
+       Dies stellt \texttt{Yesod} schon automatisch zur Verfügung
 \end{itemize}
 \pause
-Dieses reicht für unsere Demo-Applikation
+Dieses reicht für unsere Demo-Applikation.
 \end{frame}
 
 \subsection{Routen}
 \begin{frame}[fragile]
-Im Web-Kontext begegnet man sogenannten \textbf{Routen}. Zu jeder Route gehört ein \textbf{Handler}.\\\pause \par
-Die \textbf{Route} gibt einen Endpukt der Applikation an. So ist z.B. \texttt{/auth} für die Authentifizierung verantwortlich.\\\pause
+Im Web-Kontext begegnet man sogenannten \textbf{Routen}. Zu jeder Route gehört ein \textbf{Handler}.
+\pause
+
+Die \textbf{Route} gibt einen Endpukt der Applikation an. So ist z.B. \texttt{/auth} für die Authentifizierung verantwortlich.
+\pause
+
 Routen sind die Teile der URL, die hinter der Domain stehen. Somit hat \texttt{http://techfak.de/webmail} die Route \texttt{/webmail}.\\\pause
 Routen sind also die Adressen mit denen der User auf unsere Applikation zugreift. Wird keine passende Route gefunden, bekommt der User ein \texttt{404}.\\\pause
-Jede Route in yesod unterstützt 2 Modi: \textbf{GET} und \textbf{POST}. GET ruft hierbei eine Seite ab, währen POST dem Server Daten schickt (z.b. ein Formular) und das Ergebnis abruft.\\\pause\par
+Jede Route in \texttt{Yesod} unterstützt zwei Modi: \textbf{GET} und \textbf{POST}. GET ruft hierbei eine Seite ab, währen POST dem Server Daten schickt (z.B. ein Formular) und das Ergebnis abruft.\\\pause
 Die \textbf{Handler} sind die Funktionen innerhalb unserer Applikation, die aufgerufen werden, wenn der User eine Route gewählt hat.\\\pause
 Für jede Route gibt es somit 2 Handler: \texttt{getRouteR} und \texttt{postRouteR}, die wir implementieren müssen.
 \end{frame}
@@ -105,17 +116,17 @@ Für jede Route gibt es somit 2 Handler: \texttt{getRouteR} und \texttt{postRout
 \begin{frame}[fragile]
 Wir benötigen für unsere Applikation die folgenden Routen:\pause
 \begin{itemize}
- \item \texttt{Home} (GET) zum sehen der letzten Posts
+ \item \texttt{Home} (GET) zum Sehen der letzten Posts
  \pause
- \item \texttt{Rant} (GET) zum anzeigen des Rant-Formulars
+ \item \texttt{Rant} (GET) zum Anzeigen des Rant-Formulars
  \pause
- \item \texttt{Rant} (POST) zum speichern des Rants in der Datenbank
+ \item \texttt{Rant} (POST) zum Speichern des Rants in der Datenbank
  \pause
- \item \texttt{DelRant/\#id} (GET) zum anzeigen: Wollen sie Rant \texttt{\#id} löschen?
+ \item \texttt{DelRant/\#id} (GET) zum Anzeigen: \glqq Wollen Sie Rant \texttt{\#id} löschen?\grqq
  \pause
- \item \texttt{DelRant/\#id} (POST) zum löschen des Rants
+ \item \texttt{DelRant/\#id} (POST) zum Löschen des Rants
  \pause
- \item \texttt{Auth} (GET/POST) zum einloggen (wird von yesod gestellt)
+ \item \texttt{Auth} (GET/POST) zum Einloggen (wird von \texttt{Yesod} gestellt)
 \end{itemize}
 
 \end{frame}
@@ -124,44 +135,48 @@ Wir benötigen für unsere Applikation die folgenden Routen:\pause
 \section{Grundlagen}
 
 \begin{frame}
-Im folgenden nehmen wir an, dass yesod bereits richtig installiert ist. Für Rückfragen hierzu stehen wir in der Tutorien zur Verfügung.
+Im Folgenden nehmen wir an, dass \texttt{Yesod} bereits richtig installiert ist. Für Rückfragen hierzu stehen wir in den Tutorien gerne zur Verfügung.\bigskip
+
+\begin{center}
+\includegraphics[scale=0.75]{yesod.png} 
+\end{center}
 \end{frame}
 
 \subsection{Scaffolding}
 
 \begin{frame}[fragile]
-Yesod bietet ein sogenanntes \textbf{scaffolding} an, welchen einem eine rudimentäre Hello-World-App erstellt. Von diesem Punkt aus starten wir und bauen unsere Platform.\\\pause
+\texttt{Yesod} bietet ein sogenanntes \textbf{Scaffolding} an, welches einem eine rudimentäre Hello-World-App erstellt. Von diesem Punkt aus starten wir und bauen unsere Plattform.\\\pause
 Der Befehl hierzu lautet \texttt{yesod init}. Nach der Beantwortung der Fragen hat man einen Unterordner mit seinem Projektnamen.\\\pause
-Hier drin muss man nun noch die Applikation bauen. Dies geht einfach durch die Befehle
+Hier drin muss man nun noch die Applikation bauen. Dies geht einfach durch die folgenden Befehle:
 \begin{verbatim}
 cabal sandbox init
 cabal install --only-dependencies
 yesod devel
 \end{verbatim}
 \pause
-letzteres startet den Development-Server und wir können auf \url{http://localhost:3000} die Hello-World-App bewundern.
+Letzteres startet den Development-Server und wir können auf \url{http://localhost:3000} die Hello-World-App bewundern.
 \end{frame}
 
 \subsection{MVC-Prinzip}
 
 \begin{frame}[fragile]
-yesod folgt einem Model-View-Controller-Prinzip. \\\pause
-Das heisst, dass
+\texttt{Yesod} folgt einem Model-View-Controller-Prinzip. \\\pause
+Das bedeutet, dass
 \begin{itemize}
- \item Die Datenbank das Model ist\\\pause
-       Hier werden allen Informationen gespeichert
+ \item die Datenbank das Model ist\\\pause
+       (Hier werden allen Informationen gespeichert)
  \pause
- \item Die View die HTML-Ausgabe ist
+ \item die View die HTML-Ausgabe ist und
  \pause
- \item Die App der Controller ist\\\pause
-       Hier werden Anfragen entgegen genommen und unter zuhilfenahme des Models eine Ausgabe in der View generiert.
+ \item die App der Controller ist.\\\pause
+       (Hier werden Anfragen entgegen genommen und unter zuhilfenahme des Models eine Ausgabe in der View generiert.)
 \end{itemize}
 \pause
-Da wir in Haskell sind, sind diese Bereiche strikt getrennt, indem man für jeden Bereich eine Monade nimmt.
+Da wir in \texttt{Haskell} sind, sind diese Bereiche strikt getrennt, indem man für jeden Bereich eine Monade nimmt.
 \end{frame}
 
 \begin{frame}[fragile]
-Typischenweise schreibt man bei yesod einfach nur die Handler, die einen Request nehmen und dann ein Ergebnis in der View-Monade liefern.\\\pause
+Typischenweise schreibt man bei \texttt{Yesod} einfach nur die Handler, die einen Request nehmen und dann ein Ergebnis in der View-Monade liefern.\\\pause
 Hierzu starten wir in der \glqq App\grqq -Monade. Von hier aus haben wir die Option
 \begin{itemize}
 \pause
@@ -180,7 +195,7 @@ Hierzu starten wir in der \glqq App\grqq -Monade. Von hier aus haben wir die Opt
 \subsection{Model}
 
 \begin{frame}[fragile]
-Um die interne Repräsentation in der Datenbank zu ändern müssen wir lediglich die Datei \texttt{config/models} editieren. \\\pause
+Um die interne Repräsentation in der Datenbank zu ändern, müssen wir lediglich die Datei \texttt{config/models} editieren. \\\pause
 Zusätzlich zu dem Vorgegebenen fügen wir nun unsere Rant-Struktur ein:
 \begin{verbatim}
 Rant
@@ -189,12 +204,12 @@ Rant
     erstellt UTCTime default=now()
 \end{verbatim}
 \pause
-Nach dem speichern der Datei erkennt der Development-Server die Änderungen, kompiliert alles neu und passt die Datenbank an.\\\pause
-Das war schon alles. Wir müssen uns nicht mit SQL oder ähnlichem herumschlagen.
+Nach dem Speichern der Datei erkennt der Development-Server die Änderungen, kompiliert alles neu und passt die Datenbank an.\\\pause
+Das war schon alles. Wir müssen uns nicht mit \texttt{SQL} oder ähnlichem herumschlagen.
 \end{frame}
 
 \begin{frame}[fragile]
-Außerdem generiert yesod aus
+Außerdem generiert \texttt{Yesod} aus
 \begin{verbatim}
 Rant
     titel Text
@@ -202,7 +217,9 @@ Rant
     erstellt UTCTime default=now()
 \end{verbatim}
 \pause
-die folgende Haskell-Datenstruktur:
+die folgende Haskell-Datenstruktur,
+\smallskip
+
 \begin{minted}{haskell}
 data Rant = Rant { rantTitel :: Text
                  , rantInhalt :: Text
@@ -210,6 +227,8 @@ data Rant = Rant { rantTitel :: Text
                  }
 \end{minted}
 \pause
+\smallskip
+
 die automatisch über \texttt{import Import} importiert wird. Diese stellt natürlich die normalen record-accessor-Funktionen zur Verfügung.
 \end{frame}
 
@@ -217,10 +236,10 @@ die automatisch über \texttt{import Import} importiert wird. Diese stellt natü
 
 \begin{frame}[fragile]
 Da wir auch HTML anzeigen wollen, müssen wir auch eine Möglichkeit haben HTML zu generieren.\\\pause\par
-yesod macht dies über sogenannte \textbf{widget}s. \\\pause
-Man kann verschiedenste Dinge in diese Widgets stecken (HTML, CSS, JS) und yesod kümmert sich darum, dass diese an die richtige Position kommen (HTML an die Stelle, CSS in den \texttt{<head>}, JS am ende des \texttt{<body>}\\\par
+\texttt{Yesod} macht dies über sogenannte \textbf{widget}s. \\\pause
+Man kann verschiedenste Dinge in diese Widgets stecken (HTML, CSS, JS) und \texttt{Yesod} kümmert sich darum, dass diese an die richtige Position kommen (HTML an die Stelle, CSS in den \texttt{<head>}, JS am Ende des \texttt{<body>}\\\par
 \pause
-Wir begnügen uns damit simples HTML zu schreiben. Die wichtigste Funktion hierbei ist der QuasiQuoter \texttt{[hamlet]}. Dieser wandelt (Pseudo-)HTML in richtiges HTML um, mit dem yesod umgehen kann.
+Wir begnügen uns damit, simples HTML zu schreiben. Die wichtigste Funktion hierbei ist der QuasiQuoter \texttt{[hamlet]}. Dieser wandelt (Pseudo-)HTML in richtiges HTML um, mit dem \texttt{Yesod} umgehen kann.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -263,15 +282,21 @@ Auch sorgt Hamlet dafür, dass keine bösen Dinge in unsere Seite wandern, weil 
 
 \begin{frame}[fragile]
 Ein simpler Hello-World-Handler wäre zum Beispiel:
+\bigskip
+
 \begin{minted}{haskell}
 HomeR :: Handler HTML
 HomeR = defaultLayout $ [whamlet|
         <h1>Hello World!
         |]
 \end{minted}
+%$
 \pause
-\texttt{[whamlet| ... |]} steht hierbei für \texttt{toWidget [hamlet| ... |]}.
+\bigskip
+
+Das \texttt{[whamlet| ... |]} steht hierbei für \texttt{toWidget [hamlet| ... |]}.
 \end{frame}
+
 
 \section{Implementation}
 
@@ -309,20 +334,20 @@ Livecoding
 \subsection{Formulare}
 
 \begin{frame}[fragile]
-Für die generation von Formularen gibt es in yesod 2 Wege:\pause
+Für die Generation von Formularen gibt es in \texttt{Yesod} zwei Wege:\pause
 \begin{itemize}
- \item Applikativ\pause\\
+ \item Applikativ (d.h. mit \texttt{Applicative})\pause\\
        Hier wird der Code für uns automatisch generiert, aber wir haben kaum Einfluss auf die Gestaltung.
  \pause
- \item Monadisch\pause\\
+ \item Monadisch (d.h. mit \texttt{Monad})\pause\\
        Hier können wir einzelne Felder selektieren und müssen seperat das HTML generieren, welches im Browser angezeigt wird
 \end{itemize}
 \pause
-Wir werden vorerst nur die Applikative Syntax benutzen. Die Monadische Variante ist im Buch aber sehr gut erklärt und einfach zu adaptieren.
+Wir werden vorerst nur die applikative Syntax benutzen. Die monadische Variante ist im Buch aber sehr gut erklärt und ggf. einfach zu adaptieren.
 \end{frame}
 
 \begin{frame}[fragile]
-Kommen wir zunächst zu der Syntax für die Applikative Schreibweise.\\\pause
+Kommen wir zunächst zu der Syntax für die applikative Schreibweise.\\\pause
 Ein Beispielformular für unseren Rant könnte in etwa so Aussehen:
 \begin{minted}{haskell}
 rantForm :: Form Rant
@@ -341,7 +366,7 @@ Hier generieren wir einen Rant aus
 \end{frame}
 
 \begin{frame}[fragile]
-In der Applikativen Notation haben wir 4 Möglichkeiten Werte zu bekommen:\pause
+In der applikativen Notation haben wir vier Möglichkeiten Werte zu bekommen:\pause
 \begin{itemize}
  \item Benötigte Werte vom Client (\texttt{areq})
  \pause
@@ -352,18 +377,22 @@ In der Applikativen Notation haben wir 4 Möglichkeiten Werte zu bekommen:\pause
  \item Daten aus der App-Monade (\texttt{lift})
  \pause
 \end{itemize}
+\bigskip
+
 Natürlich können wir in der App-Monade dann durch \texttt{liftIO} beliebige Funktionen ausführen.
 \end{frame}
 
 \begin{frame}[fragile]
 Nun haben wir ein Formular definiert. Dieses wird sowohl für das Anzeigen beim Client verwendet, als auch für die Validierung auf dem Server.\\\par\pause
 
-Hirzu gibt es die Funktion
+Hierzu gibt es die Funktion
 \begin{minted}{haskell}
 (widget, enctype) <- generateFormPost rantForm
 \end{minted}
 um ein Formular zu generieren.\pause \\
-\texttt{widget} enthält den HTML-Teil, den wir mittels \texttt{defaultLayout} rendern können, \texttt{enctype} enthält den Encoding-Type, der im äußeren Formular angegeben werden muss.\\
+\bigskip
+
+\texttt{widget} enthält den HTML-Teil, den wir mittels \texttt{defaultLayout} rendern können. \texttt{enctype} enthält den Encoding-Type, der im äußeren Formular angegeben werden muss.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -381,6 +410,7 @@ getRantR = do
     |]
 \end{minted}
 \pause
+%$
 Wir sehen hier, dass im Hamlet mittels \texttt{\textasciicircum\{rantWidget\}} das Widget direkt eingebunden werden kann. Wir müssen nur noch das äußere \texttt{<form>}-Konstrukt definieren und einen Button zum Absenden hinzufügen.\\\pause
 Nach dem Abschicken wird die Route \texttt{RantR} aufgerufen, wo wir dann das Ergebnis abholen.
 
@@ -400,7 +430,7 @@ data FormResult a = FormMissing
                   | FormSuccess a
 \end{minted}
 \pause
-für die 3 Fälle
+Für die drei möglichen Fälle:
 \begin{itemize}
  \item Keine Formulardaten vorhanden
  \item Fehlermeldungen
@@ -409,7 +439,7 @@ für die 3 Fälle
 \end{frame}
 
 \begin{frame}[fragile]
-Normalerweise macht man ein \texttt{case} über das result:
+Normalerweise macht man ein \texttt{case} über das \texttt{result}:
 \begin{minted}{haskell}
 postRantR :: Handler Html
 postRantR = do
@@ -437,20 +467,25 @@ postRantR = do
 \subsection{Datenbank-Interaktion}
 
 \begin{frame}[fragile]
-Wir haben eben schon gesehen, wie man Daten in die Datenbank einfügt: Man wechselt in die Datenbank-Monade und macht \texttt{insert object}, wobei über die Typen von \texttt{object} klar ist, was nun wo eingefügt werden soll und wir bekommen die ID des eingefügten Objektes wieder.\\\pause
+Wir haben eben schon gesehen, wie man Daten in die Datenbank einfügt: Man wechselt in die Datenbank-Monade und macht \texttt{insert object}, wobei über die Typen von \texttt{object} klar ist, was nun wo eingefügt werden soll und wir bekommen die ID des eingefügten Objektes wieder.
+\pause
+\bigskip
+
 Aus der Datenbank können wir u.a. Daten abfragen über
 \pause
 \begin{itemize}
- \item selectList\\
+ \item \texttt{selectList}\\
        Alle Einträge in der Datenbank
  \pause
- \item seletFirst\\
+ \item \texttt{selectFirst}\\
        Den ersten Eintrag (falls vorhanden)
 \end{itemize}
 \end{frame}
 
 \begin{frame}[fragile]
 Meistens wird \texttt{selectList} genommen. Dieses hat die folgende Signatur:
+\bigskip
+
 \begin{minted}{haskell}
 selectList :: (MonadIO m, PersistEntity val,
                PersistQuery backend,
@@ -464,15 +499,20 @@ Keine Panik!
 \end{frame}
 
 \begin{frame}[fragile]
-Interessant für uns sind nur die ersten 2 Parameter. Wir können eine Liste von Filtern und eine Liste von Optionen angeben.\\\pause
-Filter sind z.B.
+Interessant für uns sind nur die ersten zwei Parameter. Wir können eine Liste von Filtern und eine Liste von Optionen angeben.
+\pause
+\bigskip
+
+Filter sind z.B.:
 \begin{minted}{haskell}
     [ RantTitel <-. "foo"       --title containing foo
     , PersonAge >=. 18 ]        --and person over 18
 ||. [ PersonIsSingle ==. True ] --or person is single
 \end{minted}
 \pause
-und Optionen
+\smallskip
+
+und Optionen:
 \begin{minted}{haskell}
 -- only the first 50 rants 
 -- sorted by erstellt
@@ -483,7 +523,7 @@ und Optionen
 
 \begin{frame}[fragile]
 Wir erhalten damit eine Liste von Ergebnissen (vom Type \texttt{Entity}).\\\pause
-Eine Entity besteht aus
+Eine \texttt{Entity} besteht aus
 \begin{minted}{haskell}
 data Entity record = PersistEntity record =>
                      Entity { entityKey :: Key record
@@ -504,6 +544,7 @@ getHomeR = do
             <a href=@{DelRantR rid}>Delete!
 |]
 \end{minted}
+%$
 \end{frame}
 
 \begin{frame}
@@ -515,8 +556,8 @@ Livecoding
 \subsection{Basics}
 
 \begin{frame}[fragile]
-Yesod kommt schon mit einer Login und User-Verwaltung. Genutzt wird Standardmässig \glqq Persona\grqq \ von Mozilla.\\\pause
-Alternativen sind z.b.
+\texttt{Yesod} kommt schon mit einer Login und User-Verwaltung. Genutzt wird Standardmässig \glqq Persona\grqq \ von Mozilla.\\\pause
+Alternativen sind z.B.:
 \begin{itemize}
  \item Email\\
        setzt einen gültigen Email-Server vorraus
@@ -531,7 +572,7 @@ Alternativen sind z.b.
 \end{frame}
 
 \begin{frame}[fragile]
-Wie bringen wir Yesod nun bei, auf welcher Seite man autorisiert sein muss?\\\pause
+Wie bringen wir \texttt{Yesod} nun bei, auf welcher Seite man autorisiert sein muss?\\\pause
 In \texttt{Foundation.hs} finden wir die generierten Einstellungen:
 \begin{minted}{haskell}
 -- Routes not requiring authentication.
@@ -541,7 +582,7 @@ isAuthorized _ _ = return Authorized
 \end{minted}
 \pause
 Der erste Parameter ist hier eine Route, der zweite Paremeter ein Bool, der für den Schreibzugriff steht.\\\pause
-Wir wollen, dass jeder eingeloggte User ranten und rants entfernen können. Also fügen wir Hinzu:
+Wir wollen, dass jeder eingeloggte User ranten und rants entfernen können. Also fügen wir hinzu:
 \begin{minted}{haskell}
 isAuthorized (DelRantR _) _ = isUser
 isAuthorized RantR _ = isUser
@@ -551,11 +592,11 @@ isUser = do
       Nothing -> AuthenticationRequired
       Just _  -> Authorized
 \end{minted}
+%$
 \end{frame}
 
 \begin{frame}
 Mehr ist nicht nötig um unsere Applikation sicher zu machen. Natürlich sollten wir beim Löschen des Rants prüfen, ob der Rant auch wirklich jemandem gehört, der das darf (z.B. der Ersteller oder der Admin).
 \end{frame}
-
 
 \end{document}
