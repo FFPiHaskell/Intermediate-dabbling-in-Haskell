@@ -267,7 +267,7 @@ Hamlet kümmert sich also darum, dass die Tags geschlossen sind (durch die Einr�
 let greet name = [hamlet|
     <h1>Hi #{name}!
     <p>
-       <a href=@AuthR>Log dich doch ein!</a>
+       <a href=@{AuthR LoginR}>Log dich doch ein!</a>
 |]
 \end{minted}
 \pause
@@ -286,7 +286,7 @@ Ein simpler Hello-World-Handler wäre zum Beispiel:
 \bigskip
 
 \begin{minted}{haskell}
-getHomeR :: Handler HTML
+getHomeR :: Handler Html
 getHomeR = defaultLayout $ [whamlet|
              <h1>Hello World!
             |]
@@ -358,14 +358,14 @@ Ein Beispielformular für unseren Rant könnte in etwa so Aussehen:
 rantForm :: Form Rant
 rantForm = renderDivs $ Rant
     <$> areq textField "Titel" Nothing
-    <*> areq textAreaField "Rant" (Just "Rant here")
+    <*> areq textField "Rant" (Just "Rant here")
     <*> lift (liftIO getCurrentTime)
 \end{minted}
 \pause
 Hier generieren wir einen Rant aus
 \begin{itemize}
  \item einem benötigtem einzeiligem TextFeld ohne Default-Wert
- \item einer benötigten mehrzeiligen TextArea mit Default-Wert \glqq Rant here\grqq
+ \item einer benötigten einzeiligem TextFeld mit Default-Wert \glqq Rant here\grqq
  \item der aktuellen Uhrzeit (die nicht vom Client, sondern vom Server kommt).
 \end{itemize}
 \end{frame}
@@ -424,7 +424,7 @@ Nach dem Abschicken wird die Route \texttt{RantR} aufgerufen, wo wir dann das Er
 \begin{frame}[fragile]
 Wenn wir ein Formular auswerten wollen, dann benutzen wir
 \begin{minted}{haskell}
-((result,rantWidget), rantEnctype) <- runFormPost registerForm
+((result,rantWidget), rantEnctype) <- runFormPost rantForm
 \end{minted}
 \pause
 \texttt{result} ist hierbei das Ergebnis des Formulars. Falls irgendetwas nicht stimmt, dann bekommen wir gleich auch noch das (teilausgefüllte) Widget und den Enctype zurück um dem User das Formular erneut anzuzeigen.\\\pause
@@ -537,14 +537,14 @@ data Entity record = PersistEntity record =>
 \pause
 Wir bekommen also die interne Id, die wir z.B. für Updates brauchen und unsere Datenstruktur selbst. Konkret könnte das also so aussehen:
 \begin{minted}{haskell}
-getHomeR :: Handler HTML
+getHomeR :: Handler Html
 getHomeR = do
-  rants <- rundb $ selectList [] [Desc RantErstellt, LimitTo 50]
+  rants <- runDB $ selectList [] [Desc RantErstellt, LimitTo 50]
   defaultLayout $ [whamlet|
     <h1>last 50 rants
     <ul>
       $forall Entity rid (Rant t i ts) <- rants
-        <li>#{t} (postet at: #{ts})<br><br>
+        <li>#{t} (postet at: #{show ts})<br><br>
             #{i}<br>
             <a href=@{DelRantR rid}>Delete!
 |]
