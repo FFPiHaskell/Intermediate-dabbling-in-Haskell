@@ -122,9 +122,9 @@ Wir benötigen für unsere Applikation die folgenden Routen:\pause
  \pause
  \item \texttt{Rant} (POST) zum Speichern des Rants in der Datenbank
  \pause
- \item \texttt{DelRant/\#id} (GET) zum Anzeigen: \glqq Wollen Sie Rant \texttt{\#id} löschen?\grqq
+ \item \texttt{DelRant/\#RantId} (GET) zum Anzeigen: \glqq Wollen Sie Rant \texttt{\#RantId} löschen?\grqq
  \pause
- \item \texttt{DelRant/\#id} (POST) zum Löschen des Rants
+ \item \texttt{DelRant/\#RantId} (POST) zum Löschen des Rants
  \pause
  \item \texttt{Auth} (GET/POST) zum Einloggen (wird von \texttt{Yesod} gestellt)
 \end{itemize}
@@ -201,7 +201,7 @@ Zusätzlich zu dem Vorgegebenen fügen wir nun unsere Rant-Struktur ein:
 Rant
     titel Text
     inhalt Text
-    erstellt UTCTime default=now()
+    erstellt UTCTime
 \end{verbatim}
 \pause
 Nach dem Speichern der Datei erkennt der Development-Server die Änderungen, kompiliert alles neu und passt die Datenbank an.\\\pause
@@ -214,7 +214,7 @@ Außerdem generiert \texttt{Yesod} aus
 Rant
     titel Text
     inhalt Text
-    erstellt UTCTime default=now()
+    erstellt UTCTime
 \end{verbatim}
 \pause
 die folgende Haskell-Datenstruktur,
@@ -285,10 +285,10 @@ Ein simpler Hello-World-Handler wäre zum Beispiel:
 \bigskip
 
 \begin{minted}{haskell}
-HomeR :: Handler HTML
-HomeR = defaultLayout $ [whamlet|
-        <h1>Hello World!
-        |]
+getHomeR :: Handler HTML
+getHomeR = defaultLayout $ [whamlet|
+             <h1>Hello World!
+            |]
 \end{minted}
 %$
 \pause
