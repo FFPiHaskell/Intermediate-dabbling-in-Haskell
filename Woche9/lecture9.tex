@@ -157,6 +157,10 @@ yesod devel
 Letzteres startet den Development-Server und wir können auf \url{http://localhost:3000} die Hello-World-App bewundern.
 \end{frame}
 
+\begin{frame}[fragile]
+Demo
+\end{frame}
+
 \subsection{MVC-Prinzip}
 
 \begin{frame}[fragile]
@@ -218,18 +222,15 @@ Rant
 \end{verbatim}
 \pause
 die folgende Haskell-Datenstruktur,
-\smallskip
-
 \begin{minted}{haskell}
-data Rant = Rant { rantTitel :: Text
-                 , rantInhalt :: Text
-                 , rantErstellt :: UTCTime
+data Rant = Rant { rantTitel :: RantTitel
+                 , rantInhalt :: RantInhalt
+                 , rantErstellt :: RantErstellt
                  }
 \end{minted}
 \pause
-\smallskip
-
-die automatisch über \texttt{import Import} importiert wird. Diese stellt natürlich die normalen record-accessor-Funktionen zur Verfügung.
+die automatisch über \texttt{import Import} importiert wird. Diese stellt natürlich die normalen record-accessor-Funktionen zur Verfügung.\\\par\pause
+\texttt{RantTitel, RantInhalt} sind nur Aliase für \texttt{Text}, \texttt{RantErstellt} für \texttt{UTCTime}
 \end{frame}
 
 \subsection{View}
@@ -258,7 +259,7 @@ Dieses generiert:
 <p>Willkommen auf meiner Seite!</p>
 \end{verbatim}
 \pause
-Hamlet kümmert sich also darum, dass die Tags geschlossen sind (durch die Einrückungstiefe). Man kann die Tags auch manuell schliessen und mit Variablen arbeiten
+Hamlet kümmert sich also darum, dass die Tags geschlossen sind (durch die Einrückungstiefe). Man kann die Tags auch manuell schliessen und mit Variablen arbeiten.
 \end{frame}
 
 \begin{frame}[fragile]
@@ -297,6 +298,10 @@ HomeR = defaultLayout $ [whamlet|
 Das \texttt{[whamlet| ... |]} steht hierbei für \texttt{toWidget [hamlet| ... |]}.
 \end{frame}
 
+\begin{frame}
+Demo
+\end{frame}
+
 
 \section{Implementation}
 
@@ -328,7 +333,7 @@ In diesem Fall werden automatisch folgende Dateien bearbeitet/erstellt:
 \end{frame}
 
 \begin{frame}
-Livecoding
+Demo
 \end{frame}
 
 \subsection{Formulare}
@@ -340,7 +345,7 @@ Für die Generation von Formularen gibt es in \texttt{Yesod} zwei Wege:\pause
        Hier wird der Code für uns automatisch generiert, aber wir haben kaum Einfluss auf die Gestaltung.
  \pause
  \item Monadisch (d.h. mit \texttt{Monad})\pause\\
-       Hier können wir einzelne Felder selektieren und müssen seperat das HTML generieren, welches im Browser angezeigt wird
+       Hier können wir einzelne Felder selektieren, müssen aber seperat das HTML generieren, welches im Browser angezeigt wird
 \end{itemize}
 \pause
 Wir werden vorerst nur die applikative Syntax benutzen. Die monadische Variante ist im Buch aber sehr gut erklärt und ggf. einfach zu adaptieren.
@@ -548,7 +553,7 @@ getHomeR = do
 \end{frame}
 
 \begin{frame}
-Livecoding
+Demo
 \end{frame}
 
 \section{Authorization}
