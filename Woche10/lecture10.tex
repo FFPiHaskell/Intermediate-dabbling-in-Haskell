@@ -162,7 +162,7 @@ Jetzt wollen wir unser Repertoire um ein neues Konzept erweitern:\smallskip\smal
 \emph{Amortisierte} Laufzeitanalyse betrachtet nicht die asymptotische Laufzeit einer Operation unter bestimmten Annahmen (z.B. was ist der \glqq typische\grqq\ String?), sondern 
 produziert eine Garantie, dass eine lange Sequenz von Operationen eine bestimmte Grenze nicht überschreitet.\pause\bigskip
 
-Die amortisierten Kosten sind also \emph{nicht} das Gleiche wie der average case. Letzterer ist eine Aussage über das Verhältnis von Eingabe und Laufzeit. Amortisierte Kosten beschreiben eine obere Grenze, die nicht überschritten wird, auch wenn einzelne darüber liegen können.
+Die amortisierten Kosten sind also \emph{nicht} (!) das Gleiche wie der average case. Letzterer ist eine Aussage über das Verhältnis von Eingabe und Laufzeit. Amortisierte Kosten beschreiben eine obere Grenze, die auf lange Sicht nicht überschritten wird, auch wenn einzelne Operationen darüber liegen können.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ Man stelle sich ein Array vor, das wächst, wenn Elemente hinzugefügt werden. L
 Die ersten vier \texttt{push}-Operationen brauchen nur konstante Zeit ($\mathcal{O}(1)$). Die fünfte allerdings benötigt länger, weil jetzt erst ein neues Array (der Länge 8) angelegt werden muss und die Werte übertragen werden müssen ($\mathcal{O}(n)$), usw\dots
 \pause\bigskip
 
-Im Schnitt müssen wir also nur alle $n$ Operationen eine $\mathcal{O}(1)$-teure Operation durchführen, sonst konstant. Das bringt uns zu einer amortisierten Kostenfunktion $\mathcal{O}\left(\frac{n}{n}\right) = \mathcal{O}(1)$ für \texttt{push} auf dieser Sorte Array.
+Im Schnitt müssen wir also nur alle $n$ Operationen eine $\mathcal{O}(n)$-teure Operation durchführen, sonst konstant. Das bringt uns zu einer amortisierten Kostenfunktion $\mathcal{O}\left(\frac{n}{n}\right) = \mathcal{O}(1)$ für \texttt{push} auf dieser Sorte Array.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -268,9 +268,30 @@ Zwischen eurem Code und der Festplatte liegen viele Caches\dots
 
 \end{frame}
 
+%----------------------------------------------------------------------------------------
+\subsection{Vokabular: Succinct data structures}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\Large
+\begin{center}
+Vokabular:
+
+Succinct data structures
+\end{center}
+\normalsize
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+foo bar baz
+\end{frame}
 
 %----------------------------------------------------------------------------------------
 \section{cache-oblivious / succinct Data.Map}
+%----------------------------------------------------------------------------------------
+
 \begin{frame}
 \Large
 \begin{center}
@@ -357,7 +378,7 @@ Eigenschaften dieses Modells:
 Dies erlaubt uns, \emph{optimale} Datenstrukturen für bestimmte $M$ zu finden, inklusive
 hübscher Asymptoten:\pause\bigskip
 
-B-Trees:
+$B$-Trees (nicht zu verwechseln mit binary trees):
 \begin{center}
 \includegraphics[scale=0.35]{btree1.png}
 \end{center}
@@ -677,6 +698,19 @@ insert k0 v0 = g0 $ Chunk (singleton k0) (singleton v0) where
 \end{minted}
 %$
 
+\end{frame}
+
+\begin{frame}
+\textbf{Why the *bleep* do we care?! (2)}
+\pause
+\bigskip
+
+\begin{itemize}
+\item \texttt{insert} ist jetzt 7-10x schneller als Äquivalent aus \texttt{Data.Map} und wird beim Skalieren nur schneller\pause
+\item Wir können eine unboxed map bauen, wenn wir unboxed Datentypen reinstecken.\pause
+\item Asymp. $B$-Tree performance ohne $B$ kennen zu müssen.\pause
+\item Keine Konstanten, die wir feinabstimmen müssten.
+\end{itemize}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
