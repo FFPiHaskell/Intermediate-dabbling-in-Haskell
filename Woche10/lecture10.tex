@@ -58,15 +58,16 @@
 
 \begin{frame}
 
-\textbf{Empfehlungen:}
+\textbf{Empfehlungen:}\\
+\tiny oder: die Edward-Kmett-is-awesome-slide \normalsize
 \bigskip
 
 \glqq Functionally Oblivious and Succinct\grqq\ - Edward Kmett\\
-https://www.youtube.com/watch?v=WE2a90Bov0Q
+\url{https://www.youtube.com/watch?v=WE2a90Bov0Q}
 \bigskip
 
 \glqq Purely functiontional data structures\grqq\ - Chris Okasaki\\
-www.cs.cmu.edu/~rwh/theses/okasaki.pdf
+\url{www.cs.cmu.edu/~rwh/theses/okasaki.pdf}
 \bigskip
 
 \begin{center}
@@ -143,10 +144,14 @@ Ein paar typische Laufzeiten:
 Feststellen, ob eine ganze Zahl gerade oder ungerade ist.\pause
 \item $\mathcal{O}(\log{}n)$: Logarithmische Zeit\\
 Binäre Suche\pause
+\item $\mathcal{O}(n)$: Lineare Zeit\\
+Lineare Suche\pause
+\item $\mathcal{O}(n \cdot \log{} n)$: Linear-logarithmische Zeit\\
+Mergesort, Heapsort \dots
 \item $\mathcal{O}(n^2)$: Quadratische Zeit\\
 Bubblesort, Insertion sort\pause
 \item $\mathcal{O}(n^3)$: Kubische Zeit\\
-Naive Matrizenmultiplikation\pause
+Naive Matrizenmultiplikation und -inversion\pause
 \item $2^{\mathcal{O}(n)}$: Exponentielle Zeit\\
 TSP mit der Magie dynamischer Programmierung\pause
 \item $\mathcal{O}(n!)$: Faktorielle Zeit\\
@@ -170,7 +175,7 @@ Die amortisierten Kosten sind also \emph{nicht} (!) das Gleiche wie der average 
 \begin{frame}
 \textbf{Beispiel: Dynamisches Array}\bigskip
 
-Man stelle sich ein Array vor, das wächst, wenn Elemente hinzugefügt werden. Lassen wir es mit der Größe vier starten.\pause\bigskip
+Man stelle sich ein Array vor, das wächst, wenn Elemente hinzugefügt werden. Lassen wir es leer mit Platz für vier Elemente starten.\pause\bigskip
 
 Die ersten vier \texttt{push}-Operationen brauchen nur konstante Zeit ($\mathcal{O}(1)$). Die fünfte allerdings benötigt länger, weil jetzt erst ein neues Array (der Länge 8) angelegt werden muss und die Werte übertragen werden müssen ($\mathcal{O}(n)$), usw\dots
 \pause\bigskip
@@ -187,6 +192,54 @@ Im Schnitt müssen wir also nur alle $n$ Operationen eine $\mathcal{O}(n)$-teure
 \tiny
 Bild: ScottDNelson, Wikipedia
 \normalsize
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection{Vokabular: Succinct data structures}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\Large
+\begin{center}
+Vokabular:
+
+Succinct data structures
+\end{center}
+\normalsize
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Eine \emph{succinct data structure} (engl. \emph{succinct}: knapp / kurz) ist eine Datenstruktur, die nur extrem wenig Speicherplatz benötigt, aber trotzdem noch schnelle (-ish) Abfragen zulässt.\pause\bigskip
+
+Wir bedienen uns hierfür einem Konzept aus der modernen Informationstheorie, der sogenannten (Shannon-) \emph{Entropie}.
+
+$$H_0(A) = \log_2{A}$$
+
+Die Einheit dieser Größe ist das Bit. Will eine Datenstruktur succinct genannt werden, sollte sie nicht mehr als einen Skalar mal ihrer Entropie im Speicher belegen.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\textbf{Beispiel: Succinct Dictionaries}
+\bigskip
+
+Gegeben ein Bitvektor der Länge $n$ mit $k$ Einsen drin. z.B.:
+
+\begin{center}
+\includegraphics[scale=0.751]{bitvector.png} 
+\end{center}
+\pause
+
+Von diesen Vektoren gibt es aber überhaupt nur $\binom{n}{k}$. Also kann ich mir auch einfach merken, welcher davon es ist.\pause
+
+$$H_0 = \log_2{\binom{n}{k}} + 1$$
+
+Der Vektor lässt sich also in $\sim H_0$ Bits speichern.\pause
+Allerdings mit $\mathcal{O}(1)$-Laufzeiten für \texttt{access} (was ist das $i$-te Bit?), \texttt{rank} (wie oft kommt $0$/$1$ in $S$[0..$i$] vor?) und \texttt{select} (welche Position hat die $i$-te $0$/$1$?).
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -264,28 +317,10 @@ Zwischen eurem Code und der Festplatte liegen viele Caches\dots
 \end{center}
 \pause
 
-\dots und ihr wisst nicht von allen, dass sie überhaupt existieren!
+\dots und ihr wisst nicht von allen, dass sie überhaupt existieren!\pause
 
-\end{frame}
+Zur Orientierung: Typische Werte wären 65 kB, 512kB und 8 MB für L1, L2 und L3. 
 
-%----------------------------------------------------------------------------------------
-\subsection{Vokabular: Succinct data structures}
-%----------------------------------------------------------------------------------------
-
-\begin{frame}
-\Large
-\begin{center}
-Vokabular:
-
-Succinct data structures
-\end{center}
-\normalsize
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\begin{frame}
-foo bar baz
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -313,7 +348,9 @@ Wir haben \texttt{Data.Map}, eine sehr gut gepflegte Bibliothek und der de-facto
 Performance-Benchmarks in Haskell.
 \pause
 
-Intern basiert alles auf \emph{trees of bounded balance}, welche wir hier allerdings nicht breit besprechen.\pause\bigskip
+In anderen Sprachen gibt es das gleiche Konzept unter anderen Namen. In Java heißt es \texttt{HashMap} und in Python \texttt{Dictionary}.\pause
+
+Intern basiert alles auf \emph{trees of bounded balance}, welche wir hier allerdings nicht breit besprechen.\pause\smallskip
 
 Exportiert eine reiche Auswahl an Funktionen:
 
@@ -463,7 +500,36 @@ Wir kennen weder $M$, noch $B$! \smallskip\smallskip
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\begin{frame}
+\textbf{Cache-oblivious trees:}
+
+Ein gutes Beispiel dafür, dass optimale Datenstrukturen manchmal unintuitiv sein können, sind Bäume. Es wird gelehrt, dass Zugriffszeiten optimal sind, wenn Bäume perfekt gleich angeordnet werden:
+
+\begin{multicols}{2}
+
+\includegraphics[scale=0.35]{FullBinary.jpg} 
+
+\columnbreak
+\pause
+
+Aber auf echter Hardware kann es sinnvoller sein, z.B. drei Elemente in den linken und sieben in den rechten Teilbaum zu legen. So kann der linke Teilbaum im kleineren Cache gehalten werden, wenn ein gebalancter Baum zu groß wäre.
+
+\end{multicols}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
 \subsection{Zahlensysteme}
+
+\begin{frame}
+\Large
+\begin{center}
+Vom Zahlensystem\\
+zur Datenstruktur
+\end{center}
+\normalsize
+\end{frame}
+
 %----------------------------------------------------------------------------------------
 
 \begin{frame}
@@ -565,7 +631,56 @@ Das gleiche Ergebnis wie im \glqq optimalen\grqq\ $B$-Tree, das allerdings \emph
 %----------------------------------------------------------------------------------------
 
 \begin{frame}
-Sloppy and dysfunctional
+\textbf{Sloppy and dysfunctional:}
+\bigskip
+
+Chris Okasaki would not approve!\pause\smallskip
+
+Unsere Datenstruktur basiert bisher auf dem herkömmlichen Binärsystem. Wenn uns ein langes Carry dazwischen kommt, müssen wir die ganze Datenstruktur neu aufbauen lassen, und wenn wir dann zu einer alten Version zurück kehren und was anderes inserten wollen, müssen wir das gleiche noch mal machen.
+\smallskip\smallskip\pause
+
+\begin{center}
+\emph{\glqq We can't earn credit and spend it twice.\grqq}
+\end{center}
+\smallskip\smallskip\pause
+
+Können wir ein anderes Zahlensystem finden, dass besser auf unsere Aufgabe passt?
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\textbf{Binärsystem:}
+
+\begin{multicols}{2}
+
+\begin{tabular}{c|c}
+Dezimal & Binary \\ 
+\hline
+&\\
+0&0000\\
+1&0001\\
+2&0010\\
+3&0011\\
+4&0100\\
+5&0101\\
+6&0110\\
+7&0111\\
+8&1000\\
+9&1001\\
+10&1010\\
+\end{tabular}
+\columnbreak
+\pause
+
+\begin{itemize}
+\item Alle Ziffern sind 0 oder 1\pause
+\item Stellenwerte sind zweierPotenzen ($2^0, 2^1, 2^2$\dots)\pause
+\item Bekannt und beliebt! :-)\pause
+\item \dots aber für unsere Zwecke nicht geeignet.
+\end{itemize}
+
+\end{multicols}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -682,12 +797,12 @@ Because now we have this:
 data Map k a
   = M0 
   | M1 !(Chunk k a) 
-  | M2 !(Chunk k a) !(Chunk k a) (Chunk k a) !(Map k a)
-  | M3 !(Chunk k a) !(Chunk k a) !(Chunk k a) (Chunk k a) !(Map k a)
+  | M2 !(Chunk k a) !(Chunk k a) ~(Chunk k a) !(Map k a)
+  | M3 !(Chunk k a) !(Chunk k a) !(Chunk k a) ~(Chunk k a) !(Map k a)
   
 data Chunk k a = Chunk !(Array k) !(Array a)
 
--| O(log(N)/B) persistently amortised. insert an element.
+-- O(log(N)/B) persistently amortised. insert an element.
 insert :: (Ord k, Arrayed k, Arrayed v) => k -> v -> Map k v -> Map k v
 insert k0 v0 = g0 $ Chunk (singleton k0) (singleton v0) where
   go as M0                 = M1 as
