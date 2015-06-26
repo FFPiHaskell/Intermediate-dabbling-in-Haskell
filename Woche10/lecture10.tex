@@ -236,7 +236,7 @@ Gegeben ein Bitvektor der Länge $n$ mit $k$ Einsen drin. z.B.:
 
 Von diesen Vektoren gibt es aber überhaupt nur $\binom{n}{k}$. Also kann ich mir auch einfach merken, welcher davon es ist.\pause
 
-$$H_0 = \log_2{\binom{n}{k}} + 1$$
+$$H_0 = \left\lceil \log_2{\binom{n}{k}} \right\rceil$$
 
 Der Vektor lässt sich also in $\sim H_0$ Bits speichern.\pause
 Allerdings mit $\mathcal{O}(1)$-Laufzeiten für \texttt{access} (was ist das $i$-te Bit?), \texttt{rank} (wie oft kommt $0$/$1$ in $S$[0..$i$] vor?) und \texttt{select} (welche Position hat die $i$-te $0$/$1$?).
