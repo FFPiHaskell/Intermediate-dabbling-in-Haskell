@@ -635,7 +635,8 @@ index & $\mathcal{O}(\log \min(n,l-n))$ & $\mathcal{O}(\log n)$ & $\mathcal{O}(n
 
 \begin{frame}[fragile]
 FingerTrees sind die Datenstruktur, wenn man viele Anfüge und Entfern-Operationen hat. Daher basiert auch alles in \texttt{Data.Sequence} intern auf FingerTrees.\\\pause
-Auch sind sie Doppelt-Verketteten Listen in allen praktischen Anwendungsbereichen überlegen, da sie auch effizienten Random-Access erlauben ($\mathcal{O}(\log n)$ statt $\mathcal{O}(n)$) und sich in $\mathcal{O}(\log n)$ zerteilen lassen (statt $\mathcal{O}(n)$).
+Auch sind sie Doppelt-Verketteten Listen in allen praktischen Anwendungsbereichen überlegen, da sie auch effizienten Random-Access erlauben ($\mathcal{O}(\log n)$ statt $\mathcal{O}(n)$) und sich in $\mathcal{O}(\log n)$ zerteilen lassen (statt $\mathcal{O}(n)$).\\\pause\par\bigskip
+Es gibt noch weitergehende Strukturen, die hierauf aubauen. Edward Kmett hat z.B. \texttt{Ropes} vorgestellt, welche um einen skalaren Faktor besser und dabei Speicher- und Cachefreundlicher (0.7-30x weniger Speicheraufwand, weniger GC-Zeit) sind und unboxed Strukturen erlauben.
 \end{frame}
 
 
