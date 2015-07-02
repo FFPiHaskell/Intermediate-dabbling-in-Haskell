@@ -653,11 +653,11 @@ Was macht Laziness so besonders?\pause
  \pause
  \item Vermeidung von unnötigen Berechnungen\\\pause
 \begin{minted}{haskell}
-select :: Ord o => [o] -> [o]
-select = head . sort
+select :: Ord o => Int -> [o] -> [o]
+select n = take n . sort
 \end{minted}
        \pause
-       hört mit dem sortieren auf, sobald das kleinste Element gefunden wurde.\\\pause
+       hört mit dem sortieren auf, sobald die ersten n kleinsten Elemente gefunden wurde.\\\pause
        Wie das hinzufügen eines \texttt{break} in imperativem Code (innerhalb der Sortierfunktion)
 \end{itemize}
 \end{frame}
@@ -790,19 +790,26 @@ Außerdem können wir diese (undendliche) Liste auch mit allen anderen Funktione
 \end{frame}
 
 \begin{frame}[fragile]
-Wir können uns nicht immer auf den Compiler verlassen das automatisch zu tun, aber es gibt Pakete, die das garantieren:
+Generell nennt man das Zwischenspeichern von Teilergebnissen \textbf{Memoization}.\\\par\pause
+Dieses kann entweder automatisch geschehen oder muss manuell gemacht werden.\\\par\pause
+In Haskell können wir uns nicht immer auf den Compiler verlassen das automatisch zu tun, aber es gibt Pakete, die das garantieren:
 \begin{itemize}
  \item \texttt{data-memocombinators}
  \item \texttt{MemoTrie}
  \item infinite lazy trees
 \end{itemize}
-
 \end{frame}
 
 \subsection{Dynamic Programming}
 
 \begin{frame}[fragile]
-Häufig wollen wir in der dynamischen Programmierung einen Lookup-Array haben.\\\pause
+Ein weiterer Fall für die Anwendung von Laziness gibt es in der \textbf{dynamischen Programmierung}.\\\par\pause
+Hier wird eine Beschleunigung des Programmes dadurch erreich, dass man gezielt Zwischenspeicher (klassischerweise Arrays) anlegt und immer wieder auf diese zugreift.\\\par\pause
+So kann man mit Hilfe von \glqq Bellmans Principle\grqq \ (auf das wir nicht weiter eingehen) einen exponentiellen Suchraum in polynomieller Zeit auf ein Ergebnis hin untersuchen.
+\end{frame}
+
+\begin{frame}[fragile]
+Häufig wollen wir in der dynamischen Programmierung also einen Lookup-Array haben.\\\pause
 Wir können hier einfach einen Array mit der Berechnung lazy erzeugen und das RTS kümmert sich darum, dass jeder Wert zur richtigen Zeit gefüllt ist und keiner doppelt berechnet wird.\\\pause
 Beispiel:
 \begin{minted}{haskell}
