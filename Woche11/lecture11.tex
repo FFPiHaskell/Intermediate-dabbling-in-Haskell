@@ -644,19 +644,206 @@ Es gibt noch weitergehende Strukturen, die hierauf aubauen. Edward Kmett hat z.B
 
 \subsection{Allgemein}
 
-\begin{frame}
+\begin{frame}[fragile]
 Kommen wir nun zu einem anderen Thema: Laziness\\\pause\bigskip
+Was macht Laziness so besonders?\pause
+\begin{itemize}
+ \item Trennug von Definition und Evaluation\\\pause
+       Wir können Dinge seperat definieren, aber gemeinsam berechnen
+ \pause
+ \item Vermeidung von unnötigen Berechnungen\\\pause
+\begin{minted}{haskell}
+select :: Ord o => [o] -> [o]
+select = head . sort
+\end{minted}
+       \pause
+       hört mit dem sortieren auf, sobald das kleinste Element gefunden wurde.\\\pause
+       Wie das hinzufügen eines \texttt{break} in imperativem Code (innerhalb der Sortierfunktion)
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{itemize}
+ \item Lazy Datenstrukturen sind im Prinzip eine Steuerung des Kontrollflusses.\\\pause
+       z.B. entspricht eine Liste einem For-Loop in imperativen Programmiersprachen
+ \pause
+ \item Lazy Datenstrukturen sind aber First-Class-Citizens in Haskell, sprich\\\pause
+       \begin{itemize}
+        \item wir können sie an Funktionen übergeben
+        \pause
+        \item auf sie Pattern-Matchen
+        \pause
+        \item sie zu größeren dingen komponieren
+       \end{itemize}
+ \pause
+ \item Lazy Datenstrukturen brauchen nicht komplett im Speicher liegen, sondern werden erstellt, wenn sie benötigt werden\\\pause
+       \begin{itemize}
+        \item werden sofort GC, wenn benutzt
+        \pause
+        \item \begin{minted}{haskell}
+fact n = product [1..n]
+              \end{minted}
+              wird zu einem for-loop mit constant-memory usage
+        \pause
+        \item \mint{haskell}|fold . f . unfold|
+              ist klassisch in der Datenverarbeitung
+
+       \end{itemize}
+
+\end{itemize}
+
 \end{frame}
 
 \subsection{Non-Deterministic Programming}
 
+\begin{frame}[fragile]
+Wenn eine Liste ein Loop ist, dann sind verschachtelte Listen verschachtelte Loops. Dies ermöglicht uns non-deterministische Programmierung.\\\pause
+Wir kennen das schon von der Monaden-Instanz von List:
+\begin{minted}{haskell}
+do
+  a <- [1..10]
+  b <- [1..10]
+  guard (a /= b && a + b = 7)
+  return (a,b)
+\end{minted}
+Es existieren nie alle 100 Kombinationen von a und b im RAM, sondern nur diejenigen, die das Prädikat überleben und die nächste, die probiert wird.
+\end{frame}
+
+\begin{frame}[fragile]
+Gegeben eine Karte mit Staaten, wollen wir nun eine Einfärbung der Karte errechnen - wobei keine benachbarten Staaten dieselbe Farbe bekommen sollen.\\\pause
+Wenn wir die Funktion
+\begin{minted}{haskell}
+step :: Map -> State -> [Map]
+\end{minted}
+haben, die uns einen beliebigen Staat entsprechend den Kriterien einfärbt, dann ist \\\pause
+\begin{minted}{haskell}
+solutions :: [Map]
+solutions = foldM step blank states
+\end{minted}
+die Liste, die alle validen Einfärbungen enthält.
+\end{frame}
+
+\begin{frame}[fragile]
+Mittels
+\begin{minted}{haskell}
+first = head solutions
+\end{minted}
+bekommen wir irgendeine Lösung.\\\pause
+Aber wir können auch Anforderungen an die Lösung haben:
+\begin{minted}{haskell}
+some = find gerBlue solutions
+all = filter getBlue solutions
+\end{minted}
+\pause
+Dies gibt uns eine (oder alle) Karten, bei denen Deutschland blau gefärbt ist.\\\pause\par\bigskip
+Durch Laziness haben wir nie alle Lösungen im Speicher sondern immer nur die minimale Anzahl.
+\end{frame}
+
 \subsection{Precision on Demand}
+
+\begin{frame}[fragile]
+Laziness kann auch Präzision in Datenstrukturen nachliefern, weil wir eine unendlich genaue Datenstruktur definieren können.\\\pause
+Es gibt ein Paket (\url{https://github.com/mvr/cf}), welches mit sogenannten continouus fractions rechnet.\\\pause
+Eine genaue Erklärung gibt es unter \url{https://www.youtube.com/watch?v=LJQgYBQFtSE}. Kurz zusammengefasst:\\\pause
+\begin{itemize}
+ \item Jede rationale Zahl lässt sich als endliche Liste darstellen
+ \pause
+ \item $\pi,e$ lassen sich durch unendlich lange Listen darstellen (lazy)
+ \pause
+ \item alle Operationen $+ - \times /$ konsumieren soviel von der Liste, wie sie brauchen
+ \pause
+ \item am ENDE legt man die Genauigkeit fest, die man gerne hätte und alle Zahlen bis da hin werden nur so weit berechnet, wie man für die gegebene Genauigkeit braucht.
+\end{itemize}
+
+\end{frame}
 
 \subsection{Memoization}
 
-\subsection{Automatic Memoization}
+\begin{frame}
+Laziness ist ein \glqq built-in controlled side-effect\grqq , welcher unter unserer Programmierschwelle liegt. Der Compiler kümmert sich also darum, dass\pause
+\begin{itemize}
+ \item Wir lazy Werte höchstens 1x berechnen und ggf. cachen, wenn wir sie später nochmal brauchen
+ \item alles deterministisch läuft (obwohl wir nicht-deterministisch schreiben können)
+ \item alles thread-safe abläuft (und wir somit einfach parallelisieren können)
+\end{itemize}
+\pause
+All das bekommen wir durch Laziness kostenlos über das Runtime-System und wir können hierbei keine Fehler mehr machen (sofern wir uns von unsafe-Functions fernhalten).
+\end{frame}
+
+\begin{frame}[fragile]
+Beispiel:
+\begin{minted}{haskell}
+fibs :: [Integer]
+fibs = 0 : 1 : zipWith (+) fibs (tail fibs)
+\end{minted}
+\pause
+Wenn wir nun die $n$-te Fibonnaci-Zahl haben wollen, dann
+\begin{itemize}
+ \item errechnen wir die nächste Zahl aus den vorhergehenden
+ \pause
+ \item sammelt der GC die Zahlen wieder ein, die wir nicht brauchen
+ \pause
+ \item haben wir maximal 2 Integer und die Berechnung für die nächste Zahl im Speicher
+\end{itemize}
+\pause
+Außerdem können wir diese (undendliche) Liste auch mit allen anderen Funktionen manipulieren.
+\end{frame}
+
+\begin{frame}[fragile]
+Wir können uns nicht immer auf den Compiler verlassen das automatisch zu tun, aber es gibt Pakete, die das garantieren:
+\begin{itemize}
+ \item \texttt{data-memocombinators}
+ \item \texttt{MemoTrie}
+ \item infinite lazy trees
+\end{itemize}
+
+\end{frame}
 
 \subsection{Dynamic Programming}
+
+\begin{frame}[fragile]
+Häufig wollen wir in der dynamischen Programmierung einen Lookup-Array haben.\\\pause
+Wir können hier einfach einen Array mit der Berechnung lazy erzeugen und das RTS kümmert sich darum, dass jeder Wert zur richtigen Zeit gefüllt ist und keiner doppelt berechnet wird.\\\pause
+Beispiel:
+\begin{minted}{haskell}
+fib :: Integer -> Integer
+fib 0 = 0
+fib 1 = 1
+fib n = fibs ! (n-1) + fibs ! (n-2)
+  where
+    fibs = Array (0,n) [fib i | i <- [0..n]]
+\end{minted}
+\pause
+\begin{itemize}
+ \item Für Fibonnaci overkill, da wir immer nur 2 Elemente \glqq nach hinten \grqq \ schauen müssen
+ \pause
+ \item Für Aufgaben, die beliebig \glqq nach hinten\grqq \ sehen müssen (Strig-Edit-Distance, etc.) ist dies aber die beste Lösung
+\end{itemize}
+
+\end{frame}
+
+\section{Fazit: Laziness}
+
+\begin{frame}[fragile]
+Was haben wir nun von Laziness?\\\pause
+\begin{itemize}
+ \item Modularität\\\pause
+       Wir können Definition und Evaluation trennen
+ \pause
+ \item Kontrollfluss\\\pause
+       Wir können über lazy Datenstrukturen den Kontrollfluss ändern und später definieren, was wir eigentlich haben wollen
+ \pause
+ \item Präzision\\\pause
+       Wir können beliebig präzise rechnen (arbitrary precision floating point, zahlreiche 2D-Anwendungen ähnlich zu Vektorgrafiken)
+ \pause
+ \item Memoization\\\pause
+       Der Compiler optimiert unseren Code, indem er automatisch sachen cached, welche mehrfach verwendet werden
+\end{itemize}
+\pause
+Mehr Informationen/Quellen:\\
+\url{http://begriffs.com/posts/2015-06-17-thinking-with-laziness.html}
+\end{frame}
+
 
 
 
