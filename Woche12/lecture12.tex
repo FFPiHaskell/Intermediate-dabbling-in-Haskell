@@ -528,13 +528,118 @@ Dann können wir essen und essen und essen, bis alles weg ist.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
-\section*{Der Lambda-Würfel}
+\section*{Lambda-Kalkül}
 %----------------------------------------------------------------------------------------
 
-%----------------------------------------------------------------------------------------
-\section*{Recursion Schemes}
-%----------------------------------------------------------------------------------------
+\begin{frame}
+
+\begin{center}
+\Large $\lambda$-\textbf{Kalkül} \& $\lambda$-\textbf{Würfel} \normalsize
+\end{center}
+
+\end{frame}
+
+\subsection*{Lambda-Kalkül}
+
+\begin{frame}
+Was ist ein Lambdakalkül und warum interessiert mich das?
+\end{frame}
+
+\subsection*{Lambda-Würfel}
+
+\begin{frame}
+\includegraphics[scale=0.5]{Lambda_cube.png} 
+\end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\subsection*{Dependent Types}
+
+\begin{frame}[fragile]
+
+\begin{minted}{haskell}
+\end{minted}
+
+\begin{minted}{haskell}
+(++) : Vect m a -> Vect n a -> Vect (m + n) a
+(++) []      ys = ys
+(++) (x::xs) ys = x :: xs ++ ys
+\end{minted}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\section*{Kategorientheorie 101}
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+
+\begin{center}
+Back to the roots:\\
+\Large \textbf{Monads \& Categories}
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Zum Abschluss wollen wir noch ein besonders bekanntes Meme der Haskell-Community genauer
+unter die Lupe nehmen. Den Satz:
+
+\begin{center}
+\textit{\glqq Monaden sind Monoide in der Kategorie der Endofunktoren.\grqq}
+\end{center}
+\pause
+
+\dots dafür werden wir allerdings einen kleinen Abstecher in die Mathematik benötigen.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection*{Monads}
+
+\begin{frame}[fragile]
+
+\underline{Eine kurze Erinnerung:}\bigskip
+
+\texttt{Monad} ist eine Typklasse in \texttt{Haskell}, die die Implementation von \texttt{return} und \texttt{>>=} (Bind) voraussetzt. Insbesondere ist jeder Typ in \texttt{Monad} ebenfalls in \texttt{Applicative} und \texttt{Functor}.\bigskip
+
+\begin{minted}{haskell}
+class Applicative m => Monad m where
+    return :: a -> m a
+    (>>=)  :: m a -> (a -> m b) -> m b
+\end{minted}
+\pause
+
+Besonders beliebt: \texttt{Identity, [], IO, Maybe}\dots
+\end{frame}
+
+\subsection*{Monoids}
+
+\begin{frame}
+\underline{\emph{Definition:}}\\ Sei $M$ eine Menge und $\circ$ eine (abgeschl.) binäre Relation auf $M$ (d.h. $\circ : M \times M \to M$). Dann heißt $(M, \circ)$ \emph{Monoid}, wenn $\circ$ die folgenden zwei Axiome beachtet:
+
+\begin{itemize}
+\pause \item \texttt{(ass)} $\forall a,b,c \in M:\; (a \circ b) \circ c = a \circ (b \circ c)$
+\pause \item \texttt{(ide)} $\exists e \in M$ sodass $\forall a \in m:\; e \circ a = a \circ e = a$
+\end{itemize}
+\pause\bigskip
+
+Beliebte Monoide:
+\begin{itemize}
+\pause \item $(\mathbb{N}, +), (\mathbb{N}, \cdot), (\{\bot, \top\}$, \texttt{AND}$), (\{\bot, \top\}$, \texttt{OR}$)$\dots
+\pause \item Gegeben eine Menge $A$, $\mathcal{P}(A)$ entweder mit $\cap$ oder $\cup$
+\pause \item Jede Menge mit nur einem Element formt einen trivialen Monoid mit der trivialen Relation.
+\end{itemize}
+
+\end{frame}
+
+\subsection*{Categories}
+
+\begin{frame}
+\frametitle{Kategorientheorie}
+
+Worum geht es bei Kategorientheorie?
+\end{frame}
 
 \end{document}
