@@ -614,6 +614,7 @@ class Applicative m => Monad m where
 Besonders beliebt: \texttt{Identity, [], IO, Maybe}\dots
 \end{frame}
 
+%----------------------------------------------------------------------------------------
 \subsection*{Monoids}
 
 \begin{frame}
@@ -634,12 +635,63 @@ Beliebte Monoide:
 
 \end{frame}
 
+%----------------------------------------------------------------------------------------
 \subsection*{Categories}
 
 \begin{frame}
 \frametitle{Kategorientheorie}
 
 Worum geht es bei Kategorientheorie?
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+Und was ist mit Funktoren?\pause\bigskip
+
+Seien $\mathcal{C}$ und $\mathcal{D}$ Kategorien. Ein \emph{Funktor} $F$ ist eine Abbildung
+von $\mathcal{C}$ nach $\mathcal{D}$, die folgende Bedingungen einhält:
+
+\begin{itemize}
+\pause \item $F$ bildet jedes $X \in Obj(\mathcal{C})$ auf ein $F(X) \in Obj(\mathcal{D})$ ab.
+\pause \item $F$ bildet jedes $f \in Hom(\mathcal{C})$ auf ein $F(f) \in Hom(\mathcal{D})$ ab, sodass folgendes gilt:
+\begin{itemize}
+\pause \item $F(id_X) = id_{F(X)}$
+\pause \item $F(g \circ f) = F(g) \circ F(f) \; \forall f: X \to Y, g : Y \to Z$
+\end{itemize}
+\end{itemize}
+\pause\bigskip
+
+Man sagt auch oft, dass Funktoren wegen ihrer Eigenschaften \emph{strukturerhaltend} sind.\pause\smallskip\smallskip
+
+Ein Funktor heißt \emph{Endo}funktor, einfach wenn $\mathcal{C} = \mathcal{D}$.
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+\subsection*{Zusammenfügen}
+
+\begin{frame}
+
+Fügen wir also zusammen, was wir gelernt haben:
+
+\begin{itemize}
+\pause\item Wir betrachten eine Kategorie, nennen, wir sie $\mathcal{C}$.
+\pause\item Die Objekte von $\mathcal{C}$, sind Endofunktoren, also Abbildungen von weiteren Kategorien auf sich selbst.
+\end{itemize}
+
+\begin{center}
+\textit{\glqq Monaden sind Monoide in der Kategorie der Endofunktoren.\grqq}
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\begin{center}
+\includegraphics[scale=0.25]{thatsall.jpg} 
+\end{center}
 \end{frame}
 
 \end{document}
