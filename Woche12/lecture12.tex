@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[ngerman]{babel}
+\usepackage{amssymb}
 \usepackage{graphicx} % Bilder
 \usepackage{wrapfig} % Umflussbilder
 \usepackage{multicol} % Multiple columns
@@ -872,6 +873,42 @@ Besonders beliebt: \texttt{Identity, [], IO, Maybe}\dots
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+
+Statt \texttt{return} und \texttt{(>>=)} kann man auch andere Funktionen verwenden.
+In der Kategorientheorie werden häufig $\eta : I \to M$ (unit) und $\mu : M \times M \to M$ (join) verwendet.
+\pause
+
+\begin{multicols}{2}
+
+\begin{center}
+\includegraphics[scale=0.4]{Unit-join.png} 
+\end{center}
+
+\columnbreak
+\pause
+
+\begin{minted}{haskell}
+unit :: Monad m -> a -> m a
+unit = return
+
+join :: Monad m => m (m a)
+                -> m a
+join x = x >>= id
+
+(>>=) :: Monad m => m a
+                 -> (a -> m b)
+                 -> m b
+x >>= f = join (fmap f x)
+\end{minted}
+
+\end{multicols}
+
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
 \subsection*{Monoids}
 
 \begin{frame}
@@ -945,7 +982,10 @@ von $\mathcal{C}$ nach $\mathcal{D}$, die folgende Bedingungen einhält:
 \end{itemize}
 \pause\bigskip
 
-Man sagt auch oft, dass Funktoren wegen ihrer Eigenschaften \emph{strukturerhaltend} sind.\pause\smallskip\smallskip
+Man sagt auch oft, dass Funktoren wegen ihrer Eigenschaften \emph{strukturerhaltend} sind.\pause\smallskip
+
+Eine Abbildung von einem Funktor $F$ auf einen Funktor $G$ heißt \glqq natürliche Abbildung\grqq !
+\pause\smallskip
 
 Ein Funktor heißt \emph{Endo}funktor, einfach wenn $\mathcal{C} = \mathcal{D}$.
 
@@ -985,13 +1025,16 @@ Beliebte Kategorien:\bigskip
 Fügen wir also zusammen, was wir gelernt haben:
 
 \begin{itemize}
-\pause\item Wir betrachten eine Kategorie, nennen, wir sie $\mathcal{C}$.
-\pause\item Die Objekte von $\mathcal{C}$, sind Endofunktoren, also Abbildungen von weiteren Kategorien auf sich selbst.
+\pause\item Wir betrachten die Kategorie der Typen in \texttt{Haskell}: \texttt{Hask}.
+\pause\item \texttt{Functor}s (die Typklasse) bilden \texttt{Hask} auf \texttt{Hask} ab, sind also Endofunktoren. 
+\pause\item Nehmen wir einen dieser Endofunktoren als Basis eines Monoiden, brauchen wir noch ein neutrales Element und eine abgeschl. binäre Relation.
+\pause\item $\eta : I \to M$ (unit) und $\mu : M \times M \to M$ (join) sind genau das.
+\pause\item Ein \texttt{Functor} mit $\mu$ und $\eta$ ist eine Monade!
 \end{itemize}
 
-\pause
+\pause\bigskip
 \begin{center}
-\textit{\glqq Monaden sind Monoide in der Kategorie der Endofunktoren.\grqq}
+$\therefore$ \textit{\glqq Monaden sind Monoide in der Kategorie der Endofunktoren.\grqq}
 \end{center}
 
 \end{frame}
