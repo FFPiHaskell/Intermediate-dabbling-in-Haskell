@@ -60,14 +60,6 @@ Für eine Abgabe schreibt bitte eine Mail an beide Tutoren (\texttt{sdressel@tec
 Besonderer Dank geht an Alexander Sczyrba und Mario Botsch, dafür dass es uns möglich gemacht wurde, diese Vorlesung überhaupt zu halten, an alle, die uns bei der Durchführung geholfen haben und natürlich an alle, die mitgemacht haben. 
 \end{frame}
 
-%----------------------------------------------------------------------------------------  
-
-\begin{frame}[allowframebreaks]{Outline}
-\frametitle{Übersicht}
-
-\tableofcontents
-\end{frame}
-
 %----------------------------------------------------------------------------------------
 \section*{Alligator Eggs}
 %----------------------------------------------------------------------------------------
@@ -806,23 +798,6 @@ Im Würfel gibt es drei Richtungen der Abstraktion:\smallskip\smallskip
 \pause
 
 Das obere Ende des Würfels, $\lambda\Pi\omega$, ist auch als \glqq calculus of constructions\grqq\ bekannt (entwickelt von Thierry Coquand) und dient als Basis für den Beweisassistenten \texttt{Coq}.
-
-\end{frame}
-
-%----------------------------------------------------------------------------------------
-
-\subsection*{Dependent Types}
-
-\begin{frame}[fragile]
-
-\begin{minted}{haskell}
-\end{minted}
-
-\begin{minted}{haskell}
-(++) : Vect m a -> Vect n a -> Vect (m + n) a
-(++) []      ys = ys
-(++) (x::xs) ys = x :: xs ++ ys
-\end{minted}
 
 \end{frame}
 
