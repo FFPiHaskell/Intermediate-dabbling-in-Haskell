@@ -875,7 +875,7 @@ Besonders beliebt: \texttt{Identity, [], IO, Maybe}\dots
 \subsection*{Monoids}
 
 \begin{frame}
-\underline{\emph{Definition:}}\\ Sei $M$ eine Menge und $\circ$ eine (abgeschl.) binäre Relation auf $M$ (d.h. $\circ : M \times M \to M$). Dann heißt $(M, \circ)$ \emph{Monoid}, wenn $\circ$ die folgenden zwei Axiome beachtet:
+\underline{\emph{Definition (Algebra):}}\\ Sei $M$ eine Menge und $\circ$ eine (abgeschl.) binäre Relation auf $M$ (d.h. $\circ : M \times M \to M$). Dann heißt $(M, \circ)$ \emph{Monoid}, wenn $\circ$ die folgenden zwei Axiome beachtet:
 
 \begin{itemize}
 \pause \item \texttt{(ass)} $\forall a,b,c \in M:\; (a \circ b) \circ c = a \circ (b \circ c)$
@@ -899,6 +899,31 @@ Beliebte Monoide:
 \frametitle{Kategorientheorie}
 
 Worum geht es bei Kategorientheorie?
+\pause\bigskip
+
+Kategorientheorie kann als die \glqq Mathematik der Mathematik\grqq\ betrachtet werden. Es geht um eine
+Abstraktion vieler Konzepte aus unterschiedlichen Zweigen der Mathematik und die Aufdeckung fundamentaler
+Ähnlichkeiten zwischen ihnen.
+\pause\bigskip
+
+\textit{\glqq Category theory has been labelled as 'generalised abstract nonsense' by both its critics and 
+its proponents!\grqq}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Kategorientheorie}
+
+Eine Kategorie, oft genannt $\mathcal{C}$, besteht aus:
+\begin{itemize}
+\pause\item Einer Klasse (engl. \glqq collection\grqq , keine Menge!) aus \emph{Objekten}, genannt $Obj(\mathcal{C})$.
+\pause\item Einer Klasse von \emph{Pfeilen} (oder auch \emph{Morphismen}) zwischen Objekten, genannt $Hom(\mathcal{C})$. Ein Morphismus in $\mathcal{C}$ von Element $X$ zu Element $Y$ wird oft als $Hom_\mathcal{C}(X,Y)$ notiert.
+\pause\item Einer assoziativen Verknüpfungsrelation für Morphismen:
+$$Hom_\mathcal{C}(Y,Z) \times Hom_\mathcal{C}(X,Y) \to Hom_\mathcal{C}(X,Z)$$
+$$(g,f) \mapsto g \circ f$$
+\pause\item Einem Identitätsmorphismus für jedes Objekt $X$, notiert als $id_X$, der als neutrales Element für die Verknüpfung von Morphismen mit Domäne oder Codomäne $X$ fungiert.
+\end{itemize}
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -927,6 +952,32 @@ Ein Funktor heißt \emph{Endo}funktor, einfach wenn $\mathcal{C} = \mathcal{D}$.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Kategorientheorie}
+
+\begin{multicols}{2}
+
+\begin{center}
+\includegraphics[scale=0.8]{150px-Category_SVG.png} 
+\end{center}
+
+\columnbreak
+\pause
+
+Beliebte Kategorien:\bigskip
+
+\begin{itemize}
+\pause\item Die Kategorie \textbf{Set}, von Mengen und Funktionen
+\pause\item Die Kategorie \textbf{Cat}, von Kategorien und Funktoren
+\pause\item Die Kategorie \textbf{Top}, von topologischen Räumen und stetigen Abbildungen
+\end{itemize}
+
+\end{multicols}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
 \subsection*{Zusammenfügen}
 
 \begin{frame}
@@ -938,6 +989,7 @@ Fügen wir also zusammen, was wir gelernt haben:
 \pause\item Die Objekte von $\mathcal{C}$, sind Endofunktoren, also Abbildungen von weiteren Kategorien auf sich selbst.
 \end{itemize}
 
+\pause
 \begin{center}
 \textit{\glqq Monaden sind Monoide in der Kategorie der Endofunktoren.\grqq}
 \end{center}
