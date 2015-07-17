@@ -620,14 +620,14 @@ Danach rückt der rote hungrige Alligator nach und frisst. Und so weiter und so 
 \begin{frame}
 \frametitle{Gameplay}
 
-Das Ziel des Spiels ist nun, eine Familie auszuknobeln, die, wenn sie $X$ gefüttert bekommt, $Y$ produziert. Ein Beispiel:\pause
+Das Ziel des Spiels ist nun, eine Familie auszuknobeln, die, wenn sie $X$ gefüttert bekommt, $Y$ produziert. Wir betrachten dabei zwei Familien unterschiedlicher Farben als \glqq äquivalent\grqq , wenn sie das gleiche Muster haben. Ein Beispiel:\pause
 
 \begin{multicols}{2}
 
 Hier sind zwei Familien, die wir \glqq \texttt{True}\grqq und \glqq \texttt{False}\grqq\ nennen:
 
 \begin{center}
-\includegraphics[scale=0.3]{gameplay_1.png} 
+\includegraphics[scale=0.25]{gameplay_1.png} 
 \end{center}
 
 \columnbreak
@@ -636,7 +636,7 @@ Hier sind zwei Familien, die wir \glqq \texttt{True}\grqq und \glqq \texttt{Fals
 Und hier ist die Familie \glqq \texttt{Not}\grqq :
 
 \begin{center}
-\includegraphics[scale=0.35]{gameplay_2.png} 
+\includegraphics[scale=0.3]{gameplay_2.png} 
 \end{center}
 
 \end{multicols}
@@ -675,17 +675,114 @@ Implementieren Sie außerdem die Konnektive \texttt{AND}, \texttt{OR}, \texttt{N
 Was ist ein Lambdakalkül (engl. $\lambda$-calculus) und warum interessiert mich das?
 \pause\bigskip
 
-Das Lambdakalkül wurde in den 1930ern von Alonzo Church entworfen. \texttt{Haskell} basiert auf dem Lambdakalkül.
+Das Lambdakalkül wurde in den 1930ern von Alonzo Church entworfen und formalisiert das Konzept \glqq Berechnung\grqq. Man könnte sagen, es ist die kleinste universelle Programmiersprache. 
+
+Heute noch spielt sie große Rollen in Programmiersprachentheorie. \texttt{Haskell} z.B. basiert auf dem Lambdakalkül.\smallskip\smallskip
+
+Empfehlung: Philipp Wadler (Prof. in Edinburgh) stand-up comedy zu computability theory:
+\url{https://www.youtube.com/watch?v=GnpcMCW0RUA}
 
 \pause\bigskip
 \dots und lustigerweise ist all das äquivalent zu unseren Alligator-Ausdrücken!
 \end{frame}
 
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Lambda-Calculus}
+
+Das Lambdakalkül setzt sich aus zwei Dingen zusammen: gültige \emph{Terme} und \emph{Umformungsregeln}
+zwischen Termen.\smallskip\smallskip\smallskip
+
+Ein gültiger Term ist eins von drei Dingen:
+\begin{itemize}
+\pause\item Eine Variable, (z.B.: $a,b,c,\dots$)
+\pause\item Eine Lambda-Abstraktion (z.B.: $\lambda x . xx$)
+\pause\item Eine Anwendung eines Terms auf einen anderen
+            \\ (z.B.: $(\lambda x . xx)(palim)$)
+\end{itemize}
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{$\alpha$-Konversion}
+
+Die erste Konversionsregel wird $\alpha$-Konversion, oder Umbenennung genannt:
+
+$$ \lambda V . E \equiv \lambda W.E [V \leftarrow W]$$
+\pause
+
+Diese Regel besagt quasi, dass Variablennamen irrelephant sind. $(\lambda x . xx)$ und $(\lambda y . yy)$ sind diesselbe Funktion. Die Details sind allerdings etwas komplizierter, wir werden hier nicht näher drauf eingehen.
+\pause
+
+Können zwei Terme ineinander umgewandelt werden, nennt man sie $\alpha$-äquivalent. Meistens werden $\alpha$-äquivalente Terme als identisch angesehen.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{$\beta$-Reduktion}
+
+Die zweite Konversionsregel, genannt $\beta$-Reduktion, bildet das Konzept von Funktionsanwendung ab:
+
+$$ (\lambda V . E) E' \equiv E [V \leftarrow E'] $$
+\pause
+
+Hier wird einfach das Argument an die Stelle der Variablen eingesetzt. Eine Bedingung ist allerdings,
+dass alle freien Variablen frei bleiben müssen.\pause
+
+Terme, auf die diese Regel angewandt werden kann, heißen $\beta$-reduzibel. Allerdings haben nicht alle Terme auch eine $\beta$-Normalform ($(\lambda x.xx)(\lambda x.xx)$ z.B. ist reduzibel, ergibt sich aber selbst).
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{$\eta$-Konversion}
+
+Die dritte Konversionsregel, genannt $\eta$-Konversion, ist lediglich optional:
+
+$$ \lambda x . f x \equiv f$$
+\pause
+
+Bedingung ist, dass $x$ keine freie Variable von $f$ ist. Diese Regel kann hinzugefügt werden, wenn man \emph{Extensionalität} abbilden möchte. Das bedeutet, dass zwei Funktionen gleich sind, wenn sie für alle Eingaben das gleiche Ergebnis liefern.\pause\bigskip
+
+\textbf{Beispiel:} \texttt{quicksort} und \texttt{heapsort} sind \emph{extensional} gleich
+\\($\forall x . $ \texttt{mergesort}$(x) = $\texttt{ heapsort}$(x) $), \emph{intensional} allerdings nicht.
+\end{frame}
+
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Lambda calculus-Alligator-Isomorphism}
+
+Wie vorhin versprochen gibt es eine genaue Übersetzung von unseren Alligatoren zum
+Lambda-Kalkül und umgekehrt:\pause\bigskip
+
+\begin{center}
+\begin{tabular}{c|c}
+\textbf{Alligatoren} & \textbf{Lambda-Kalkül}\\
+\hline
+\\
+Hungriger Alligator & Lambda-Abstraktion\\
+Eier & Variablen\\
+Alter Alligator & Klammern\\
+&\\
+Essensregel & $\beta$-Reduktion\\
+Farbenregel & $\alpha$-Konversion\\
+Altersregel & Klammern löschen\\ 
+
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+%----------------------------------------------------------------------------------------
 \subsection*{Lambda-Würfel}
 
 \begin{frame}
 
-Aber selbst das Lambdakalkül mit Typen ist nur der Anfang. Im so genannten \glqq Lambda-Würfel\grqq\ ist es nur der Startpunkt ($\lambda\to$).
+Das Lambdakalkül mit Typen (eine Einschränkung des untypisierten Kalküls) ist allerdings nur der Anfang. Im so genannten \glqq Lambda-Würfel\grqq\ ist es der Ursprung ($\lambda\to$).\pause
 
 \begin{multicols}{2}
 \begin{center}
@@ -807,6 +904,7 @@ Worum geht es bei Kategorientheorie?
 %----------------------------------------------------------------------------------------
 
 \begin{frame}
+\frametitle{Funktoren}
 Und was ist mit Funktoren?\pause\bigskip
 
 Seien $\mathcal{C}$ und $\mathcal{D}$ Kategorien. Ein \emph{Funktor} $F$ ist eine Abbildung
