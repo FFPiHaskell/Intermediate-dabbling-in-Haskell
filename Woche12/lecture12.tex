@@ -46,11 +46,24 @@
     \large Jonas Betzendahl \& Stefan Dresselhaus
     \end{center}
   \end{frame}
+  
+%----------------------------------------------------------------------------------------
+
+\begin{frame}
+\frametitle{Orga-Krams}
+
+Heute ist die letzte Vorlesung, die Deadline für die Projekte ist am Freitag, den 18.09.2015. Ab sofort nehmen wir Abgaben für die Projekte entgegen.
+
+Für eine Abgabe schreibt bitte eine Mail an beide Tutoren (\texttt{sdressel@techfak...} und \texttt{jbetzend@techfak...}) mit entweder dem kompletten Quellcode oder einem Link auf einen Tag auf \texttt{github.com}.\pause\bigskip
+
+Besonderer Dank geht an Alexander Sczyrba und Mario Botsch, dafür dass es uns möglich gemacht wurde, diese Vorlesung überhaupt zu halten, an alle, die uns bei der Durchführung geholfen haben und natürlich an alle, die mitgemacht haben. 
+\end{frame}
 
 %----------------------------------------------------------------------------------------  
 
 \begin{frame}[allowframebreaks]{Outline}
 \frametitle{Übersicht}
+
 \tableofcontents
 \end{frame}
 
@@ -659,13 +672,43 @@ Implementieren Sie außerdem die Konnektive \texttt{AND}, \texttt{OR}, \texttt{N
 \subsection*{Lambda-Kalkül}
 
 \begin{frame}
-Was ist ein Lambdakalkül und warum interessiert mich das?
+Was ist ein Lambdakalkül (engl. $\lambda$-calculus) und warum interessiert mich das?
+\pause\bigskip
+
+Das Lambdakalkül wurde in den 1930ern von Alonzo Church entworfen. \texttt{Haskell} basiert auf dem Lambdakalkül.
+
+\pause\bigskip
+\dots und lustigerweise ist all das äquivalent zu unseren Alligator-Ausdrücken!
 \end{frame}
 
 \subsection*{Lambda-Würfel}
 
 \begin{frame}
-\includegraphics[scale=0.5]{Lambda_cube.png} 
+
+Aber selbst das Lambdakalkül mit Typen ist nur der Anfang. Im so genannten \glqq Lambda-Würfel\grqq\ ist es nur der Startpunkt ($\lambda\to$).
+
+\begin{multicols}{2}
+\begin{center}
+\includegraphics[scale=0.4]{Lambda_cube.png} 
+\end{center}
+\columnbreak
+
+Im Würfel gibt es drei Richtungen der Abstraktion:\smallskip\smallskip
+
+\begin{itemize}
+\pause\item \textit{Terms depending on types}
+            \\ Auch \glqq Polymorphismus\grqq\
+\pause\item \textit{Types depending on types}
+            \\ Auch \glqq Type Operators\grqq\
+\pause\item \textit{Types depending on terms}
+            \\ Auch \glqq Dependent Types\grqq\
+\end{itemize}
+
+\end{multicols}
+\pause
+
+Das obere Ende des Würfels, $\lambda\Pi\omega$, ist auch als \glqq calculus of constructions\grqq\ bekannt (entwickelt von Thierry Coquand) und dient als Basis für den Beweisassistenten \texttt{Coq}.
+
 \end{frame}
 
 %----------------------------------------------------------------------------------------
