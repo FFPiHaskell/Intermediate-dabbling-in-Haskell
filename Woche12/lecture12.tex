@@ -741,7 +741,7 @@ $$ \lambda x . f x \equiv f$$
 Bedingung ist, dass $x$ keine freie Variable von $f$ ist. Diese Regel kann hinzugefügt werden, wenn man \emph{Extensionalität} abbilden möchte. Das bedeutet, dass zwei Funktionen gleich sind, wenn sie für alle Eingaben das gleiche Ergebnis liefern.\pause\bigskip
 
 \textbf{Beispiel:} \texttt{quicksort} und \texttt{heapsort} sind \emph{extensional} gleich
-\\($\forall x . $ \texttt{mergesort}$(x) = $\texttt{ heapsort}$(x) $), \emph{intensional} allerdings nicht.
+\\($\forall x . $ \texttt{quicksort}$(x) = $\texttt{ heapsort}$(x) $), \emph{intensional} allerdings nicht.
 \end{frame}
 
 %----------------------------------------------------------------------------------------
@@ -891,7 +891,7 @@ x >>= f = join (fmap f x)
 
 \begin{itemize}
 \pause \item \texttt{(ass)} $\forall a,b,c \in M:\; (a \circ b) \circ c = a \circ (b \circ c)$
-\pause \item \texttt{(ide)} $\exists e \in M$ sodass $\forall a \in m:\; e \circ a = a \circ e = a$
+\pause \item \texttt{(ide)} $\exists e \in M$ sodass $\forall a \in M:\; e \circ a = a \circ e = a$
 \end{itemize}
 \pause\bigskip
 
